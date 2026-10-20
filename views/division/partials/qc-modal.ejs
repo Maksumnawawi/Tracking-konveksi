@@ -1,0 +1,92 @@
+<!-- Modal Dialog QC & Packing -->
+<div id="qcModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 transform transition-all">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold">
+                    <i data-lucide="check-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Hasil Inspeksi QC & Packing</h3>
+                    <p class="text-xs text-slate-400">Pesanan: <span id="qcModalOrderNumber" class="font-mono font-bold text-slate-700"></span></p>
+                </div>
+            </div>
+            <button type="button" onclick="closeQcModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form id="qcActionForm" method="POST" action="">
+            <input type="hidden" name="action" value="complete">
+            <input type="hidden" id="qcModalStageId" value="">
+            <input type="hidden" id="qcModalOrderId" value="">
+            <input type="hidden" id="qcModalTotalInput" value="">
+
+            <div class="space-y-4">
+                
+                <!-- Target SPK Info -->
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex justify-between items-center">
+                    <span class="text-slate-600">Total Produksi SPK:</span>
+                    <span class="font-bold text-slate-900 text-sm"><span id="qcModalTotalPcs"></span> Pcs</span>
+                </div>
+
+                <!-- Input Pcs Lolos & Reject -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1">Pcs Lolos (Pass) *</label>
+                        <input type="number" min="0" required id="qcPassedInput" name="pcs_passed" value="0" class="w-full px-3.5 py-2.5 border border-emerald-300 bg-emerald-50/30 rounded-xl text-base font-black text-emerald-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-center">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Pcs Cacat / Reject *</label>
+                        <input type="number" min="0" required id="qcRejectInput" name="pcs_reject" value="0" class="w-full px-3.5 py-2.5 border border-rose-300 bg-rose-50/30 rounded-xl text-base font-black text-rose-800 focus:ring-2 focus:ring-rose-500 focus:outline-none text-center">
+                    </div>
+                </div>
+
+                <!-- Live Pass Rate Display -->
+                <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-between text-xs">
+                    <span class="text-blue-700 font-semibold">Tingkat Keberhasilan QC:</span>
+                    <span id="qcPassRateDisplay" class="font-black text-blue-900 text-base">100%</span>
+                </div>
+
+                <!-- Warning jika sum != total SPK -->
+                <p id="qcSumWarning" class="hidden text-xs text-amber-700 bg-amber-50 p-2.5 rounded-xl border border-amber-200"></p>
+
+                <!-- Catatan Reject & Tindakan -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Keterangan Cacat / Reject (Bila Ada)</label>
+                    <textarea name="reject_reason" id="qcNotesInput" rows="2" placeholder="Contoh: 1 pcs jahitan ketiak bolong, 1 pcs noda tinta sablon..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tindakan Perbaikan (Rework)</label>
+                    <input type="text" name="rework_notes" id="qcReworkInput" placeholder="Contoh: Dikembalikan ke divisi jahit untuk perbaikan obras" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+            </div>
+
+            <!-- Tombol Simpan -->
+            <div class="mt-6 flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeQcModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-500/20 transition flex items-center space-x-1.5">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Simpan QC & Selesaikan Tahap</span>
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // Update form action saat submit modal
+    document.getElementById('qcActionForm').addEventListener('submit', function(e) {
+        const stageId = document.getElementById('qcModalStageId').value;
+        this.action = `/division/stage/${stageId}/action`;
+    });
+</script>
+

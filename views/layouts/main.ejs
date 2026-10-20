@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+
+<!-- Top Navigation -->
+<%- include('../partials/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <!-- Sidebar Desktop -->
+    <%- include('../partials/sidebar') %>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        <%- body %>
+    </main>
+</div>
+
+<!-- Mobile Bottom Navigation Bar -->
+<%- include('../partials/mobile-nav') %>
+
+<!-- Client Scripts -->
+<script src="/js/live-timer.js"></script>
+<script src="/js/queue-actions.js"></script>
+<script>
+    // Inisialisasi ikon Lucide
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>
+

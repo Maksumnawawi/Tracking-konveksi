@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Portal Pelacakan Produksi Konveksi' %></title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-slate-100 min-h-screen py-6 px-4 sm:px-6">
+
+    <div class="max-w-2xl mx-auto">
+        
+        <!-- Brand Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex w-12 h-12 rounded-2xl bg-blue-600 items-center justify-center text-white shadow-xl shadow-blue-500/30 mb-2">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+            </div>
+            <h1 class="text-2xl font-black text-white tracking-tight">KONVEKSI<span class="text-blue-400">.TRACK</span></h1>
+            <p class="text-xs text-slate-400">Portal Publik Pelacakan Status Produksi Pesanan</p>
+        </div>
+
+        <!-- Search Box jika ingin mencari kode lain -->
+        <div class="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/15 mb-6 shadow-xl">
+            <form action="/track" method="GET" class="flex items-center space-x-2">
+                <div class="relative flex-1">
+                    <input type="text" name="code" value="<%= searchCode || '' %>" placeholder="Masukkan Kode Tracking (Contoh: TRK-KAOS99 atau SPK-202610-001)" class="w-full pl-9 pr-3 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
+                    Lacak
+                </button>
+            </form>
+        </div>
+
+        <!-- Notifikasi Error jika tidak ditemukan -->
+        <% if (error) { %>
+        <div class="bg-rose-500/10 border border-rose-500/30 text-rose-300 p-5 rounded-2xl text-center mb-6">
+            <i data-lucide="alert-triangle" class="w-8 h-8 mx-auto text-rose-400 mb-2"></i>
+            <p class="text-sm font-bold text-rose-200"><%= error %></p>
+            <p class="text-xs text-slate-400 mt-1">Silakan periksa kembali kode tracking pada lembar nota atau pesan konfirmasi yang diberikan oleh admin.</p>
+        </div>
+        <% } %>
+
+        <% if (order) { %>
+        <!-- Card Detail Pesanan Utama -->
+        <div class="bg-white text-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20 mb-6">
+            
+            <!-- Order Header -->
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-slate-100 pb-5 mb-6">
+                <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider <%= order.category === 'jersey' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700' %>">
+                            <%= order.category %>
+                        </span>
+                        <span class="font-mono text-xs text-slate-500 font-bold"><%= order.order_number %></span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900"><%= order.article_name %></h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Pemesan: <strong class="text-slate-800"><%= order.customer_name %></strong></p>
+                </div>
+
+                <!-- Status Badge -->
+                <div class="sm:text-right">
+                    <% if (order.status === 'COMPLETED') { %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <i data-lucide="check-check" class="w-3.5 h-3.5 mr-1"></i> Pesanan Selesai
+                        </span>
+                    <% } else if (order.status === 'IN_PROGRESS') { %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-ping mr-1.5"></span>
+                            Sedang Diproduksi
+                        </span>
+                    <% } else if (order.status === 'PAUSED') { %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            Dalam Proses (Dijeda)
+                        </span>
+                    <% } else if (order.status === 'CANCELLED') { %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                            <i data-lucide="ban" class="w-3.5 h-3.5 mr-1 text-rose-600"></i> Pesanan Dibatalkan
+                        </span>
+                    <% } else { %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            Menunggu Antrean
+                        </span>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="font-bold text-slate-700">Progres Pengerjaan</span>
+                    <span class="font-black text-blue-600 text-sm"><%= progressPercent %>%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                    <div class="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full transition-all duration-700" style="width: <%= progressPercent %>%;"></div>
+                </div>
+                <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                    <span>Tahap <%= completedStages %> dari <%= totalStages %> selesai</span>
+                    <span>Estimasi Selesai: <strong class="text-slate-700"><%= order.deadline_date || '-' %></strong></span>
+                </div>
+            </div>
+
+            <!-- Timeline Tahapan Produksi (Vertical Stepper Modern) -->
+            <div class="space-y-4 mb-8">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">
+                    Tahapan Alur Kerja Pesanan
+                </h3>
+
+                <div class="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+                    <% stages.forEach((st, idx) => { %>
+                    <div class="relative flex items-start space-x-3">
+                        
+                        <!-- Bullet Icon Marker -->
+                        <div class="absolute -left-6 sm:-left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ring-4 ring-white
+                            <% if (st.status === 'COMPLETED') { %>
+                                bg-emerald-500 text-white
+                            <% } else if (st.status === 'IN_PROGRESS') { %>
+                                bg-blue-600 text-white animate-pulse
+                            <% } else if (st.status === 'PAUSED') { %>
+                                bg-amber-500 text-white
+                            <% } else { %>
+                                bg-slate-200 text-slate-500
+                            <% } %>
+                        ">
+                            <% if (st.status === 'COMPLETED') { %>
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            <% } else { %>
+                                <%= idx + 1 %>
+                            <% } %>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="flex-1 bg-slate-50 p-3 rounded-2xl border <%= st.status === 'IN_PROGRESS' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200/80' %>">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-sm font-bold <%= st.status === 'IN_PROGRESS' ? 'text-blue-900' : 'text-slate-800' %>">
+                                    <%= st.stage_name %>
+                                </h4>
+                                <div>
+                                    <% if (st.status === 'COMPLETED') { %>
+                                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full">Selesai ✓</span>
+                                    <% } else if (st.status === 'IN_PROGRESS') { %>
+                                        <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full animate-pulse">Sedang Berjalan</span>
+                                    <% } else if (st.status === 'PAUSED') { %>
+                                        <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Dijeda</span>
+                                    <% } else { %>
+                                        <span class="text-[10px] font-medium text-slate-400">Menunggu</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Penanggung Jawab: <%= ROLE_LABELS[st.assigned_role] || st.assigned_role %></p>
+                        </div>
+
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+
+            <!-- Info Spesifikasi Ringkas -->
+            <div class="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-600 mb-6">
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Jenis Kain</span>
+                    <span class="font-semibold text-slate-800"><%= order.fabric_type || '-' %></span>
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Jenis Sablon / Sublim</span>
+                    <span class="font-semibold text-slate-800"><%= order.print_type || '-' %></span>
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Jumlah Pesanan</span>
+                    <span class="font-bold text-slate-900"><%= order.total_pcs %> Pcs</span>
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Kode Unik</span>
+                    <span class="font-mono font-bold text-blue-600"><%= order.tracking_code %></span>
+                </div>
+            </div>
+
+            <!-- Tombol Salin Link -->
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <button type="button" onclick="copyTrackingLink()" class="w-full sm:w-auto flex-1 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs flex items-center justify-center space-x-2 transition">
+                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                    <span id="copyBtnText">Salin Tautan Tracking</span>
+                </button>
+            </div>
+
+        </div>
+        <% } %>
+
+        <!-- Footer -->
+        <div class="text-center text-xs text-slate-500 space-y-1">
+            <p>Halaman ini diperbarui secara otomatis sesuai progres di meja produksi.</p>
+            <p>&copy; Konveksi & Jersey Apparel WIP Production Tracking</p>
+        </div>
+
+    </div>
+
+    <script src="/js/tracking-page.js"></script>
+    <script>
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
+

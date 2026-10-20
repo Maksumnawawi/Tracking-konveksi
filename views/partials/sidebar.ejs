@@ -1,0 +1,88 @@
+<% if (currentUser) { %>
+<aside class="w-64 bg-white border-r border-slate-200 hidden lg:block shrink-0 min-h-[calc(100vh-4rem)] p-4 space-y-6">
+    
+    <!-- User Quick Card -->
+    <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Akun Aktif</p>
+        <p class="font-bold text-slate-800 text-sm truncate"><%= currentUser.full_name %></p>
+        <div class="mt-1 flex items-center space-x-1.5 text-xs text-slate-600">
+            <span class="w-2 h-2 rounded-full <%= currentUser.role === 'admin' ? 'bg-purple-500' : 'bg-emerald-500' %>"></span>
+            <span><%= currentUser.division_name %></span>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="space-y-1">
+        
+        <% if (currentUser.role === 'admin') { %>
+        <!-- MENU KHUSUS OWNER -->
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 pb-1">Manajemen Owner</p>
+
+        <a href="/admin/dashboard" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-bold transition <%= currentPath === '/admin/dashboard' ? 'bg-purple-50 text-purple-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 text-purple-600"></i>
+            <span>Monitoring Owner (WIP)</span>
+        </a>
+
+        <a href="/admin/orders" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition <%= currentPath === '/admin/orders' ? 'bg-purple-50 text-purple-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+            <i data-lucide="clipboard-list" class="w-4 h-4 text-slate-500"></i>
+            <span>Semua Pesanan (SPK)</span>
+        </a>
+
+        <a href="/admin/orders/new" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition <%= currentPath === '/admin/orders/new' ? 'bg-purple-50 text-purple-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
+            <span>Buat Order / SPK Baru</span>
+        </a>
+
+        <!-- MENU SUPERVISI MEJA DIVISI (Langsung Tanpa Login Lagi) -->
+        <div class="pt-4 pb-1">
+            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Pantau Meja Divisi</p>
+        </div>
+
+        <a href="/division/queue?view_role=desain" class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+            <span>🎨</span>
+            <span>Meja Desain</span>
+        </a>
+        <a href="/division/queue?view_role=print_sablon" class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+            <span>🖨️</span>
+            <span>Meja Sablon / Sublim</span>
+        </a>
+        <a href="/division/queue?view_role=potong" class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+            <span>✂️</span>
+            <span>Meja Potong</span>
+        </a>
+        <a href="/division/queue?view_role=jahit" class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+            <span>🧵</span>
+            <span>Meja Jahit</span>
+        </a>
+        <a href="/division/queue?view_role=qc_packing" class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+            <span>🔍</span>
+            <span>Meja QC & Packing</span>
+        </a>
+        <a href="/division/queue?view_role=kirim" class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+            <span>📦</span>
+            <span>Meja Ekspedisi / Kirim</span>
+        </a>
+
+        <% } else { %>
+        <!-- MENU KHUSUS DIVISI (TERKUNCI HANYA DI MEJANYA) -->
+        <a href="/division/queue" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-bold bg-blue-50 text-blue-700">
+            <i data-lucide="inbox" class="w-5 h-5 text-blue-600"></i>
+            <span>Meja Antrean <%= currentUser.division_name %></span>
+        </a>
+        <% } %>
+
+        <div class="pt-4 pb-1">
+            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Publik</p>
+        </div>
+
+        <a href="/track" target="_blank" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+            <div class="flex items-center space-x-2.5">
+                <i data-lucide="external-link" class="w-4 h-4 text-slate-400"></i>
+                <span>Portal Tracking Publik</span>
+            </div>
+            <span class="text-[9px] bg-slate-200 text-slate-700 px-1 py-0.2 rounded font-mono">/track</span>
+        </a>
+    </nav>
+
+</aside>
+<% } %>

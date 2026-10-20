@@ -1,0 +1,85 @@
+/* ==========================================================================
+   PRINT SPK CSS - FORMAT LEMBAR KERJA FISIK A4 KONVEKSI & JERSEY
+   Disesuaikan khusus untuk dicetak fisik 1 lembar A4 secara rapi & tajam
+   ========================================================================== */
+
+@page {
+    size: A4 portrait;
+    margin: 8mm 10mm 8mm 10mm;
+}
+
+@media print {
+    /* Sembunyikan elemen non-cetak */
+    .no-print,
+    nav,
+    header,
+    footer,
+    button,
+    .btn,
+    .mobile-nav-bar {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt;
+        line-height: 1.35;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .spk-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Tabel Cetak */
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        page-break-inside: avoid;
+    }
+
+    th, td {
+        border: 1px solid #1e293b !important;
+        padding: 5px 8px !important;
+        font-size: 10pt !important;
+    }
+
+    th {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .spk-header {
+        border-bottom: 2px solid #000000 !important;
+        padding-bottom: 8px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .spk-box {
+        border: 1px solid #334155 !important;
+        padding: 8px 12px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .avoid-break {
+        page-break-inside: avoid !important;
+    }
+
+    /* Pastikan barcode dan QR Code tercetak tajam */
+    img.qr-code {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        max-width: 110px !important;
+        max-height: 110px !important;
+    }
+}
+

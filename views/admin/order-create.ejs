@@ -1,0 +1,207 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../partials/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <a href="/admin/orders" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center space-x-1 mb-1">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    <span>Kembali ke Daftar Pesanan</span>
+                </a>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Buat Lembar Kerja / SPK Baru</h1>
+                <p class="text-sm text-slate-500">Sistem akan secara otomatis menyusun antrean tahapan divisi sesuai kategori produk</p>
+            </div>
+        </div>
+
+        <% if (error) { %>
+        <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
+            <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 text-rose-500"></i>
+            <span><%= error %></span>
+        </div>
+        <% } %>
+
+        <form action="/admin/orders/new" method="POST" class="space-y-6">
+            
+            <!-- Section 1: Info Utama & Kategori Produk -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
+                    <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                    <span>1. Informasi Pelanggan & Kategori Produk</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Pelanggan / Institusi *</label>
+                        <input type="text" name="customer_name" required value="<%= formData.customer_name || '' %>" placeholder="Contoh: Komunitas Motor CB / SMA 1 Jakarta" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor WhatsApp / HP</label>
+                        <input type="text" name="customer_phone" value="<%= formData.customer_phone || '' %>" placeholder="Contoh: 081234567890" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Artikel / Desain Produk *</label>
+                        <input type="text" name="article_name" required value="<%= formData.article_name || '' %>" placeholder="Contoh: Kaos Gathering Nasional / Jersey Futsal Tim Garuda Home" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <!-- Kategori Produk Radio Buttons -->
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kategori Produk & Alur Kerja *</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            
+                            <!-- Opsi Kaos -->
+                            <label class="relative flex flex-col p-4 border rounded-2xl cursor-pointer transition hover:bg-slate-50 <%= formData.category === 'kaos' || !formData.category ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200' %>">
+                                <div class="flex items-center space-x-3">
+                                    <input type="radio" name="category" value="kaos" <%= formData.category === 'kaos' || !formData.category ? 'checked' : '' %> class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                                    <span class="font-bold text-slate-900 text-sm">Kaos (T-Shirt / Polo / Raglan)</span>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-500 pl-7 space-y-1">
+                                    <p class="font-semibold text-emerald-700">7 Tahapan Produksi:</p>
+                                    <p class="text-[11px] leading-relaxed">Desain &rarr; Sekrining/Film &rarr; Potong &rarr; Sablon &rarr; Jahit &rarr; QC & Packing &rarr; Kirim</p>
+                                </div>
+                            </label>
+
+                            <!-- Opsi Jersey -->
+                            <label class="relative flex flex-col p-4 border rounded-2xl cursor-pointer transition hover:bg-slate-50 <%= formData.category === 'jersey' ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200' %>">
+                                <div class="flex items-center space-x-3">
+                                    <input type="radio" name="category" value="jersey" <%= formData.category === 'jersey' ? 'checked' : '' %> class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                                    <span class="font-bold text-slate-900 text-sm">Jersey (Full Print / Sublimasi)</span>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-500 pl-7 space-y-1">
+                                    <p class="font-semibold text-indigo-700">6 Tahapan Produksi:</p>
+                                    <p class="text-[11px] leading-relaxed">Desain Mockup &rarr; Setting Sublim &rarr; Potong &rarr; Jahit &rarr; QC & Packing &rarr; Kirim</p>
+                                </div>
+                            </label>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Rincian Ukuran / Size Breakdown -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                        <i data-lucide="ruler" class="w-4 h-4 text-blue-600"></i>
+                        <span>2. Rincian Ukuran (Size Breakdown) & Total Qty</span>
+                    </h2>
+                    <div class="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                        Total: <span id="displayTotalPcs" class="text-sm font-black">0</span> Pcs
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">XS</label>
+                        <input type="number" min="0" name="size_xs" value="<%= formData.size_xs || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">S</label>
+                        <input type="number" min="0" name="size_s" value="<%= formData.size_s || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">M</label>
+                        <input type="number" min="0" name="size_m" value="<%= formData.size_m || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">L</label>
+                        <input type="number" min="0" name="size_l" value="<%= formData.size_l || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">XL</label>
+                        <input type="number" min="0" name="size_xl" value="<%= formData.size_xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">2XL</label>
+                        <input type="number" min="0" name="size_2xl" value="<%= formData.size_2xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">3XL</label>
+                        <input type="number" min="0" name="size_3xl" value="<%= formData.size_3xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Spesifikasi Teknis & Tenggat Waktu -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
+                    <i data-lucide="scissors" class="w-4 h-4 text-blue-600"></i>
+                    <span>3. Bahan Kain, Sablon & Instruksi Khusus SPK</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Bahan Kain</label>
+                        <input type="text" name="fabric_type" value="<%= formData.fabric_type || '' %>" placeholder="Contoh: Cotton Combed 30s Hitam / Dryfit Milano 160gr" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Sablon / Sublimasi</label>
+                        <input type="text" name="print_type" value="<%= formData.print_type || '' %>" placeholder="Contoh: Plastisol Doff 3 Warna / Full Sublim Epson" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tenggat Waktu Selesai (Deadline) *</label>
+                        <input type="date" name="deadline_date" required value="<%= formData.deadline_date || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor SPK (Opsional - Kosongkan jika Otomatis)</label>
+                        <input type="text" name="order_number" value="<%= formData.order_number || '' %>" placeholder="Auto-generate jika dikosongkan (SPK-YYYYMM-XXX)" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan Khusus Produksi (Instruksi Lembar Kerja)</label>
+                        <textarea name="notes" rows="3" placeholder="Contoh: Kerah V-neck hitam, rib leher spandek 2cm, jahitan pundak rantai, lipat dan plastik OPP per pcs..." class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"><%= formData.notes || '' %></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Simpan -->
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <a href="/admin/orders" class="px-5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+                    Batal
+                </a>
+                <button type="submit" class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm shadow-lg shadow-blue-500/20 transition">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Terbitkan SPK & Buat Alur Antrean</span>
+                </button>
+            </div>
+
+        </form>
+
+    </main>
+</div>
+
+<%- include('../partials/mobile-nav') %>
+
+<script>
+    // Live Auto Sum Total Pcs
+    function updateTotalPcs() {
+        const inputs = document.querySelectorAll('.size-input');
+        let total = 0;
+        inputs.forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        document.getElementById('displayTotalPcs').textContent = total;
+    }
+
+    document.querySelectorAll('.size-input').forEach(input => {
+        input.addEventListener('input', updateTotalPcs);
+    });
+
+    updateTotalPcs();
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>
+

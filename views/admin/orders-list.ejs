@@ -1,0 +1,191 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../partials/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Semua Pesanan (SPK)</h1>
+                <p class="text-sm text-slate-500">Kelola dan telusuri seluruh riwayat lembar kerja produksi konveksi & jersey</p>
+            </div>
+            <div>
+                <a href="/admin/orders/new" class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md shadow-blue-500/20 transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Buat SPK Baru</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
+            <form action="/admin/orders" method="GET" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                
+                <!-- Search Keyword -->
+                <div class="sm:col-span-2">
+                    <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Cari Pesanan / Pelanggan / Kode</label>
+                    <div class="relative">
+                        <input type="text" name="search" value="<%= filters.search || '' %>" placeholder="Ketik No SPK, nama artikel, pelanggan, atau kode..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                    </div>
+                </div>
+
+                <!-- Filter Kategori -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Kategori Produk</label>
+                    <select name="category" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                        <option value="">Semua Kategori</option>
+                        <option value="kaos" <%= filters.category === 'kaos' ? 'selected' : '' %>>Kaos</option>
+                        <option value="jersey" <%= filters.category === 'jersey' ? 'selected' : '' %>>Jersey</option>
+                    </select>
+                </div>
+
+                <!-- Filter Status & Tombol -->
+                <div class="flex items-end space-x-2">
+                    <div class="flex-1">
+                        <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Status Produksi</label>
+                        <select name="status" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                            <option value="">Semua Status</option>
+                            <option value="WAITING" <%= filters.status === 'WAITING' ? 'selected' : '' %>>Antrean</option>
+                            <option value="IN_PROGRESS" <%= filters.status === 'IN_PROGRESS' ? 'selected' : '' %>>Sedang Dikerjakan</option>
+                            <option value="PAUSED" <%= filters.status === 'PAUSED' ? 'selected' : '' %>>Dijeda (Pause)</option>
+                            <option value="COMPLETED" <%= filters.status === 'COMPLETED' ? 'selected' : '' %>>Selesai</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
+                        Filter
+                    </button>
+                    <% if (filters.search || filters.category || filters.status) { %>
+                    <a href="/admin/orders" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl border border-slate-200 text-xs font-semibold" title="Reset Filter">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </a>
+                    <% } %>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-700 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4">No. SPK & Kode Track</th>
+                            <th class="py-3.5 px-4">Nama Artikel & Customer</th>
+                            <th class="py-3.5 px-4 text-center">Kategori</th>
+                            <th class="py-3.5 px-4 text-center">Bahan & Sablon</th>
+                            <th class="py-3.5 px-4 text-center">Total Pcs</th>
+                            <th class="py-3.5 px-4">Posisi Meja / Tahap</th>
+                            <th class="py-3.5 px-4 text-center">Status</th>
+                            <th class="py-3.5 px-4 text-center">Deadline</th>
+                            <th class="py-3.5 px-4 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <% if (orders.length === 0) { %>
+                        <tr>
+                            <td colspan="9" class="py-12 text-center text-slate-400">
+                                <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+                                Tidak ada data pesanan yang sesuai dengan filter.
+                            </td>
+                        </tr>
+                        <% } %>
+
+                        <% orders.forEach(order => { %>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4">
+                                <span class="font-bold text-slate-900 block"><%= order.order_number %></span>
+                                <a href="/track/<%= order.tracking_code %>" target="_blank" class="text-[10px] font-mono text-blue-600 hover:underline">
+                                    <%= order.tracking_code %> ↗
+                                </a>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <span class="font-semibold text-slate-800 block text-sm"><%= order.article_name %></span>
+                                <span class="text-xs text-slate-500"><%= order.customer_name %> (<%= order.customer_phone || '-' %>)</span>
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase <%= order.category === 'jersey' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700' %>">
+                                    <%= order.category %>
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 text-center text-[11px]">
+                                <span class="block text-slate-700 font-medium truncate max-w-[140px]"><%= order.fabric_type || '-' %></span>
+                                <span class="block text-slate-400 truncate max-w-[140px]"><%= order.print_type || '-' %></span>
+                            </td>
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-900 text-sm">
+                                <%= order.total_pcs %>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <% if (order.status === 'COMPLETED') { %>
+                                    <span class="inline-flex items-center space-x-1 text-emerald-700 font-bold">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                                        <span>Selesai Produksi</span>
+                                    </span>
+                                <% } else if (order.active_stage_name) { %>
+                                    <div class="space-y-0.5">
+                                        <span class="font-bold text-slate-800 block"><%= order.active_stage_name %></span>
+                                        <span class="text-[10px] font-medium text-slate-400 block"><%= ROLE_LABELS[order.active_stage_role] || order.active_stage_role %></span>
+                                    </div>
+                                <% } else { %>
+                                    <span class="text-slate-400">-</span>
+                                <% } %>
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                <% if (order.status === 'IN_PROGRESS') { %>
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                        Dikerjakan
+                                    </span>
+                                <% } else if (order.status === 'PAUSED') { %>
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                        Dijeda
+                                    </span>
+                                <% } else if (order.status === 'COMPLETED') { %>
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        Selesai
+                                    </span>
+                                <% } else { %>
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                        Antrean
+                                    </span>
+                                <% } %>
+                            </td>
+                            <td class="py-3.5 px-4 text-center font-medium text-slate-600">
+                                <%= order.deadline_date || '-' %>
+                            </td>
+                            <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                                <a href="/admin/orders/<%= order.id %>" class="inline-flex items-center px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5 mr-1"></i> Detail
+                                </a>
+                                <a href="/admin/orders/<%= order.id %>/edit" class="inline-flex items-center px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-xs font-semibold transition" title="Edit / Tambah Qty">
+                                    <i data-lucide="edit" class="w-3.5 h-3.5 mr-1"></i> Edit
+                                </a>
+                                <a href="/admin/orders/<%= order.id %>/spk" target="_blank" class="inline-flex items-center px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold transition">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5 mr-1"></i> Cetak A4
+                                </a>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<%- include('../partials/mobile-nav') %>
+
+<script src="/js/live-timer.js"></script>
+<script src="/js/queue-actions.js"></script>
+<script>
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>
+

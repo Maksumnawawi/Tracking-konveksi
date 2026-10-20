@@ -1,0 +1,203 @@
+<%- include('../partials/head') %>
+
+<div class="min-h-screen bg-slate-900 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
+        <div class="inline-flex w-12 h-12 rounded-2xl bg-blue-600 items-center justify-center text-white shadow-lg shadow-blue-500/30 mb-2">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+        </div>
+        <h1 class="text-2xl font-black text-white tracking-tight">KONVEKSI<span class="text-blue-500">.TRACK</span></h1>
+        <p class="text-xs text-slate-400 mt-0.5">Pilih akun untuk masuk ke sistem</p>
+    </div>
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-lg">
+        
+        <!-- Flash Alert Error -->
+        <% if (error) { %>
+        <div class="mb-4 bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-400"></i>
+            <span><%= error %></span>
+        </div>
+        <% } %>
+
+        <!-- Grid 7 Akun (Owner + 6 Divisi) -->
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-2xl backdrop-blur-sm">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                
+                <!-- 1. Owner / Admin -->
+                <button type="button" onclick="openLoginModal('admin', 'Owner / Manajemen', '👑', 'border-purple-500/50 bg-purple-950/20 text-purple-300')" class="col-span-2 sm:col-span-3 p-3.5 rounded-xl border border-purple-500/40 bg-purple-900/20 hover:bg-purple-900/40 transition flex items-center justify-between text-left group">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-xl">
+                            👑
+                        </div>
+                        <div>
+                            <span class="text-sm font-bold text-white block group-hover:text-purple-300 transition">Owner / Manajemen</span>
+                            <span class="text-[11px] text-purple-300/70">Akses penuh semua divisi & pesanan</span>
+                        </div>
+                    </div>
+                    <i data-lucide="key-round" class="w-4 h-4 text-purple-400 opacity-60 group-hover:opacity-100 transition"></i>
+                </button>
+
+                <!-- 2. Desain -->
+                <button type="button" onclick="openLoginModal('desain', 'Divisi Desain & Pola', '🎨', 'border-blue-500/50 bg-blue-950/20 text-blue-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-blue-500/50 hover:bg-slate-900/80 transition text-center group">
+                    <span class="text-2xl block mb-1">🎨</span>
+                    <span class="text-xs font-bold text-slate-200 block group-hover:text-blue-400 transition">Desain</span>
+                    <span class="text-[10px] text-slate-400">Bagus Pratama</span>
+                </button>
+
+                <!-- 3. Sablon & Sublim -->
+                <button type="button" onclick="openLoginModal('print_sablon', 'Divisi Sablon & Sublim', '🖨️', 'border-amber-500/50 bg-amber-950/20 text-amber-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-amber-500/50 hover:bg-slate-900/80 transition text-center group">
+                    <span class="text-2xl block mb-1">🖨️</span>
+                    <span class="text-xs font-bold text-slate-200 block group-hover:text-amber-400 transition">Sablon / Sublim</span>
+                    <span class="text-[10px] text-slate-400">Fajar Ramadhan</span>
+                </button>
+
+                <!-- 4. Potong -->
+                <button type="button" onclick="openLoginModal('potong', 'Divisi Potong (Cutting)', '✂️', 'border-indigo-500/50 bg-indigo-950/20 text-indigo-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-indigo-500/50 hover:bg-slate-900/80 transition text-center group">
+                    <span class="text-2xl block mb-1">✂️</span>
+                    <span class="text-xs font-bold text-slate-200 block group-hover:text-indigo-400 transition">Potong</span>
+                    <span class="text-[10px] text-slate-400">Slamet Riyadi</span>
+                </button>
+
+                <!-- 5. Jahit -->
+                <button type="button" onclick="openLoginModal('jahit', 'Divisi Jahit (Sewing)', '🧵', 'border-emerald-500/50 bg-emerald-950/20 text-emerald-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-emerald-500/50 hover:bg-slate-900/80 transition text-center group">
+                    <span class="text-2xl block mb-1">🧵</span>
+                    <span class="text-xs font-bold text-slate-200 block group-hover:text-emerald-400 transition">Jahit</span>
+                    <span class="text-[10px] text-slate-400">Ibu Siti Aminah</span>
+                </button>
+
+                <!-- 6. QC & Packing -->
+                <button type="button" onclick="openLoginModal('qc_packing', 'Divisi QC & Packing', '🔍', 'border-rose-500/50 bg-rose-950/20 text-rose-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-rose-500/50 hover:bg-slate-900/80 transition text-center group">
+                    <span class="text-2xl block mb-1">🔍</span>
+                    <span class="text-xs font-bold text-slate-200 block group-hover:text-rose-400 transition">QC & Packing</span>
+                    <span class="text-[10px] text-slate-400">Dewi Lestari</span>
+                </button>
+
+                <!-- 7. Ekspedisi & Kirim -->
+                <button type="button" onclick="openLoginModal('kirim', 'Divisi Ekspedisi & Kirim', '📦', 'border-sky-500/50 bg-sky-950/20 text-sky-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-sky-500/50 hover:bg-slate-900/80 transition text-center group">
+                    <span class="text-2xl block mb-1">📦</span>
+                    <span class="text-xs font-bold text-slate-200 block group-hover:text-sky-400 transition">Kirim</span>
+                    <span class="text-[10px] text-slate-400">Rian Hidayat</span>
+                </button>
+
+            </div>
+
+            <!-- Tautan Publik -->
+            <div class="mt-5 pt-4 border-t border-slate-700/60 text-center">
+                <a href="/track" target="_blank" class="text-xs text-slate-400 hover:text-blue-400 transition inline-flex items-center space-x-1">
+                    <span>Portal Tracking Publik Pelanggan</span>
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- POP-UP MODAL INPUT PASSWORD & INGAT SANDI -->
+<div id="loginModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl text-white">
+        
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-700">
+            <div class="flex items-center space-x-2.5">
+                <span id="modalIcon" class="text-xl"></span>
+                <div>
+                    <h3 id="modalTitle" class="text-sm font-bold text-white"></h3>
+                    <span class="text-[10px] text-slate-400">Masukkan kata sandi</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeLoginModal()" class="text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <form action="/login" method="POST" id="authForm" class="space-y-4">
+            <input type="hidden" name="username" id="modalUsername" value="">
+
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Kata Sandi</label>
+                <div class="relative">
+                    <input type="password" name="password" id="modalPassword" required placeholder="••••••••" class="w-full pl-3 pr-10 py-2.5 bg-slate-900 border border-slate-600 rounded-xl text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-white">
+                        <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Checkbox Ingat Sandi -->
+            <div class="flex items-center justify-between text-xs">
+                <label class="flex items-center space-x-2 cursor-pointer select-none">
+                    <input type="checkbox" id="rememberMeCheckbox" class="w-4 h-4 rounded bg-slate-900 border-slate-600 text-blue-600 focus:ring-blue-500">
+                    <span class="text-slate-300">Ingat sandi di perangkat ini</span>
+                </label>
+            </div>
+
+            <div class="pt-2 flex items-center space-x-2">
+                <button type="button" onclick="closeLoginModal()" class="w-1/3 py-2.5 rounded-xl border border-slate-600 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition">
+                    Batal
+                </button>
+                <button type="submit" class="w-2/3 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-md shadow-blue-500/20">
+                    <span>Masuk</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function openLoginModal(username, title, icon) {
+        document.getElementById('modalUsername').value = username;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalIcon').textContent = icon;
+
+        const passInput = document.getElementById('modalPassword');
+        const rememberCheckbox = document.getElementById('rememberMeCheckbox');
+
+        // Cek apakah ada sandi tersimpan di localStorage untuk akun ini
+        const savedPass = localStorage.getItem('konveksi_pass_' + username);
+        if (savedPass) {
+            passInput.value = savedPass;
+            rememberCheckbox.checked = true;
+        } else {
+            passInput.value = 'password123'; // default password helper
+            rememberCheckbox.checked = true;
+        }
+
+        document.getElementById('loginModal').classList.remove('hidden');
+        passInput.focus();
+    }
+
+    function closeLoginModal() {
+        document.getElementById('loginModal').classList.add('hidden');
+    }
+
+    function togglePasswordVisibility() {
+        const passInput = document.getElementById('modalPassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (passInput.type === 'password') {
+            passInput.type = 'text';
+        } else {
+            passInput.type = 'password';
+        }
+    }
+
+    // Tangani penyimpanan "Ingat Sandi"
+    document.getElementById('authForm').addEventListener('submit', function() {
+        const username = document.getElementById('modalUsername').value;
+        const pass = document.getElementById('modalPassword').value;
+        const remember = document.getElementById('rememberMeCheckbox').checked;
+
+        if (remember) {
+            localStorage.setItem('konveksi_pass_' + username, pass);
+        } else {
+            localStorage.removeItem('konveksi_pass_' + username);
+        }
+    });
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>

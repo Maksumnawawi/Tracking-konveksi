@@ -1,0 +1,46 @@
+<% if (currentUser) { %>
+<div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 mobile-nav-bar shadow-lg">
+    <div class="grid <%= currentUser.role === 'admin' ? 'grid-cols-4' : 'grid-cols-3' %> h-16 items-center px-2">
+        
+        <!-- Meja Kerja -->
+        <a href="/division/queue" class="flex flex-col items-center justify-center text-xs <%= currentPath.startsWith('/division/queue') ? 'text-blue-600 font-bold' : 'text-slate-500' %>">
+            <i data-lucide="inbox" class="w-5 h-5 mb-1"></i>
+            <span>Antrean</span>
+        </a>
+
+        <% if (currentUser.role === 'admin') { %>
+        <!-- Dashboard Owner -->
+        <a href="/admin/dashboard" class="flex flex-col items-center justify-center text-xs <%= currentPath === '/admin/dashboard' ? 'text-blue-600 font-bold' : 'text-slate-500' %>">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 mb-1"></i>
+            <span>Monitoring</span>
+        </a>
+
+        <!-- Tambah SPK -->
+        <a href="/admin/orders/new" class="flex flex-col items-center justify-center text-xs <%= currentPath === '/admin/orders/new' ? 'text-emerald-600 font-bold' : 'text-slate-500' %>">
+            <i data-lucide="plus-circle" class="w-5 h-5 mb-1"></i>
+            <span>SPK Baru</span>
+        </a>
+
+        <!-- Semua Pesanan -->
+        <a href="/admin/orders" class="flex flex-col items-center justify-center text-xs <%= currentPath === '/admin/orders' ? 'text-blue-600 font-bold' : 'text-slate-500' %>">
+            <i data-lucide="clipboard-list" class="w-5 h-5 mb-1"></i>
+            <span>Orders</span>
+        </a>
+        <% } else { %>
+        <!-- Portal Tracking -->
+        <a href="/track" target="_blank" class="flex flex-col items-center justify-center text-xs text-slate-500">
+            <i data-lucide="search" class="w-5 h-5 mb-1"></i>
+            <span>Lacak</span>
+        </a>
+
+        <!-- Profil / Logout -->
+        <a href="/logout" class="flex flex-col items-center justify-center text-xs text-rose-500">
+            <i data-lucide="log-out" class="w-5 h-5 mb-1"></i>
+            <span>Keluar</span>
+        </a>
+        <% } %>
+
+    </div>
+</div>
+<% } %>
+

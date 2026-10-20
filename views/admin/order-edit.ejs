@@ -1,0 +1,214 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../partials/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <a href="/admin/orders/<%= order.id %>" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center space-x-1 mb-1">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    <span>Kembali ke Detail Pesanan</span>
+                </a>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Edit Pesanan: <%= order.order_number %></h1>
+                <p class="text-xs text-slate-500">Owner dapat menambah/mengubah jumlah order (Pcs) atau spesifikasi saat pesanan sedang berjalan di lantai produksi.</p>
+            </div>
+            <div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-purple-100 text-purple-800 border border-purple-200">
+                    👑 Hak Akses Owner
+                </span>
+            </div>
+        </div>
+
+        <% if (error) { %>
+        <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
+            <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 text-rose-500"></i>
+            <span><%= error %></span>
+        </div>
+        <% } %>
+
+        <form action="/admin/orders/<%= order.id %>/edit" method="POST" class="space-y-6">
+            
+            <!-- Banner Status Saat Ini -->
+            <div class="p-4 bg-slate-100 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
+                <div>
+                    <span class="text-slate-500">Posisi Meja Produksi Saat Ini:</span>
+                    <strong class="text-slate-900 ml-1"><%= order.active_stage_name || '-' %> (<%= ROLE_LABELS[order.current_role] || order.current_role %>)</strong>
+                </div>
+                <div>
+                    <span class="text-slate-500">Jumlah Order Sebelumnya:</span>
+                    <strong class="text-blue-700 ml-1 font-mono text-sm"><%= order.total_pcs %> Pcs</strong>
+                </div>
+            </div>
+
+            <!-- Section 1: Rincian Ukuran / Penambahan Jumlah Order -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                            <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
+                            <span>1. Ubah / Tambah Jumlah Order (Size Breakdown)</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Ubah angka pada ukuran yang ingin ditambah atau dikurangi</p>
+                    </div>
+                    <div class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                        Total Baru: <span id="displayTotalPcs" class="text-sm font-black"><%= order.total_pcs %></span> Pcs
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">XS</label>
+                        <input type="number" min="0" name="size_xs" value="<%= order.size_xs || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">S</label>
+                        <input type="number" min="0" name="size_s" value="<%= order.size_s || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">M</label>
+                        <input type="number" min="0" name="size_m" value="<%= order.size_m || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">L</label>
+                        <input type="number" min="0" name="size_l" value="<%= order.size_l || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">XL</label>
+                        <input type="number" min="0" name="size_xl" value="<%= order.size_xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">2XL</label>
+                        <input type="number" min="0" name="size_2xl" value="<%= order.size_2xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">3XL</label>
+                        <input type="number" min="0" name="size_3xl" value="<%= order.size_3xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Selisih Tambahan -->
+                <div id="diffAlertBox" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 flex items-center justify-between">
+                    <span id="diffAlertText" class="font-semibold"></span>
+                    <span class="text-[10px] text-blue-600">Sistem akan otomatis mengirim notifikasi ke PIC divisi yang sedang mengerjakan</span>
+                </div>
+            </div>
+
+            <!-- Section 2: Catatan Revisi & Notifikasi untuk Divisi -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
+                    <i data-lucide="bell" class="w-4 h-4 text-amber-500"></i>
+                    <span>2. Pesan Notifikasi untuk Meja Divisi</span>
+                </h2>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Pesan / Alasan Perubahan (Akan Muncul di Meja PIC)</label>
+                    <textarea name="revision_notes" rows="2" placeholder="Contoh: Customer nambah 10 pcs ukuran L karena ada penambahan anggota panitia. Mohon sablon dan potong disesuaikan." class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                    <p class="text-[11px] text-slate-400 mt-1">Pesan ini akan langsung muncul sebagai notifikasi kartu di antrean divisi terkait.</p>
+                </div>
+            </div>
+
+            <!-- Section 3: Informasi Pesanan Lainnya -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-blue-600"></i>
+                    <span>3. Info Artikel, Kain, Sablon & Deadline</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Pelanggan</label>
+                        <input type="text" name="customer_name" required value="<%= order.customer_name %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor WhatsApp</label>
+                        <input type="text" name="customer_phone" value="<%= order.customer_phone || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Artikel / Desain</label>
+                        <input type="text" name="article_name" required value="<%= order.article_name %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Bahan Kain</label>
+                        <input type="text" name="fabric_type" value="<%= order.fabric_type || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Sablon / Sublim</label>
+                        <input type="text" name="print_type" value="<%= order.print_type || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Deadline Selesai</label>
+                        <input type="date" name="deadline_date" value="<%= order.deadline_date || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan Instruksi SPK</label>
+                        <textarea name="notes" rows="2" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"><%= order.notes || '' %></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Simpan -->
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <a href="/admin/orders/<%= order.id %>" class="px-5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+                    Batal
+                </a>
+                <button type="submit" class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm shadow-lg shadow-blue-500/20 transition">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Simpan Perubahan & Beri Notifikasi</span>
+                </button>
+            </div>
+
+        </form>
+
+    </main>
+</div>
+
+<script>
+    const originalTotal = <%= order.total_pcs %>;
+
+    function updateTotalPcs() {
+        const inputs = document.querySelectorAll('.size-input');
+        let total = 0;
+        inputs.forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        document.getElementById('displayTotalPcs').textContent = total;
+
+        const diffBox = document.getElementById('diffAlertBox');
+        const diffText = document.getElementById('diffAlertText');
+        const diff = total - originalTotal;
+
+        if (diff !== 0) {
+            diffBox.classList.remove('hidden');
+            if (diff > 0) {
+                diffText.textContent = `⚡ Terdeteksi Penambahan Order: +${diff} Pcs (Total menjadi ${total} Pcs)`;
+            } else {
+                diffText.textContent = `⚡ Terdeteksi Pengurangan Order: ${diff} Pcs (Total menjadi ${total} Pcs)`;
+            }
+        } else {
+            diffBox.classList.add('hidden');
+        }
+    }
+
+    document.querySelectorAll('.size-input').forEach(input => {
+        input.addEventListener('input', updateTotalPcs);
+    });
+
+    updateTotalPcs();
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>
+

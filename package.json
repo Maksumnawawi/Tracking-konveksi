@@ -1,0 +1,29 @@
+{
+  "name": "tracking-produksi-konveksi",
+  "version": "1.0.0",
+  "description": "Aplikasi Web WIP Tracking Produksi Konveksi & Jersey",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node -e \"require('./src/config/database').initDatabase()\""
+  },
+  "keywords": [
+    "konveksi",
+    "jersey",
+    "wip-tracking",
+    "spk",
+    "produksi",
+    "time-tracking"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "ejs": "^7.0.2",
+    "express": "^5.3.0",
+    "express-session": "^1.19.0",
+    "qrcode": "^1.5.4",
+    "sql.js": "^1.15.1"
+  }
+}
