@@ -12,6 +12,9 @@ const { ROLE_LABELS, ROLE_BADGES } = require('./src/utils/workflowConfig');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust reverse proxy for Vercel HTTPS cookies
+app.set('trust proxy', 1);
+
 // Set View Engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -40,6 +43,21 @@ app.use((req, res, next) => {
     res.locals.ROLE_LABELS = ROLE_LABELS;
     res.locals.ROLE_BADGES = ROLE_BADGES;
     next();
+});
+
+// Middleware memastikan Database SQLite terinisialisasi (penting untuk Serverless cold-start)
+let dbPromise = null;
+app.use(async (req, res, next) => {
+    try {
+        if (!dbPromise) {
+            dbPromise = initDatabase();
+        }
+        await dbPromise;
+        next();
+    } catch (err) {
+        console.error('Fatal Database Error:', err);
+        res.status(500).send(`Gagal terhubung ke database: ${err.message}`);
+    }
 });
 
 // Root Route Redirection
@@ -76,7 +94,7 @@ app.use((err, req, res, next) => {
     res.status(500).send(`Terjadi kesalahan pada server: ${err.message}`);
 });
 
-// Start Server setelah Database Terinisialisasi
+// Start Server untuk lokal development
 async function startServer() {
     try {
         console.log('Menginisialisasi database SQLite...');
@@ -97,5 +115,8 @@ async function startServer() {
     }
 }
 
-startServer();
+if (!process.env.VERCEL && require.main === module) {
+    startServer();
+}
 
+module.exports = app;

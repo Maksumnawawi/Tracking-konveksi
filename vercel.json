@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "functions": {
+    "api/index.js": {
+      "includeFiles": [
+        "views/**",
+        "database/**",
+        "public/**",
+        "node_modules/sql.js/dist/sql-wasm.wasm"
+      ]
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index.js"
+    }
+  ]
+}

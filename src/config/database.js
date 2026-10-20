@@ -2,7 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const initSqlJs = require('sql.js');
 
-const dbPath = path.join(__dirname, '..', '..', 'database', 'produksi.sqlite');
+const isVercel = Boolean(process.env.VERCEL);
+const dbPath = isVercel 
+    ? path.join('/tmp', 'produksi.sqlite')
+    : path.join(__dirname, '..', '..', 'database', 'produksi.sqlite');
+
+const bundledDbPath = path.join(__dirname, '..', '..', 'database', 'produksi.sqlite');
 const schemaPath = path.join(__dirname, '..', '..', 'database', 'schema.sql');
 const seedPath = path.join(__dirname, '..', '..', 'database', 'seed.sql');
 
@@ -12,12 +17,31 @@ let SQL = null;
 async function initDatabase() {
     if (db) return db;
 
-    SQL = await initSqlJs();
+    SQL = await initSqlJs({
+        locateFile: (file) => {
+            const localWasm = path.join(__dirname, '..', '..', 'node_modules', 'sql.js', 'dist', file);
+            if (fs.existsSync(localWasm)) return localWasm;
+            const cwdWasm = path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', file);
+            if (fs.existsSync(cwdWasm)) return cwdWasm;
+            return file;
+        }
+    });
 
-    // Pastikan folder database ada
-    const dbDir = path.dirname(dbPath);
-    if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true });
+    if (isVercel) {
+        // Pada Vercel Serverless, hanya folder /tmp yang memiliki akses tulis (writable)
+        if (!fs.existsSync(dbPath) && fs.existsSync(bundledDbPath)) {
+            try {
+                fs.copyFileSync(bundledDbPath, dbPath);
+            } catch (copyErr) {
+                console.warn('Gagal menyalin database bundled ke /tmp:', copyErr.message);
+            }
+        }
+    } else {
+        // Pastikan folder database ada secara lokal
+        const dbDir = path.dirname(dbPath);
+        if (!fs.existsSync(dbDir)) {
+            fs.mkdirSync(dbDir, { recursive: true });
+        }
     }
 
     const fileExists = fs.existsSync(dbPath);
@@ -141,4 +165,3 @@ module.exports = {
     exec,
     getDb: () => db
 };
-

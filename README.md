@@ -258,3 +258,16 @@ npm start
 - **Portal Tracking Publik Pelanggan**: [http://localhost:3000/track/TRK-KAOS99](http://localhost:3000/track/TRK-KAOS99)
 - **Cetak Lembar Kerja Fisik (A4)**: Buka detail order apa saja &rarr; Klik **Cetak Lembar Kerja A4** &rarr; Tekan `Ctrl + P` (atau klik tombol cetak).
 
+---
+
+## ☁️ 9. Panduan Deploy ke Vercel
+
+Proyek ini telah dikonfigurasi siap pakai untuk Vercel Serverless Function (`vercel.json` & `api/index.js`):
+
+1. Buka dashboard Vercel: [vercel.com](https://vercel.com)
+2. Klik tombol **Add New...** &rarr; **Project**.
+3. Pilih repositori GitHub: `Maksumnawawi/Tracking-konveksi`.
+4. Klik **Deploy** (Framework Preset biarkan *Other*, Build & Output settings default).
+5. Vercel akan otomatis membangun dan memberikan domain aktif (misal: `https://tracking-konveksi.vercel.app` atau nama domain kustom Anda).
+
+
