@@ -2,12 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "includeFiles": [
-        "views/**",
-        "database/**",
-        "public/**",
-        "node_modules/sql.js/dist/sql-wasm.wasm"
-      ]
+      "includeFiles": "{views/**,database/**,public/**}"
     }
   },
   "rewrites": [
