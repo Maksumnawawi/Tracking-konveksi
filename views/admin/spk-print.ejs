@@ -75,16 +75,24 @@
                 align-items: stretch !important;
             }
             .sheet-viewport {
-                justify-content: flex-start !important;
-                padding: 4px 2px !important;
-            }
-            .sheet-viewport.is-fit-mobile {
                 justify-content: center !important;
                 overflow-x: hidden !important;
+                padding: 4px 0 !important;
+                width: 100% !important;
             }
-            .sheet-viewport.is-fit-mobile .a4-page {
+            .sheet-viewport.auto-fit-mode .a4-page {
+                transform-origin: top center !important;
                 transform: scale(var(--mobile-scale, 0.46)) !important;
-                margin-bottom: calc(-1 * (297mm * (1 - var(--mobile-scale, 0.46)))) !important;
+                margin-bottom: calc(-1 * (1123px * (1 - var(--mobile-scale, 0.46)))) !important;
+            }
+            .sheet-viewport.force-full-mode {
+                justify-content: flex-start !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            .sheet-viewport.force-full-mode .a4-page {
+                transform: none !important;
+                margin-bottom: 0 !important;
             }
         }
     </style>
@@ -279,26 +287,43 @@
             </div>
 
             <%
-            // Konfigurasi 5 Warna Tinta Sablon Utama (Merah, Kuning, Hijau/Lime, Putih, Hitam)
-            const COLOR_MAP = {
+            // Konfigurasi Palet & Preset Warna Tinta Sablon
+            const PRESET_MAP = {
                 'merah': { bg: '#ef4444', title: 'Merah' },
                 'kuning': { bg: '#eab308', title: 'Kuning' },
-                'hijau': { bg: '#84cc16', title: 'Hijau / Lime' },
+                'hijau': { bg: '#84cc16', title: 'Hijau' },
+                'lime': { bg: '#84cc16', title: 'Lime' },
                 'putih': { bg: '#ffffff', title: 'Putih' },
-                'hitam': { bg: '#000000', title: 'Hitam' }
+                'hitam': { bg: '#000000', title: 'Hitam' },
+                'navy': { bg: '#1e3a8a', title: 'Navy' },
+                'biru': { bg: '#0284c7', title: 'Biru' },
+                'oranye': { bg: '#ea580c', title: 'Oranye' },
+                'abu': { bg: '#64748b', title: 'Abu' },
+                'abu-abu': { bg: '#64748b', title: 'Abu' },
+                'gold': { bg: '#d97706', title: 'Gold' },
+                'emas': { bg: '#d97706', title: 'Gold' },
+                'ungu': { bg: '#9333ea', title: 'Ungu' },
+                'coklat': { bg: '#78350f', title: 'Coklat' }
             };
 
             function parseColorList(str) {
                 if (!str) return [];
-                return str.toLowerCase().split(',').map(s => s.trim()).filter(s => COLOR_MAP[s]);
+                return str.split(',').map(s => s.trim()).filter(Boolean).map(c => {
+                    const lower = c.toLowerCase();
+                    if (PRESET_MAP[lower]) {
+                        return PRESET_MAP[lower];
+                    }
+                    const hex = c.startsWith('#') || c.startsWith('rgb') ? c : '#' + c;
+                    return { bg: hex, title: c.toUpperCase() };
+                });
             }
 
             const depanList = parseColorList(order.warna_sablon_depan);
             const belakangList = parseColorList(order.warna_sablon_belakang);
 
-            // Jika belum diset, gunakan sampel 4 kotak bawaan Gambar 1
-            const activeDepan = depanList.length > 0 ? depanList : ['hijau', 'putih', 'hitam'];
-            const activeBelakang = belakangList.length > 0 ? belakangList : ['hijau', 'putih', 'hitam'];
+            // Jika belum diset, gunakan sampel bawaan Gambar 1
+            const activeDepan = depanList.length > 0 ? depanList : [PRESET_MAP['hijau'], PRESET_MAP['putih'], PRESET_MAP['hitam']];
+            const activeBelakang = belakangList.length > 0 ? belakangList : [PRESET_MAP['hijau'], PRESET_MAP['putih'], PRESET_MAP['hitam']];
 
             // Cek items breakdown dari nota jika ada
             let breakdownItems = [];
@@ -378,9 +403,9 @@
                             <td rowspan="6" class="border-r border-black p-1 align-top bg-white">
                                 <div class="grid grid-cols-2 gap-1 justify-items-center py-1">
                                     <% for(let i = 0; i < 8; i++) { 
-                                        const cKey = activeDepan[i];
-                                        if (cKey && COLOR_MAP[cKey]) { %>
-                                            <span class="w-4 h-4 rounded-xs border-2 border-black inline-block shadow-xs" style="background-color: <%= COLOR_MAP[cKey].bg %>;" title="<%= COLOR_MAP[cKey].title %>"></span>
+                                        const cObj = activeDepan[i];
+                                        if (cObj && cObj.bg) { %>
+                                            <span class="w-4 h-4 rounded-xs border-2 border-black inline-block shadow-xs" style="background-color: <%= cObj.bg %>;" title="<%= cObj.title || cObj.bg %>"></span>
                                         <% } else { %>
                                             <span class="w-4 h-4 rounded-xs border border-black/40 bg-white inline-block"></span>
                                         <% } %>
@@ -392,9 +417,9 @@
                             <td rowspan="6" class="p-1 align-top bg-white">
                                 <div class="grid grid-cols-2 gap-1 justify-items-center py-1">
                                     <% for(let i = 0; i < 8; i++) { 
-                                        const cKey = activeBelakang[i];
-                                        if (cKey && COLOR_MAP[cKey]) { %>
-                                            <span class="w-4 h-4 rounded-xs border-2 border-black inline-block shadow-xs" style="background-color: <%= COLOR_MAP[cKey].bg %>;" title="<%= COLOR_MAP[cKey].title %>"></span>
+                                        const cObj = activeBelakang[i];
+                                        if (cObj && cObj.bg) { %>
+                                            <span class="w-4 h-4 rounded-xs border-2 border-black inline-block shadow-xs" style="background-color: <%= cObj.bg %>;" title="<%= cObj.title || cObj.bg %>"></span>
                                         <% } else { %>
                                             <span class="w-4 h-4 rounded-xs border border-black/40 bg-white inline-block"></span>
                                         <% } %>
@@ -539,40 +564,42 @@
                     </div>
                 </div>
 
-                <!-- 5 Warna Sablon Depan & Belakang -->
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                    <div>
-                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wide mb-1.5 flex items-center space-x-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                            <span>Warna Sablon Depan (Pilih Warna)</span>
-                        </label>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            <% ['merah', 'kuning', 'hijau', 'putih', 'hitam'].forEach(col => { 
-                                const isChecked = (order.warna_sablon_depan || '').toLowerCase().includes(col);
-                            %>
-                            <label class="flex items-center space-x-1.5 p-1.5 bg-white border border-slate-300 rounded cursor-pointer text-xs font-bold">
-                                <input type="checkbox" name="warna_sablon_depan" value="<%= col %>" <%= isChecked ? 'checked' : '' %> class="rounded text-blue-600">
-                                <span class="capitalize"><%= col %></span>
+                <!-- Palet & Roda Warna Sablon Depan & Belakang -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+                    <!-- Depan -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wide flex items-center space-x-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                <span>Warna Sablon Depan</span>
                             </label>
-                            <% }) %>
+                            <label class="cursor-pointer inline-flex items-center space-x-1 px-2.5 py-1 bg-gradient-to-r from-red-500 via-amber-400 to-purple-600 hover:opacity-90 text-white rounded-lg text-[10px] font-black shadow-xs transition select-none">
+                                <i data-lucide="disc" class="w-3 h-3 text-white"></i>
+                                <span>+ Roda Warna</span>
+                                <input type="color" onchange="addColorInModal('depan', this.value)" class="sr-only">
+                            </label>
                         </div>
+                        <div class="flex flex-wrap gap-1 p-2 bg-white rounded-lg border border-slate-200" id="modal_presets_depan"></div>
+                        <div id="modal_selected_depan" class="min-h-[34px] p-1.5 bg-white border border-dashed border-slate-300 rounded-lg flex flex-wrap gap-1 items-center"></div>
+                        <input type="hidden" name="warna_sablon_depan" id="modal_input_depan" value="<%= order.warna_sablon_depan || '' %>">
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wide mb-1.5 flex items-center space-x-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                            <span>Warna Sablon Belakang (Pilih Warna)</span>
-                        </label>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            <% ['merah', 'kuning', 'hijau', 'putih', 'hitam'].forEach(col => { 
-                                const isChecked = (order.warna_sablon_belakang || '').toLowerCase().includes(col);
-                            %>
-                            <label class="flex items-center space-x-1.5 p-1.5 bg-white border border-slate-300 rounded cursor-pointer text-xs font-bold">
-                                <input type="checkbox" name="warna_sablon_belakang" value="<%= col %>" <%= isChecked ? 'checked' : '' %> class="rounded text-blue-600">
-                                <span class="capitalize"><%= col %></span>
+                    <!-- Belakang -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wide flex items-center space-x-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                <span>Warna Sablon Belakang</span>
                             </label>
-                            <% }) %>
+                            <label class="cursor-pointer inline-flex items-center space-x-1 px-2.5 py-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 hover:opacity-90 text-white rounded-lg text-[10px] font-black shadow-xs transition select-none">
+                                <i data-lucide="disc" class="w-3 h-3 text-white"></i>
+                                <span>+ Roda Warna</span>
+                                <input type="color" onchange="addColorInModal('belakang', this.value)" class="sr-only">
+                            </label>
                         </div>
+                        <div class="flex flex-wrap gap-1 p-2 bg-white rounded-lg border border-slate-200" id="modal_presets_belakang"></div>
+                        <div id="modal_selected_belakang" class="min-h-[34px] p-1.5 bg-white border border-dashed border-slate-300 rounded-lg flex flex-wrap gap-1 items-center"></div>
+                        <input type="hidden" name="warna_sablon_belakang" id="modal_input_belakang" value="<%= order.warna_sablon_belakang || '' %>">
                     </div>
                 </div>
 
@@ -606,38 +633,173 @@
             lucide.createIcons();
         }
 
-        function openPokModal() {
-            document.getElementById('pokEditModal').classList.remove('hidden');
-        }
+        // Auto-Scale POK Responsif Otomatis untuk HP, Tablet & Laptop
+        function applyAutoFit() {
+            const viewport = document.getElementById('sheetViewport');
+            const pokSheet = document.getElementById('pokSheet');
+            const fitText = document.getElementById('fitText');
+            if (!viewport || !pokSheet) return;
 
-        function closePokModal() {
-            document.getElementById('pokEditModal').classList.add('hidden');
+            // Jika user memilih mode scroll 100% penuh secara eksplisit
+            if (viewport.classList.contains('force-full-mode')) return;
+
+            const screenWidth = window.innerWidth;
+            const a4PixelWidth = 794;
+
+            // Jika di HP atau Tablet (kurang dari lebar A4 asli)
+            if (screenWidth < a4PixelWidth + 16) {
+                const availableWidth = screenWidth - 10;
+                const scale = Math.max(0.25, Math.min(1, availableWidth / a4PixelWidth));
+                viewport.classList.add('auto-fit-mode');
+                pokSheet.style.setProperty('--mobile-scale', scale);
+                if (fitText) fitText.textContent = 'Ukuran 100%';
+            } else {
+                // Di Laptop / Layar Lebar: Tampil ukuran standar 100%
+                viewport.classList.remove('auto-fit-mode');
+                pokSheet.style.removeProperty('--mobile-scale');
+                if (fitText) fitText.textContent = 'Pas Layar';
+            }
         }
 
         function toggleMobileFit() {
             const viewport = document.getElementById('sheetViewport');
             const pokSheet = document.getElementById('pokSheet');
             const fitText = document.getElementById('fitText');
-            
-            const isFit = viewport.classList.toggle('is-fit-mobile');
-            if (isFit) {
-                const screenWidth = window.innerWidth - 12;
-                const pagePixelWidth = 794; // 210mm
-                const scale = Math.min(1, Math.max(0.3, screenWidth / pagePixelWidth));
-                pokSheet.style.setProperty('--mobile-scale', scale);
-                fitText.textContent = 'Ukuran 100%';
+            if (!viewport || !pokSheet) return;
+
+            if (viewport.classList.contains('auto-fit-mode')) {
+                // Switch ke mode 100% scrollable penuh
+                viewport.classList.remove('auto-fit-mode');
+                viewport.classList.add('force-full-mode');
+                pokSheet.style.removeProperty('--mobile-scale');
+                if (fitText) fitText.textContent = 'Pas Layar';
             } else {
-                fitText.textContent = 'Pas Layar';
+                // Switch ke mode auto-fit pas layar HP
+                viewport.classList.remove('force-full-mode');
+                viewport.classList.add('auto-fit-mode');
+                const availableWidth = window.innerWidth - 10;
+                const scale = Math.max(0.25, Math.min(1, availableWidth / 794));
+                pokSheet.style.setProperty('--mobile-scale', scale);
+                if (fitText) fitText.textContent = 'Ukuran 100%';
             }
             if (window.lucide) lucide.createIcons();
         }
 
-        // Auto-scale jika layar HP saat pertama kali buka agar langsung pas terlihat
-        window.addEventListener('DOMContentLoaded', () => {
-            if (window.innerWidth <= 640) {
-                // Beri pengguna fleksibilitas: default scrollable penuh, dengan tombol Pas Layar
+        window.addEventListener('DOMContentLoaded', applyAutoFit);
+        window.addEventListener('resize', applyAutoFit);
+        window.addEventListener('orientationchange', () => setTimeout(applyAutoFit, 150));
+
+        // Logic Palet & Roda Warna di Modal Edit POK
+        const MODAL_PRESETS = [
+            { name: 'Hitam', hex: '#000000', border: false },
+            { name: 'Putih', hex: '#ffffff', border: true },
+            { name: 'Merah', hex: '#ef4444', border: false },
+            { name: 'Kuning', hex: '#eab308', border: false },
+            { name: 'Hijau', hex: '#84cc16', border: false },
+            { name: 'Navy', hex: '#1e3a8a', border: false },
+            { name: 'Biru', hex: '#0284c7', border: false },
+            { name: 'Oranye', hex: '#ea580c', border: false },
+            { name: 'Abu-abu', hex: '#64748b', border: false },
+            { name: 'Gold', hex: '#d97706', border: false }
+        ];
+
+        const modalSelectedColors = {
+            depan: [],
+            belakang: []
+        };
+
+        function initModalColorPalettes() {
+            ['depan', 'belakang'].forEach(side => {
+                const container = document.getElementById('modal_presets_' + side);
+                if (!container) return;
+                container.innerHTML = '';
+                MODAL_PRESETS.forEach(p => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700 transition cursor-pointer select-none';
+                    btn.innerHTML = `
+                        <span class="w-2.5 h-2.5 rounded-full inline-block shrink-0 ${p.border ? 'border border-slate-400' : ''}" style="background-color: ${p.hex};"></span>
+                        <span>${p.name}</span>
+                    `;
+                    btn.onclick = () => toggleModalPreset(side, p.hex, p.name);
+                    container.appendChild(btn);
+                });
+
+                const input = document.getElementById('modal_input_' + side);
+                modalSelectedColors[side] = [];
+                if (input && input.value) {
+                    const vals = input.value.split(',').map(s => s.trim()).filter(Boolean);
+                    vals.forEach(v => {
+                        const preset = MODAL_PRESETS.find(p => p.name.toLowerCase() === v.toLowerCase() || p.hex.toLowerCase() === v.toLowerCase());
+                        if (preset) {
+                            modalSelectedColors[side].push({ hex: preset.hex, name: preset.name });
+                        } else {
+                            modalSelectedColors[side].push({ hex: v.startsWith('#') ? v : '#' + v, name: v.toUpperCase() });
+                        }
+                    });
+                }
+                renderModalSelectedColors(side);
+            });
+        }
+
+        function toggleModalPreset(side, hex, name) {
+            const idx = modalSelectedColors[side].findIndex(c => c.hex.toLowerCase() === hex.toLowerCase());
+            if (idx >= 0) {
+                modalSelectedColors[side].splice(idx, 1);
+            } else {
+                modalSelectedColors[side].push({ hex, name });
             }
-        });
+            renderModalSelectedColors(side);
+        }
+
+        function addColorInModal(side, hex) {
+            if (!hex) return;
+            const preset = MODAL_PRESETS.find(p => p.hex.toLowerCase() === hex.toLowerCase());
+            const name = preset ? preset.name : hex.toUpperCase();
+            if (!modalSelectedColors[side].some(c => c.hex.toLowerCase() === hex.toLowerCase())) {
+                modalSelectedColors[side].push({ hex, name });
+            }
+            renderModalSelectedColors(side);
+        }
+
+        function removeModalSelectedColor(side, idx) {
+            modalSelectedColors[side].splice(idx, 1);
+            renderModalSelectedColors(side);
+        }
+
+        function renderModalSelectedColors(side) {
+            const container = document.getElementById('modal_selected_' + side);
+            const input = document.getElementById('modal_input_' + side);
+            if (!container || !input) return;
+
+            input.value = modalSelectedColors[side].map(c => c.hex).join(',');
+
+            if (modalSelectedColors[side].length === 0) {
+                container.innerHTML = '<span class="text-[10px] text-slate-400 italic">Belum ada warna dipilih</span>';
+                return;
+            }
+
+            let html = '';
+            modalSelectedColors[side].forEach((c, idx) => {
+                html += `
+                <span class="inline-flex items-center space-x-1 pl-1.5 pr-1 py-0.5 rounded text-[11px] font-bold border border-slate-300 bg-white shadow-xs">
+                    <span class="w-3 h-3 rounded-xs border border-black inline-block shrink-0" style="background-color: ${c.hex};"></span>
+                    <span class="text-slate-800">${c.name}</span>
+                    <button type="button" onclick="removeModalSelectedColor('${side}', ${idx})" class="w-3.5 h-3.5 rounded-full hover:bg-rose-100 hover:text-rose-600 text-slate-400 flex items-center justify-center font-bold text-xs ml-0.5">&times;</button>
+                </span>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function openPokModal() {
+            initModalColorPalettes();
+            document.getElementById('pokEditModal').classList.remove('hidden');
+        }
+
+        function closePokModal() {
+            document.getElementById('pokEditModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>

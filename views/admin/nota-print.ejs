@@ -329,23 +329,55 @@
             lucide.createIcons();
         }
 
+        function applyAutoFitNota() {
+            const viewport = document.getElementById('notaViewport');
+            const sheet = document.getElementById('notaSheet');
+            const fitText = document.getElementById('fitNotaText');
+            if (!viewport || !sheet) return;
+
+            if (viewport.classList.contains('force-full-mode')) return;
+
+            const screenWidth = window.innerWidth;
+            const notaPixelWidth = 945; // ~250mm
+
+            if (screenWidth < notaPixelWidth + 20) {
+                const availableWidth = screenWidth - 10;
+                const scale = Math.max(0.25, Math.min(1, availableWidth / notaPixelWidth));
+                viewport.classList.add('is-fit-mobile');
+                sheet.style.setProperty('--mobile-scale', scale);
+                if (fitText) fitText.textContent = 'Ukuran 100%';
+            } else {
+                viewport.classList.remove('is-fit-mobile');
+                sheet.style.removeProperty('--mobile-scale');
+                if (fitText) fitText.textContent = 'Pas Layar';
+            }
+        }
+
         function toggleMobileFitNota() {
             const viewport = document.getElementById('notaViewport');
             const sheet = document.getElementById('notaSheet');
             const fitText = document.getElementById('fitNotaText');
-            
-            const isFit = viewport.classList.toggle('is-fit-mobile');
-            if (isFit) {
-                const screenWidth = window.innerWidth - 12;
-                const pagePixelWidth = 945; // 250mm
-                const scale = Math.min(1, Math.max(0.3, screenWidth / pagePixelWidth));
-                sheet.style.setProperty('--mobile-scale', scale);
-                fitText.textContent = 'Ukuran 100%';
+            if (!viewport || !sheet) return;
+
+            if (viewport.classList.contains('is-fit-mobile')) {
+                viewport.classList.remove('is-fit-mobile');
+                viewport.classList.add('force-full-mode');
+                sheet.style.removeProperty('--mobile-scale');
+                if (fitText) fitText.textContent = 'Pas Layar';
             } else {
-                fitText.textContent = 'Pas Layar';
+                viewport.classList.remove('force-full-mode');
+                viewport.classList.add('is-fit-mobile');
+                const availableWidth = window.innerWidth - 10;
+                const scale = Math.max(0.25, Math.min(1, availableWidth / 945));
+                sheet.style.setProperty('--mobile-scale', scale);
+                if (fitText) fitText.textContent = 'Ukuran 100%';
             }
             if (window.lucide) lucide.createIcons();
         }
+
+        window.addEventListener('DOMContentLoaded', applyAutoFitNota);
+        window.addEventListener('resize', applyAutoFitNota);
+        window.addEventListener('orientationchange', () => setTimeout(applyAutoFitNota, 150));
     </script>
 </body>
 </html>

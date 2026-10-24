@@ -145,77 +145,75 @@
                         <input type="text" name="warna_kaos" value="<%= formData.warna_kaos || 'HITAM, PUTIH' %>" placeholder="Contoh: HITAM, PUTIH" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     </div>
 
-                    <!-- Pilihan 5 Warna Tinta Sablon (Depan & Belakang) -->
-                    <div class="sm:col-span-2 md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/80 rounded-2xl border border-slate-200">
-                        <!-- Depan -->
-                        <div>
-                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                                <span>Warna Sablon Depan (Pilih Warna)</span>
-                            </label>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_depan" value="merah" class="rounded text-red-600 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block shrink-0"></span>
-                                    <span>Merah</span>
+                    <!-- Pilihan Palet & Roda Warna Tinta Sablon (Depan & Belakang) -->
+                    <div class="sm:col-span-2 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50/90 rounded-2xl border border-slate-200">
+                        
+                        <!-- Sablon Bagian Depan -->
+                        <div class="space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-black text-slate-900 uppercase tracking-wider flex items-center space-x-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                    <span>Warna Sablon Depan</span>
                                 </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_depan" value="kuning" class="rounded text-amber-500 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 inline-block shrink-0"></span>
-                                    <span>Kuning</span>
+                                <!-- Tombol Roda Warna Depan -->
+                                <label class="cursor-pointer inline-flex items-center space-x-1 px-2.5 py-1 bg-gradient-to-r from-red-500 via-amber-400 to-purple-600 hover:opacity-90 text-white rounded-lg text-[11px] font-black shadow-xs transition select-none">
+                                    <i data-lucide="disc" class="w-3 h-3 text-white"></i>
+                                    <span>+ Roda Warna</span>
+                                    <input type="color" onchange="addColorFromWheel('depan', this.value)" class="sr-only">
                                 </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_depan" value="hijau" class="rounded text-lime-600 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-lime-500 inline-block shrink-0"></span>
-                                    <span>Hijau</span>
-                                </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_depan" value="putih" class="rounded text-slate-600 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-white border border-slate-400 inline-block shrink-0"></span>
-                                    <span>Putih</span>
-                                </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_depan" value="hitam" class="rounded text-black focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-black inline-block shrink-0"></span>
-                                    <span>Hitam</span>
-                                </label>
+                            </div>
+
+                            <!-- Palet Warna Cepat Populer (1-Tap Presets) -->
+                            <div class="p-2.5 bg-white border border-slate-200 rounded-xl space-y-1.5">
+                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Palet Warna Cepat:</span>
+                                <div class="flex flex-wrap gap-1.5" id="presets_depan">
+                                    <!-- Diisi secara dinamis oleh JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Warna Terpilih Depan -->
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 block uppercase mb-1">Warna Terpilih (Akan Muncul di POK):</span>
+                                <div id="selected_depan" class="min-h-[38px] p-2 bg-white border border-dashed border-slate-300 rounded-xl flex flex-wrap gap-1.5 items-center">
+                                    <span class="text-[11px] text-slate-400 italic">Belum ada warna dipilih</span>
+                                </div>
+                                <input type="hidden" name="warna_sablon_depan" id="input_warna_depan" value="<%= formData.warna_sablon_depan || '' %>">
                             </div>
                         </div>
 
-                        <!-- Belakang -->
-                        <div>
-                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                                <span>Warna Sablon Belakang (Pilih Warna)</span>
-                            </label>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_belakang" value="merah" class="rounded text-red-600 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block shrink-0"></span>
-                                    <span>Merah</span>
+                        <!-- Sablon Bagian Belakang -->
+                        <div class="space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-black text-slate-900 uppercase tracking-wider flex items-center space-x-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                    <span>Warna Sablon Belakang</span>
                                 </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_belakang" value="kuning" class="rounded text-amber-500 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 inline-block shrink-0"></span>
-                                    <span>Kuning</span>
-                                </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_belakang" value="hijau" class="rounded text-lime-600 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-lime-500 inline-block shrink-0"></span>
-                                    <span>Hijau</span>
-                                </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_belakang" value="putih" class="rounded text-slate-600 focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-white border border-slate-400 inline-block shrink-0"></span>
-                                    <span>Putih</span>
-                                </label>
-                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
-                                    <input type="checkbox" name="warna_sablon_belakang" value="hitam" class="rounded text-black focus:ring-0">
-                                    <span class="w-3.5 h-3.5 rounded-full bg-black inline-block shrink-0"></span>
-                                    <span>Hitam</span>
+                                <!-- Tombol Roda Warna Belakang -->
+                                <label class="cursor-pointer inline-flex items-center space-x-1 px-2.5 py-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 hover:opacity-90 text-white rounded-lg text-[11px] font-black shadow-xs transition select-none">
+                                    <i data-lucide="disc" class="w-3 h-3 text-white"></i>
+                                    <span>+ Roda Warna</span>
+                                    <input type="color" onchange="addColorFromWheel('belakang', this.value)" class="sr-only">
                                 </label>
                             </div>
+
+                            <!-- Palet Warna Cepat Populer (1-Tap Presets) -->
+                            <div class="p-2.5 bg-white border border-slate-200 rounded-xl space-y-1.5">
+                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Palet Warna Cepat:</span>
+                                <div class="flex flex-wrap gap-1.5" id="presets_belakang">
+                                    <!-- Diisi secara dinamis oleh JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Warna Terpilih Belakang -->
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 block uppercase mb-1">Warna Terpilih (Akan Muncul di POK):</span>
+                                <div id="selected_belakang" class="min-h-[38px] p-2 bg-white border border-dashed border-slate-300 rounded-xl flex flex-wrap gap-1.5 items-center">
+                                    <span class="text-[11px] text-slate-400 italic">Belum ada warna dipilih</span>
+                                </div>
+                                <input type="hidden" name="warna_sablon_belakang" id="input_warna_belakang" value="<%= formData.warna_sablon_belakang || '' %>">
+                            </div>
                         </div>
+
                     </div>
 
                     <div class="sm:col-span-2 md:col-span-3">
@@ -404,6 +402,111 @@
 
     setupImageUpload('frontFileInput', 'mockupFrontInput', 'previewFrontContainer');
     setupImageUpload('backFileInput', 'mockupBackInput', 'previewBackContainer');
+
+    // Palet Warna & Roda Warna Sablon Interaktif
+    const COLOR_PRESETS = [
+        { name: 'Hitam', hex: '#000000', border: false },
+        { name: 'Putih', hex: '#ffffff', border: true },
+        { name: 'Merah', hex: '#ef4444', border: false },
+        { name: 'Kuning', hex: '#eab308', border: false },
+        { name: 'Hijau', hex: '#84cc16', border: false },
+        { name: 'Navy', hex: '#1e3a8a', border: false },
+        { name: 'Biru', hex: '#0284c7', border: false },
+        { name: 'Oranye', hex: '#ea580c', border: false },
+        { name: 'Abu-abu', hex: '#64748b', border: false },
+        { name: 'Gold', hex: '#d97706', border: false }
+    ];
+
+    const selectedSablonColors = {
+        depan: [],
+        belakang: []
+    };
+
+    function initColorPalettes() {
+        ['depan', 'belakang'].forEach(side => {
+            const container = document.getElementById('presets_' + side);
+            if (!container) return;
+            container.innerHTML = '';
+            COLOR_PRESETS.forEach(p => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'inline-flex items-center space-x-1 px-2 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 transition cursor-pointer select-none';
+                btn.innerHTML = `
+                    <span class="w-3 h-3 rounded-full inline-block shrink-0 ${p.border ? 'border border-slate-400' : ''}" style="background-color: ${p.hex};"></span>
+                    <span>${p.name}</span>
+                `;
+                btn.onclick = () => togglePresetColor(side, p.hex, p.name);
+                container.appendChild(btn);
+            });
+
+            // Parse initial value jika ada
+            const initialInput = document.getElementById('input_warna_' + side);
+            if (initialInput && initialInput.value) {
+                const vals = initialInput.value.split(',').map(s => s.trim()).filter(Boolean);
+                vals.forEach(v => {
+                    const presetMatch = COLOR_PRESETS.find(p => p.name.toLowerCase() === v.toLowerCase() || p.hex.toLowerCase() === v.toLowerCase());
+                    if (presetMatch) {
+                        selectedSablonColors[side].push({ hex: presetMatch.hex, name: presetMatch.name });
+                    } else {
+                        selectedSablonColors[side].push({ hex: v.startsWith('#') ? v : '#' + v, name: v.toUpperCase() });
+                    }
+                });
+            }
+            renderSelectedColors(side);
+        });
+    }
+
+    function togglePresetColor(side, hex, name) {
+        const idx = selectedSablonColors[side].findIndex(c => c.hex.toLowerCase() === hex.toLowerCase());
+        if (idx >= 0) {
+            selectedSablonColors[side].splice(idx, 1);
+        } else {
+            selectedSablonColors[side].push({ hex, name });
+        }
+        renderSelectedColors(side);
+    }
+
+    function addColorFromWheel(side, hex) {
+        if (!hex) return;
+        const presetMatch = COLOR_PRESETS.find(p => p.hex.toLowerCase() === hex.toLowerCase());
+        const name = presetMatch ? presetMatch.name : hex.toUpperCase();
+        if (!selectedSablonColors[side].some(c => c.hex.toLowerCase() === hex.toLowerCase())) {
+            selectedSablonColors[side].push({ hex, name });
+        }
+        renderSelectedColors(side);
+    }
+
+    function removeSelectedColor(side, idx) {
+        selectedSablonColors[side].splice(idx, 1);
+        renderSelectedColors(side);
+    }
+
+    function renderSelectedColors(side) {
+        const container = document.getElementById('selected_' + side);
+        const hiddenInput = document.getElementById('input_warna_' + side);
+        if (!container || !hiddenInput) return;
+
+        hiddenInput.value = selectedSablonColors[side].map(c => c.hex).join(',');
+
+        if (selectedSablonColors[side].length === 0) {
+            container.innerHTML = '<span class="text-[11px] text-slate-400 italic">Belum ada warna dipilih (klik palet di atas atau roda warna)</span>';
+            return;
+        }
+
+        let html = '';
+        selectedSablonColors[side].forEach((c, idx) => {
+            html += `
+            <span class="inline-flex items-center space-x-1.5 pl-2 pr-1.5 py-1 rounded-lg text-xs font-bold border border-slate-300 bg-white shadow-xs">
+                <span class="w-3.5 h-3.5 rounded-sm border border-black inline-block shrink-0" style="background-color: ${c.hex};"></span>
+                <span class="text-slate-800">${c.name}</span>
+                <button type="button" onclick="removeSelectedColor('${side}', ${idx})" class="w-4 h-4 rounded-full hover:bg-rose-100 hover:text-rose-600 text-slate-400 flex items-center justify-center font-bold text-xs leading-none ml-1 cursor-pointer">&times;</button>
+            </span>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    initColorPalettes();
 
     if (window.lucide) {
         lucide.createIcons();
