@@ -120,11 +120,16 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor PO TRCH (Bisa Diedit)</label>
+                        <input type="number" min="1" name="po_number" value="<%= order.po_number || order.id %>" class="w-full px-3.5 py-2.5 border-2 border-amber-300 font-black rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-amber-50/40">
+                    </div>
+
+                    <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Pelanggan</label>
                         <input type="text" name="customer_name" required value="<%= order.customer_name %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
-                    <div>
+                    <div class="sm:col-span-2">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor WhatsApp</label>
                         <input type="text" name="customer_phone" value="<%= order.customer_phone || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>

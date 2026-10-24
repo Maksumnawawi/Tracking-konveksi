@@ -27,6 +27,24 @@
 
         <form action="/admin/orders/new" method="POST" class="space-y-6">
             
+            <!-- Banner Nomor PO TRCH -->
+            <div class="p-4 bg-gradient-to-r from-amber-100/90 via-amber-50 to-white border-2 border-amber-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <img src="/images/trch-logo.svg" alt="TRCH Logo" class="h-11 w-auto rounded border border-black shadow-sm bg-black">
+                    <div>
+                        <h3 class="text-sm font-black uppercase text-slate-950 flex items-center space-x-1.5">
+                            <span>TRCH SCREEN PRINTING</span>
+                            <span class="text-xs bg-amber-400 text-slate-950 font-bold px-2 py-0.5 rounded-full">PO Baru</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 mt-0.5">Nomor urut PO otomatis dimulai dari 1. Anda tetap dapat mengedit nomor ini jika diperlukan.</p>
+                    </div>
+                </div>
+                <div class="w-full sm:w-36 bg-white p-2.5 rounded-xl border border-amber-300 shadow-inner text-center">
+                    <label class="block text-[10px] font-black uppercase text-amber-900 tracking-wider mb-0.5">NOMOR PO (AUTO)</label>
+                    <input type="number" min="1" name="po_number" value="<%= formData.po_number || nextPoNumber || 1 %>" class="w-full text-center text-2xl font-black bg-amber-50/50 border border-amber-400 rounded-lg py-1 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+            </div>
+
             <!-- Section 1: Info Utama & Kategori Produk -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
@@ -37,17 +55,22 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Pelanggan / Institusi *</label>
-                        <input type="text" name="customer_name" required value="<%= formData.customer_name || '' %>" placeholder="Contoh: Komunitas Motor CB / SMA 1 Jakarta" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" name="customer_name" required value="<%= formData.customer_name || '' %>" placeholder="Contoh: ANGGA / Komunitas SGRT" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor WhatsApp / HP</label>
-                        <input type="text" name="customer_phone" value="<%= formData.customer_phone || '' %>" placeholder="Contoh: 081234567890" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" name="customer_phone" value="<%= formData.customer_phone || '' %>" placeholder="Contoh: 081514418116" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Alamat Pelanggan (Untuk Nota)</label>
+                        <input type="text" name="customer_address" value="<%= formData.customer_address || '' %>" placeholder="Contoh: Sumelang, Gemeksekti, Kebumen" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Artikel / Desain Produk *</label>
-                        <input type="text" name="article_name" required value="<%= formData.article_name || '' %>" placeholder="Contoh: Kaos Gathering Nasional / Jersey Futsal Tim Garuda Home" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" name="article_name" required value="<%= formData.article_name || '' %>" placeholder="Contoh: SGRT GARAGE KAOS OBLONG" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <!-- Kategori Produk Radio Buttons -->
@@ -84,19 +107,110 @@
                 </div>
             </div>
 
-            <!-- Section 2: Rincian Ukuran / Size Breakdown -->
+            <!-- Section 2: Spesifikasi Lembar POK TRCH -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
+                    <i data-lucide="layers" class="w-4 h-4 text-amber-600"></i>
+                    <span>2. Spesifikasi POK (Bahan, Tinta, Finishing & Tanggal)</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal Masuk (TGL M) *</label>
+                        <input type="date" name="tgl_masuk" required value="<%= formData.tgl_masuk || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal Jadi (TGL J / Deadline) *</label>
+                        <input type="date" name="tgl_jadi" required value="<%= formData.tgl_jadi || formData.deadline_date || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Bahan Kain (KETERANGAN)</label>
+                        <input type="text" name="fabric_type" value="<%= formData.fabric_type || 'COMBED 24S' %>" placeholder="Contoh: COMBED 24S / COMBED 30S" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Tinta Sablon</label>
+                        <input type="text" name="tinta_type" value="<%= formData.tinta_type || 'PLASTISOL' %>" placeholder="Contoh: PLASTISOL / DISCHARGE / SUBLIM" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Finishing Sablon</label>
+                        <input type="text" name="finishing_type" value="<%= formData.finishing_type || 'PRES DOFT' %>" placeholder="Contoh: PRES DOFT / PRES GLOSSY" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Warna Kaos</label>
+                        <input type="text" name="warna_kaos" value="<%= formData.warna_kaos || 'HITAM, PUTIH' %>" placeholder="Contoh: HITAM, PUTIH" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2 md:col-span-3">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Metode Pengiriman / Ekspedisi</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                            <% ['TUNAI', 'DFOD', 'J&T CARGO', 'J&T EXPRESS', 'KAI Logistik', 'KIB CEPAT'].forEach((courier) => { %>
+                            <label class="flex items-center space-x-2 p-2.5 border border-slate-300 rounded-xl cursor-pointer hover:bg-slate-50 text-xs font-bold text-slate-800">
+                                <input type="radio" name="shipping_courier" value="<%= courier %>" <%= (formData.shipping_courier || 'TUNAI') === courier ? 'checked' : '' %> class="text-amber-600 focus:ring-amber-500">
+                                <span><%= courier %></span>
+                            </label>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Upload Mockup Desain Kaos -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                        <i data-lucide="image" class="w-4 h-4 text-purple-600"></i>
+                        <span>3. Upload Desain / Mockup Kaos (Depan &amp; Belakang)</span>
+                    </h2>
+                    <span class="text-xs text-slate-400">Jika belum diupload, sistem akan memakai mockup default</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <!-- Mockup Depan -->
+                    <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-3 bg-slate-50/50">
+                        <p class="text-xs font-bold uppercase text-slate-700">Mockup Desain Kaos Depan</p>
+                        <div id="previewFrontContainer" class="w-full h-44 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden">
+                            <span class="text-xs text-slate-400 flex flex-col items-center">
+                                <i data-lucide="shirt" class="w-8 h-8 mb-1 text-slate-300"></i>
+                                <span>Preview Tampak Depan</span>
+                            </span>
+                        </div>
+                        <input type="file" id="frontFileInput" accept="image/*" class="text-xs text-slate-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 cursor-pointer">
+                        <input type="hidden" name="mockup_front_url" id="mockupFrontInput" value="<%= formData.mockup_front_url || '' %>">
+                    </div>
+
+                    <!-- Mockup Belakang -->
+                    <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-3 bg-slate-50/50">
+                        <p class="text-xs font-bold uppercase text-slate-700">Mockup Desain Kaos Belakang</p>
+                        <div id="previewBackContainer" class="w-full h-44 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden">
+                            <span class="text-xs text-slate-400 flex flex-col items-center">
+                                <i data-lucide="shirt" class="w-8 h-8 mb-1 text-slate-300"></i>
+                                <span>Preview Tampak Belakang</span>
+                            </span>
+                        </div>
+                        <input type="file" id="backFileInput" accept="image/*" class="text-xs text-slate-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 cursor-pointer">
+                        <input type="hidden" name="mockup_back_url" id="mockupBackInput" value="<%= formData.mockup_back_url || '' %>">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Rincian Ukuran / Size Breakdown -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
                         <i data-lucide="ruler" class="w-4 h-4 text-blue-600"></i>
-                        <span>2. Rincian Ukuran (Size Breakdown) & Total Qty</span>
+                        <span>4. Rincian Ukuran (Size Breakdown)</span>
                     </h2>
                     <div class="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
                         Total: <span id="displayTotalPcs" class="text-sm font-black">0</span> Pcs
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2.5">
                     <div>
                         <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">XS</label>
                         <input type="number" min="0" name="size_xs" value="<%= formData.size_xs || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -125,40 +239,36 @@
                         <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">3XL</label>
                         <input type="number" min="0" name="size_3xl" value="<%= formData.size_3xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">4XL</label>
+                        <input type="number" min="0" name="size_4xl" value="<%= formData.size_4xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">5XL</label>
+                        <input type="number" min="0" name="size_5xl" value="<%= formData.size_5xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
                 </div>
             </div>
 
-            <!-- Section 3: Spesifikasi Teknis & Tenggat Waktu -->
+            <!-- Section 5: Instruksi & Catatan Khusus -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
-                    <i data-lucide="scissors" class="w-4 h-4 text-blue-600"></i>
-                    <span>3. Bahan Kain, Sablon & Instruksi Khusus SPK</span>
+                    <i data-lucide="clipboard" class="w-4 h-4 text-slate-600"></i>
+                    <span>5. Catatan Khusus POK &amp; Nota</span>
                 </h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Bahan Kain</label>
-                        <input type="text" name="fabric_type" value="<%= formData.fabric_type || '' %>" placeholder="Contoh: Cotton Combed 30s Hitam / Dryfit Milano 160gr" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor SPK Internal (Opsional)</label>
+                        <input type="text" name="order_number" value="<%= formData.order_number || '' %>" placeholder="Auto: SPK-YYYYMM-XXX" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
-
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Sablon / Sublimasi</label>
-                        <input type="text" name="print_type" value="<%= formData.print_type || '' %>" placeholder="Contoh: Plastisol Doff 3 Warna / Full Sublim Epson" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jumlah Free Pcs (Bonus)</label>
+                        <input type="number" min="0" name="free_qty" value="<%= formData.free_qty || 0 %>" placeholder="0" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tenggat Waktu Selesai (Deadline) *</label>
-                        <input type="date" name="deadline_date" required value="<%= formData.deadline_date || '' %>" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor SPK (Opsional - Kosongkan jika Otomatis)</label>
-                        <input type="text" name="order_number" value="<%= formData.order_number || '' %>" placeholder="Auto-generate jika dikosongkan (SPK-YYYYMM-XXX)" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan Khusus Produksi (Instruksi Lembar Kerja)</label>
-                        <textarea name="notes" rows="3" placeholder="Contoh: Kerah V-neck hitam, rib leher spandek 2cm, jahitan pundak rantai, lipat dan plastik OPP per pcs..." class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"><%= formData.notes || '' %></textarea>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan Produksi / Finishing</label>
+                        <textarea name="notes" rows="3" placeholder="Contoh: Jahitan pundak rantai, lipat dan plastik OPP per pcs, tag leher TRCH..." class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"><%= formData.notes || '' %></textarea>
                     </div>
                 </div>
             </div>
@@ -197,6 +307,31 @@
     });
 
     updateTotalPcs();
+
+    // Image Upload Handlers for Mockups
+    function setupImageUpload(fileInputId, hiddenInputId, containerId) {
+        const fileInput = document.getElementById(fileInputId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+        const container = document.getElementById(containerId);
+
+        if (!fileInput || !hiddenInput || !container) return;
+
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                hiddenInput.value = base64Data;
+                container.innerHTML = `<img src="${base64Data}" alt="Mockup" class="w-full h-full object-contain p-1 rounded-lg">`;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    setupImageUpload('frontFileInput', 'mockupFrontInput', 'previewFrontContainer');
+    setupImageUpload('backFileInput', 'mockupBackInput', 'previewBackContainer');
 
     if (window.lucide) {
         lucide.createIcons();

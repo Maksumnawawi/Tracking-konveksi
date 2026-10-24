@@ -66,6 +66,14 @@ const OrderModel = {
         return db.get(sql, [trackingCode]);
     },
 
+    getNextPoNumber() {
+        const row = db.get("SELECT MAX(CAST(po_number AS INTEGER)) as max_po FROM orders");
+        if (!row || !row.max_po || isNaN(row.max_po)) {
+            return 1;
+        }
+        return parseInt(row.max_po) + 1;
+    },
+
     create(data, creatorId) {
         // Generate auto nomor SPK jika tidak diinput
         const dateStr = new Date().toISOString().slice(0, 7).replace('-', ''); // e.g. 202610
@@ -77,6 +85,12 @@ const OrderModel = {
         const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
         const trackingCode = data.tracking_code || `TRK-${randomHex}`;
 
+        // Nomor PO otomatis berurutan (mulai dari 1) atau sesuai input admin
+        let poNumber = parseInt(data.po_number);
+        if (isNaN(poNumber) || poNumber < 1) {
+            poNumber = this.getNextPoNumber();
+        }
+
         const totalPcs = 
             (parseInt(data.size_xs) || 0) +
             (parseInt(data.size_s) || 0) +
@@ -84,13 +98,19 @@ const OrderModel = {
             (parseInt(data.size_l) || 0) +
             (parseInt(data.size_xl) || 0) +
             (parseInt(data.size_2xl) || 0) +
-            (parseInt(data.size_3xl) || 0);
+            (parseInt(data.size_3xl) || 0) +
+            (parseInt(data.size_4xl) || 0) +
+            (parseInt(data.size_5xl) || 0);
 
-        const category = data.category.toLowerCase(); // 'kaos' atau 'jersey'
-        const workflow = WORKFLOW_CONFIG[category];
-        if (!workflow || workflow.length === 0) {
-            throw new Error(`Kategori ${category} tidak valid atau workflow belum didefinisikan`);
-        }
+        const category = (data.category || 'kaos').toLowerCase(); // 'kaos' atau 'jersey'
+        const workflow = WORKFLOW_CONFIG[category] || WORKFLOW_CONFIG['kaos'];
+
+        const tglMasuk = data.tgl_masuk || new Date().toISOString().slice(0, 10);
+        const tglJadi = data.tgl_jadi || data.deadline_date || '';
+        const tintaType = data.tinta_type || data.print_type || 'PLASTISOL';
+        const finishingType = data.finishing_type || 'PRES DOFT';
+        const warnaKaos = data.warna_kaos || 'HITAM, PUTIH';
+        const shippingCourier = data.shipping_courier || 'TUNAI';
 
         // Insert Order
         const insertOrderSql = `
@@ -98,8 +118,23 @@ const OrderModel = {
                 order_number, tracking_code, customer_name, customer_phone,
                 article_name, category, fabric_type, print_type, notes,
                 deadline_date, size_xs, size_s, size_m, size_l, size_xl,
-                size_2xl, size_3xl, total_pcs, status, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'WAITING', ?)
+                size_2xl, size_3xl, size_4xl, size_5xl, total_pcs, status, created_by,
+                po_number, tgl_masuk, tgl_jadi, tinta_type, finishing_type, warna_kaos,
+                warna_sablon_depan, warna_sablon_belakang, shipping_courier,
+                mockup_front_url, mockup_back_url, free_qty, customer_address,
+                items_breakdown_json, price_matrix_json, total_price, down_payment, remaining_payment,
+                nota_number, nota_month, nota_notes
+            ) VALUES (
+                ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, 'WAITING', ?,
+                ?, ?, ?, ?, ?, ?,
+                ?, ?, ?,
+                ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?
+            )
         `;
 
         const orderResult = db.run(insertOrderSql, [
@@ -110,9 +145,9 @@ const OrderModel = {
             data.article_name,
             category,
             data.fabric_type || '',
-            data.print_type || '',
+            data.print_type || tintaType,
             data.notes || '',
-            data.deadline_date || null,
+            tglJadi || null,
             parseInt(data.size_xs) || 0,
             parseInt(data.size_s) || 0,
             parseInt(data.size_m) || 0,
@@ -120,8 +155,31 @@ const OrderModel = {
             parseInt(data.size_xl) || 0,
             parseInt(data.size_2xl) || 0,
             parseInt(data.size_3xl) || 0,
+            parseInt(data.size_4xl) || 0,
+            parseInt(data.size_5xl) || 0,
             totalPcs > 0 ? totalPcs : (parseInt(data.total_pcs) || 1),
-            creatorId || 1
+            creatorId || 1,
+            poNumber,
+            tglMasuk,
+            tglJadi,
+            tintaType,
+            finishingType,
+            warnaKaos,
+            data.warna_sablon_depan || '',
+            data.warna_sablon_belakang || '',
+            shippingCourier,
+            data.mockup_front_url || '',
+            data.mockup_back_url || '',
+            parseInt(data.free_qty) || 0,
+            data.customer_address || '',
+            data.items_breakdown_json || '[]',
+            data.price_matrix_json || '{}',
+            parseInt(data.total_price) || 0,
+            parseInt(data.down_payment) || 0,
+            parseInt(data.remaining_payment) || 0,
+            data.nota_number || String(poNumber),
+            data.nota_month || new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+            data.nota_notes || ''
         ]);
 
         const orderId = orderResult.lastInsertRowid;
@@ -166,6 +224,7 @@ const OrderModel = {
 
         const sql = `
             UPDATE orders SET
+                po_number = COALESCE(NULLIF(?, 0), po_number),
                 customer_name = ?,
                 customer_phone = ?,
                 article_name = ?,
@@ -185,6 +244,7 @@ const OrderModel = {
         `;
 
         return db.run(sql, [
+            parseInt(data.po_number) || 0,
             data.customer_name,
             data.customer_phone || '',
             data.article_name,
@@ -200,6 +260,68 @@ const OrderModel = {
             parseInt(data.size_2xl) || 0,
             parseInt(data.size_3xl) || 0,
             totalPcs > 0 ? totalPcs : (parseInt(data.total_pcs) || 1),
+            orderId
+        ]);
+    },
+
+    updateNota(orderId, data) {
+        const sql = `
+            UPDATE orders SET
+                customer_address = ?,
+                nota_number = ?,
+                nota_month = ?,
+                items_breakdown_json = ?,
+                price_matrix_json = ?,
+                total_price = ?,
+                down_payment = ?,
+                remaining_payment = ?,
+                free_qty = ?,
+                nota_notes = ?
+            WHERE id = ?
+        `;
+        return db.run(sql, [
+            data.customer_address || '',
+            data.nota_number || '',
+            data.nota_month || '',
+            data.items_breakdown_json || '[]',
+            data.price_matrix_json || '{}',
+            parseInt(data.total_price) || 0,
+            parseInt(data.down_payment) || 0,
+            parseInt(data.remaining_payment) || 0,
+            parseInt(data.free_qty) || 0,
+            data.nota_notes || '',
+            orderId
+        ]);
+    },
+
+    updatePOK(orderId, data) {
+        const sql = `
+            UPDATE orders SET
+                po_number = ?,
+                tgl_masuk = ?,
+                tgl_jadi = ?,
+                tinta_type = ?,
+                finishing_type = ?,
+                warna_kaos = ?,
+                warna_sablon_depan = ?,
+                warna_sablon_belakang = ?,
+                shipping_courier = ?,
+                mockup_front_url = COALESCE(NULLIF(?, ''), mockup_front_url),
+                mockup_back_url = COALESCE(NULLIF(?, ''), mockup_back_url)
+            WHERE id = ?
+        `;
+        return db.run(sql, [
+            parseInt(data.po_number) || 1,
+            data.tgl_masuk || '',
+            data.tgl_jadi || '',
+            data.tinta_type || '',
+            data.finishing_type || '',
+            data.warna_kaos || '',
+            data.warna_sablon_depan || '',
+            data.warna_sablon_belakang || '',
+            data.shipping_courier || 'TUNAI',
+            data.mockup_front_url || '',
+            data.mockup_back_url || '',
             orderId
         ]);
     },

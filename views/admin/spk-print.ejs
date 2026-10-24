@@ -3,21 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cetak SPK - <%= order.order_number %></title>
+    <title>POK #<%= order.po_number || order.id %> - <%= order.customer_name %> - TRCH SCREEN PRINTING</title>
     
-    <!-- Tailwind CSS CDN (untuk preview layar) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Print Optimized CSS -->
-    <link rel="stylesheet" href="/css/print-spk.css">
-
     <style>
-        /* Tampilan simulasi kertas A4 pada layar monitor */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .a4-page {
+                box-shadow: none !important;
+                border: 2px solid black !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                min-height: auto !important;
+                padding: 8mm 10mm !important;
+            }
+        }
+
         @media screen {
             body {
                 background-color: #525659;
-                padding: 24px;
+                padding: 20px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -26,207 +42,345 @@
                 background: white;
                 width: 210mm;
                 min-height: 297mm;
-                padding: 12mm 15mm;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                padding: 10mm 12mm;
+                box-shadow: 0 4px 25px rgba(0,0,0,0.35);
                 border-radius: 4px;
             }
         }
     </style>
 </head>
-<body>
+<body class="font-sans text-black antialiased">
 
-    <!-- Floating Print Control Toolbar (Hanya muncul di layar monitor) -->
+    <!-- Floating Print Control Toolbar (Hanya di Layar Monitor) -->
     <div class="no-print w-full max-w-[210mm] mb-4 flex items-center justify-between bg-slate-900 text-white px-5 py-3 rounded-xl shadow-lg">
         <div class="flex items-center space-x-3">
             <a href="/admin/orders/<%= order.id %>" class="text-xs text-slate-300 hover:text-white flex items-center space-x-1">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                <span>Kembali ke Detail</span>
+                <span>Kembali ke Detail Pesanan</span>
             </a>
             <span class="text-slate-500">|</span>
-            <span class="text-xs font-semibold text-slate-200">Pratinjau Lembar Kerja Fisik (A4)</span>
+            <span class="text-xs font-semibold text-amber-300">Pratinjau Lembar Kerja POK TRCH</span>
         </div>
         <div class="flex items-center space-x-2">
+            <a href="/admin/orders/<%= order.id %>/nota" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs flex items-center space-x-1.5 shadow-md">
+                <i data-lucide="receipt" class="w-4 h-4"></i>
+                <span>Cek &amp; Edit Nota</span>
+            </a>
             <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center space-x-2 shadow-md">
                 <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>Cetak Lembar Kerja A4 (Print)</span>
+                <span>Cetak Lembar POK (A4)</span>
             </button>
         </div>
     </div>
 
-    <!-- Halaman Fisik Standar A4 -->
-    <div class="a4-page spk-container text-slate-900 font-sans">
+    <!-- Halaman Fisik Standar A4 (Format Persis Gambar 1) -->
+    <div class="a4-page border-4 border-black text-black">
         
-        <!-- Header SPK -->
-        <div class="spk-header border-b-2 border-black pb-3 mb-3 flex items-start justify-between">
-            <div>
-                <div class="flex items-center space-x-2">
-                    <span class="text-xl font-black tracking-tight">GARMENT & APPAREL PRODUCTION</span>
-                </div>
-                <p class="text-xs font-semibold tracking-wide text-slate-700">LEMBAR KERJA FISIK PRODUKSI (SPK)</p>
-                <p class="text-[10px] text-slate-500">Divisi Konveksi, Sablon & Sublimasi Jersey</p>
+        <!-- BANNER INSTRUKSI ATAS (PERSIS GAMBAR 1) -->
+        <div class="text-center font-bold text-[11px] leading-tight pb-2 border-b-2 border-black">
+            <p class="font-black text-xs">Berdo'a Lah Sebelum Bekerja.</p>
+            <p>Cek Dan Pahami POK Terlebih Dahulu Sebelum Memulai Pekerjaan, Utamakan Keselamatan, Kerapian Dan Kebersihan.</p>
+        </div>
+
+        <!-- HEADER POK: LOGO, SPESIFIKASI, NOMOR PO & TANGGAL -->
+        <div class="grid grid-cols-12 border-b-2 border-black py-2.5 items-center">
+            
+            <!-- Logo TRCH (Kiri) -->
+            <div class="col-span-3 pr-2">
+                <img src="/images/trch-logo.svg" alt="TRCH SCREEN PRINTING" class="w-full h-16 bg-black rounded p-0.5 border border-black">
             </div>
-            <div class="text-right flex items-center space-x-4">
-                <div>
-                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Nomor SPK</span>
-                    <span class="text-lg font-black font-mono tracking-tight text-black block leading-none"><%= order.order_number %></span>
-                    <span class="text-[10px] font-bold text-blue-700 block mt-1">Kode: <%= order.tracking_code %></span>
+
+            <!-- Spesifikasi Keterangan Bahan & Tinta (Tengah) -->
+            <div class="col-span-6 px-2 text-[11px] leading-tight">
+                <table class="w-full font-bold">
+                    <tr>
+                        <td class="w-28 text-slate-800">KETERANGAN</td>
+                        <td class="w-3">:</td>
+                        <td class="font-black uppercase text-xs"><%= order.category === 'jersey' ? 'JERSEY SUBLIM' : 'KAOS OBLONG' %> (<%= order.article_name %>)</td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">BAHAN</td>
+                        <td>:</td>
+                        <td class="font-black uppercase"><%= order.fabric_type || 'COMBED 24S' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">TINTA</td>
+                        <td>:</td>
+                        <td class="font-black uppercase"><%= order.tinta_type || 'PLASTISOL' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">FINISHING</td>
+                        <td>:</td>
+                        <td class="font-black uppercase"><%= order.finishing_type || 'PRES DOFT' %></td>
+                    </tr>
+                </table>
+                <p class="font-black text-sm uppercase mt-1 tracking-wide">
+                    WARNA KAOS : <span class="underline"><%= order.warna_kaos || 'HITAM, PUTIH' %></span>
+                </p>
+            </div>
+
+            <!-- Kotak Nomor PO & Tanggal (Kanan) -->
+            <div class="col-span-3 pl-2 flex flex-col justify-center">
+                <div class="border-2 border-black flex">
+                    <!-- NOMOR PO (Besar) -->
+                    <div class="w-1/2 p-1 text-center border-r-2 border-black flex flex-col items-center justify-center bg-slate-50">
+                        <span class="text-[9px] font-bold uppercase text-slate-500">NO. PO</span>
+                        <span class="text-4xl font-black font-sans leading-none my-0.5"><%= order.po_number || order.id %></span>
+                    </div>
+
+                    <!-- TGL M & TGL J -->
+                    <div class="w-1/2 flex flex-col text-[10px] text-center font-bold">
+                        <div class="border-b border-black py-0.5 bg-slate-100">
+                            <span>TGL M</span>
+                            <p class="text-xs font-black"><%= order.tgl_masuk || new Date(order.created_at).toLocaleDateString('id-ID') %></p>
+                        </div>
+                        <div class="py-0.5 bg-red-50">
+                            <span class="text-red-700">TGL J</span>
+                            <p class="text-xs font-black text-red-600" style="color: #dc2626;"><%= order.tgl_jadi || order.deadline_date || '-' %></p>
+                        </div>
+                    </div>
                 </div>
-                <!-- QR Code untuk Tracking Publik Cepat -->
-                <% if (qrCodeDataUrl) { %>
+                <div class="text-[9px] text-right font-mono text-slate-500 mt-1">
+                    SPK: <%= order.order_number %>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- AREA GAMBAR MOCKUP DESAIN KAOS (PERSIS GAMBAR 1) -->
+        <div class="py-3 border-b-2 border-black">
+            <div class="grid grid-cols-2 gap-4 items-center justify-center">
+                
+                <!-- Mockup Depan -->
                 <div class="text-center">
-                    <img src="<%= qrCodeDataUrl %>" alt="QR Tracking" class="qr-code w-16 h-16 border border-slate-300 p-0.5">
-                    <span class="text-[8px] text-slate-500 block mt-0.5">Scan Tracking</span>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-700 mb-1">Tampak Depan</p>
+                    <div class="h-56 bg-slate-50 border border-slate-300 rounded p-1 flex items-center justify-center overflow-hidden">
+                        <% if (order.mockup_front_url) { %>
+                            <img src="<%= order.mockup_front_url %>" alt="Mockup Depan" class="h-full w-full object-contain">
+                        <% } else { %>
+                            <!-- Mockup Kaos Hitam & Putih Default Sesuai Contoh Gambar 1 -->
+                            <div class="flex items-center justify-center space-x-2 w-full h-full">
+                                <div class="w-24 h-48 bg-slate-900 rounded-lg p-2 text-white flex flex-col justify-between items-center shadow-md">
+                                    <span class="text-[8px] font-bold uppercase">HITAM</span>
+                                    <div class="w-16 h-8 bg-slate-800 border border-slate-600 rounded text-[7px] flex items-center justify-center text-center p-0.5 font-bold text-emerald-400">
+                                        <%= order.article_name %>
+                                    </div>
+                                    <span class="text-[7px] text-slate-400">Depan</span>
+                                </div>
+                                <div class="w-24 h-48 bg-white border border-slate-400 rounded-lg p-2 text-slate-900 flex flex-col justify-between items-center shadow-md">
+                                    <span class="text-[8px] font-bold uppercase">PUTIH</span>
+                                    <div class="w-16 h-8 bg-slate-100 border border-slate-300 rounded text-[7px] flex items-center justify-center text-center p-0.5 font-bold text-slate-800">
+                                        <%= order.article_name %>
+                                    </div>
+                                    <span class="text-[7px] text-slate-400">Depan</span>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
                 </div>
-                <% } %>
+
+                <!-- Mockup Belakang -->
+                <div class="text-center">
+                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-700 mb-1">Tampak Belakang</p>
+                    <div class="h-56 bg-slate-50 border border-slate-300 rounded p-1 flex items-center justify-center overflow-hidden">
+                        <% if (order.mockup_back_url) { %>
+                            <img src="<%= order.mockup_back_url %>" alt="Mockup Belakang" class="h-full w-full object-contain">
+                        <% } else { %>
+                            <div class="flex items-center justify-center space-x-2 w-full h-full">
+                                <div class="w-24 h-48 bg-slate-900 rounded-lg p-2 text-white flex flex-col justify-between items-center shadow-md">
+                                    <span class="text-[8px] font-bold uppercase">HITAM</span>
+                                    <div class="w-16 h-12 bg-slate-800 border border-slate-600 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-emerald-400">
+                                        <span>TRCH</span>
+                                        <span>SABLON</span>
+                                    </div>
+                                    <span class="text-[7px] text-slate-400">Belakang</span>
+                                </div>
+                                <div class="w-24 h-48 bg-white border border-slate-400 rounded-lg p-2 text-slate-900 flex flex-col justify-between items-center shadow-md">
+                                    <span class="text-[8px] font-bold uppercase">PUTIH</span>
+                                    <div class="w-16 h-12 bg-slate-100 border border-slate-300 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-slate-800">
+                                        <span>TRCH</span>
+                                        <span>SABLON</span>
+                                    </div>
+                                    <span class="text-[7px] text-slate-400">Belakang</span>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- Info Order Grid -->
-        <div class="grid grid-cols-2 gap-2 text-xs mb-3 border border-slate-800 p-2.5 rounded bg-slate-50/50">
-            <div>
-                <table class="w-full text-left">
-                    <tr>
-                        <td class="w-28 font-bold py-0.5 text-slate-600">Pelanggan:</td>
-                        <td class="font-bold py-0.5 text-slate-900"><%= order.customer_name %></td>
-                    </tr>
-                    <tr>
-                        <td class="font-bold py-0.5 text-slate-600">Kontak/HP:</td>
-                        <td class="py-0.5"><%= order.customer_phone || '-' %></td>
-                    </tr>
-                    <tr>
-                        <td class="font-bold py-0.5 text-slate-600">Nama Artikel:</td>
-                        <td class="font-bold py-0.5 text-slate-900"><%= order.article_name %></td>
-                    </tr>
-                </table>
-            </div>
-            <div>
-                <table class="w-full text-left">
-                    <tr>
-                        <td class="w-28 font-bold py-0.5 text-slate-600">Kategori:</td>
-                        <td class="font-bold py-0.5 uppercase text-black"><%= order.category %></td>
-                    </tr>
-                    <tr>
-                        <td class="font-bold py-0.5 text-slate-600">Tgl Cetak SPK:</td>
-                        <td class="py-0.5"><%= printDate %></td>
-                    </tr>
-                    <tr>
-                        <td class="font-bold py-0.5 text-slate-600">DEADLINE:</td>
-                        <td class="font-black py-0.5 text-red-600 text-sm"><%= order.deadline_date || '-' %></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <!-- Tabel Rincian Ukuran / Size Breakdown -->
-        <div class="mb-3">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-black mb-1">1. RINCIAN UKURAN (SIZE BREAKDOWN)</p>
-            <table class="w-full text-center border-collapse border border-black text-xs">
+        <!-- TABEL RINCIAN UKURAN & WARNA SABLON (PERSIS GAMBAR 1) -->
+        <div class="py-2.5 border-b-2 border-black">
+            <table class="w-full text-center border-collapse border-2 border-black text-xs font-bold">
                 <thead>
-                    <tr class="bg-slate-100 font-bold border-b border-black">
-                        <th class="border border-black py-1">XS</th>
-                        <th class="border border-black py-1">S</th>
-                        <th class="border border-black py-1">M</th>
-                        <th class="border border-black py-1">L</th>
-                        <th class="border border-black py-1">XL</th>
-                        <th class="border border-black py-1">2XL</th>
-                        <th class="border border-black py-1">3XL</th>
-                        <th class="border border-black py-1 bg-slate-200 text-black">TOTAL QTY</th>
+                    <tr class="bg-slate-100 border-b-2 border-black font-black">
+                        <th class="border-r-2 border-black py-1.5 px-2 text-left w-36">UKURAN</th>
+                        <th class="border-r border-black py-1 w-8">XS</th>
+                        <th class="border-r border-black py-1 w-8">S</th>
+                        <th class="border-r border-black py-1 w-8">M</th>
+                        <th class="border-r border-black py-1 w-8">L</th>
+                        <th class="border-r border-black py-1 w-8">XL</th>
+                        <th class="border-r border-black py-1 w-8">2XL</th>
+                        <th class="border-r border-black py-1 w-8">3XL</th>
+                        <th class="border-r border-black py-1 w-8">4XL</th>
+                        <th class="border-r-2 border-black py-1 w-8">5XL</th>
+                        <th colspan="2" class="py-1">WARNA SABLON</th>
+                    </tr>
+                    <tr class="bg-slate-50 border-b-2 border-black text-[10px]">
+                        <th colspan="10" class="border-r-2 border-black text-left pl-2">RINCIAN VARIAN KAOS</th>
+                        <th class="border-r border-black py-0.5 w-16">DEPAN</th>
+                        <th class="py-0.5 w-16">BELAKANG</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="font-bold text-sm">
-                        <td class="border border-black py-1.5"><%= order.size_xs || '-' %></td>
-                        <td class="border border-black py-1.5"><%= order.size_s || '-' %></td>
-                        <td class="border border-black py-1.5"><%= order.size_m || '-' %></td>
-                        <td class="border border-black py-1.5"><%= order.size_l || '-' %></td>
-                        <td class="border border-black py-1.5"><%= order.size_xl || '-' %></td>
-                        <td class="border border-black py-1.5"><%= order.size_2xl || '-' %></td>
-                        <td class="border border-black py-1.5"><%= order.size_3xl || '-' %></td>
-                        <td class="border border-black py-1.5 font-black text-base bg-slate-100"><%= order.total_pcs %> Pcs</td>
+                    <!-- Baris 1: Hitam Pendek -->
+                    <tr class="border-b border-black">
+                        <td class="border-r-2 border-black py-1.5 px-2 text-left font-black">HITAM PENDEK</td>
+                        <td class="border-r border-black"><%= order.size_xs || '' %></td>
+                        <td class="border-r border-black"><%= order.size_s || '' %></td>
+                        <td class="border-r border-black"><%= order.size_m || '' %></td>
+                        <td class="border-r border-black"><%= order.size_l || '' %></td>
+                        <td class="border-r border-black"><%= order.size_xl || '' %></td>
+                        <td class="border-r border-black"><%= order.size_2xl || '' %></td>
+                        <td class="border-r border-black"><%= order.size_3xl || '' %></td>
+                        <td class="border-r border-black"><%= order.size_4xl || '' %></td>
+                        <td class="border-r-2 border-black"><%= order.size_5xl || '' %></td>
+                        
+                        <!-- Swatches Warna Sablon Depan & Belakang -->
+                        <td class="border-r border-black p-1 align-top">
+                            <div class="grid grid-cols-2 gap-1 p-0.5">
+                                <span class="w-4 h-4 rounded border border-black bg-lime-400 inline-block shadow-sm"></span>
+                                <span class="w-4 h-4 rounded border border-black bg-white inline-block"></span>
+                                <span class="w-4 h-4 rounded border border-black bg-slate-500 inline-block"></span>
+                                <span class="w-4 h-4 rounded border border-black bg-black inline-block"></span>
+                            </div>
+                        </td>
+                        <td class="p-1 align-top">
+                            <div class="grid grid-cols-2 gap-1 p-0.5">
+                                <span class="w-4 h-4 rounded border border-black bg-lime-400 inline-block shadow-sm"></span>
+                                <span class="w-4 h-4 rounded border border-black bg-white inline-block"></span>
+                                <span class="w-4 h-4 rounded border border-black bg-slate-500 inline-block"></span>
+                                <span class="w-4 h-4 rounded border border-black bg-black inline-block"></span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Baris 2: Putih Pendek / Varian 2 -->
+                    <tr class="border-b border-black">
+                        <td class="border-r-2 border-black py-1.5 px-2 text-left font-black">PUTIH PENDEK</td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r-2 border-black"></td>
+                        <td class="border-r border-black p-1"></td>
+                        <td class="p-1"></td>
+                    </tr>
+
+                    <!-- Baris Kosong Cadangan (Sesuai Layout Gambar 1) -->
+                    <tr class="border-b border-black h-6">
+                        <td class="border-r-2 border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td class="border-r-2 border-black"></td>
+                        <td class="border-r border-black"></td>
+                        <td></td>
                     </tr>
                 </tbody>
+                <tfoot>
+                    <tr class="bg-slate-100 font-black border-t-2 border-black">
+                        <td class="border-r-2 border-black py-1.5 px-2 text-left">TOTAL PRODUKSI</td>
+                        <td colspan="9" class="border-r-2 border-black text-center text-sm font-black"><%= order.total_pcs %> PCS</td>
+                        <td colspan="2" class="text-[10px] text-slate-600">Free: <%= order.free_qty || 0 %> pcs</td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
-        <!-- Bahan & Sablon / Sublim -->
-        <div class="grid grid-cols-2 gap-2 text-xs mb-3">
-            <div class="border border-black p-2 rounded">
-                <span class="font-bold block text-[10px] text-slate-500 uppercase">Spesifikasi Bahan Kain:</span>
-                <span class="font-bold text-slate-900 block text-xs mt-0.5"><%= order.fabric_type || 'Sesuai instruksi admin' %></span>
-            </div>
-            <div class="border border-black p-2 rounded">
-                <span class="font-bold block text-[10px] text-slate-500 uppercase">Spesifikasi Cetak / Sablon:</span>
-                <span class="font-bold text-slate-900 block text-xs mt-0.5"><%= order.print_type || 'Sesuai mockup desain' %></span>
-            </div>
-        </div>
-
-        <!-- Catatan Khusus Instruksi Produksi -->
-        <div class="border border-black p-2.5 rounded text-xs mb-3">
-            <span class="font-bold block text-[10px] text-slate-600 uppercase mb-1">Instruksi Khusus Produksi (Floor Notes):</span>
-            <p class="font-medium text-slate-800 italic leading-relaxed">
-                <%= order.notes || 'Tidak ada catatan khusus. Kerjakan sesuai standar kualitas konveksi.' %>
-            </p>
-        </div>
-
-        <!-- Checklist Paraf Tahapan Produksi (Floor Workflow Control) -->
-        <div class="mb-4">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-black mb-1">2. LEMBAR KONTROL & PARAF DIVISI PRODUKSI</p>
-            <table class="w-full text-left border-collapse border border-black text-[11px]">
-                <thead>
-                    <tr class="bg-slate-100 font-bold border-b border-black text-center">
-                        <th class="border border-black py-1 w-8">No</th>
-                        <th class="border border-black py-1">Tahapan Kerja</th>
-                        <th class="border border-black py-1">Divisi PIC</th>
-                        <th class="border border-black py-1 w-28">Tgl / Jam Mulai</th>
-                        <th class="border border-black py-1 w-28">Tgl / Jam Selesai</th>
-                        <th class="border border-black py-1 w-24">Paraf PIC</th>
-                        <th class="border border-black py-1">Catatan Lantai</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% stages.forEach((st, idx) => { %>
-                    <tr>
-                        <td class="border border-black py-2 text-center font-bold"><%= idx + 1 %></td>
-                        <td class="border border-black py-2 font-bold"><%= st.stage_name %></td>
-                        <td class="border border-black py-2 font-semibold text-slate-700"><%= ROLE_LABELS[st.assigned_role] || st.assigned_role %></td>
-                        <td class="border border-black py-2 text-center text-slate-500">....../...... pkl .....</td>
-                        <td class="border border-black py-2 text-center text-slate-500">....../...... pkl .....</td>
-                        <td class="border border-black py-2 text-center font-serif text-slate-400">[ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</td>
-                        <td class="border border-black py-2"></td>
-                    </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Area Hasil QC & Tanda Tangan SPV -->
-        <div class="avoid-break grid grid-cols-2 gap-3 pt-2 text-xs border-t border-slate-300">
-            <div class="border border-black p-2.5 rounded">
-                <span class="font-bold block text-[10px] text-slate-600 uppercase mb-1">Rekap Fisik QC & Packing:</span>
-                <div class="space-y-1 text-[11px]">
-                    <p>Total Diperiksa: ............ Pcs</p>
-                    <p>Jumlah Lolos: ................ Pcs &nbsp;&bull;&nbsp; Jumlah Reject: ................ Pcs</p>
-                    <p>Paraf QC Inspector: ........................................</p>
+        <!-- PILIHAN EKSPEDISI / PENGIRIMAN (PERSIS GAMBAR 1) -->
+        <div class="py-2.5 border-b-2 border-black">
+            <div class="grid grid-cols-6 gap-2 text-center text-[10px] font-black">
+                
+                <!-- TUNAI -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-1 text-xs">TUNAI</span>
+                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                        <%= order.shipping_courier === 'TUNAI' ? '✔' : '' %>
+                    </div>
                 </div>
-            </div>
 
-            <div class="flex items-center justify-around text-center pt-2">
-                <div>
-                    <p class="text-[10px] uppercase font-bold text-slate-500">Dibuat Oleh (Admin):</p>
-                    <div class="h-10"></div>
-                    <p class="font-bold text-xs underline">( ........................................ )</p>
+                <!-- DFOD -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-1 text-xs">DFOD</span>
+                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                        <%= order.shipping_courier === 'DFOD' ? '✔' : '' %>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] uppercase font-bold text-slate-500">Mengetahui (SPV Produksi):</p>
-                    <div class="h-10"></div>
-                    <p class="font-bold text-xs underline">( ........................................ )</p>
+
+                <!-- J&T CARGO -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-1 text-emerald-800">J&amp;T CARGO</span>
+                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                        <%= order.shipping_courier === 'J&T CARGO' ? '✔' : '' %>
+                    </div>
                 </div>
+
+                <!-- J&T EXPRESS -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-1 text-red-700">J&amp;T EXPRESS</span>
+                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                        <%= order.shipping_courier === 'J&T EXPRESS' ? '✔' : '' %>
+                    </div>
+                </div>
+
+                <!-- KAI LOGISTIK -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-1 text-blue-800">KAI Logistik</span>
+                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                        <%= order.shipping_courier === 'KAI Logistik' ? '✔' : '' %>
+                    </div>
+                </div>
+
+                <!-- KIB CEPAT -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-1 text-indigo-800">KIB CEPAT</span>
+                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                        <%= order.shipping_courier === 'KIB CEPAT' ? '✔' : '' %>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- Footer Nota -->
-        <div class="mt-4 pt-2 border-t border-slate-200 text-center text-[9px] text-slate-400">
-            Lembar SPK ini merupakan dokumen instruksi kerja resmi konveksi. Setelah selesai, kembalikan ke meja administrasi. Link pelacakan: <%= publicTrackUrl %>
+        <!-- FOOTER NB & QR CODE TRACKING (PERSIS GAMBAR 1) -->
+        <div class="pt-2 flex items-center justify-between text-[10px]">
+            <div class="flex-1 pr-4">
+                <p class="font-black text-black leading-tight">
+                    NB : Setiap Selesai Memotong Dan Menyablon Harap Potongan Cek Kembali Sudah Sesuai Dengan POK Yang Tertera Dan Masukan Ke Kranjang.
+                </p>
+                <p class="text-[9px] text-slate-600 mt-1">
+                    TRCH SCREEN PRINTING &bull; Jl. Cincin Kota RT 11/03 Sumelang, Gemeksekti, Kebumen &bull; WA: 081514418116
+                </p>
+            </div>
+            
+            <% if (qrCodeDataUrl) { %>
+            <div class="flex flex-col items-center border border-black p-1 rounded bg-white">
+                <img src="<%= qrCodeDataUrl %>" alt="QR Tracking" class="w-12 h-12">
+                <span class="text-[7px] font-bold text-slate-600 mt-0.5">Scan Tracking</span>
+            </div>
+            <% } %>
         </div>
 
     </div>
@@ -238,4 +392,3 @@
     </script>
 </body>
 </html>
-

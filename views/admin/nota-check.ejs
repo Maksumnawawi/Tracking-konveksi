@@ -1,0 +1,383 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../partials/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        
+        <!-- Header Nav -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <a href="/admin/orders/<%= order.id %>" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center space-x-1 mb-1">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    <span>Kembali ke Detail Pesanan (<%= order.order_number %>)</span>
+                </a>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center space-x-2">
+                    <span>Cek &amp; Edit Nota TRCH SCREEN PRINTING</span>
+                    <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg border border-amber-300">PO #<%= order.po_number || order.id %></span>
+                </h1>
+                <p class="text-xs text-slate-500 mt-0.5">Edit harga satuan per ukuran, atur DP dan sisa tagihan pelanggan secara fleksibel.</p>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <a href="/admin/orders/<%= order.id %>/nota/print" target="_blank" class="inline-flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Cetak Nota</span>
+                </a>
+                <a href="/admin/orders/<%= order.id %>/spk" target="_blank" class="inline-flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>Cetak Lembar POK</span>
+                </a>
+            </div>
+        </div>
+
+        <% if (saved) { %>
+        <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-sm">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+            <span>Perubahan Nota &amp; Perhitungan Keuangan Berhasil Disimpan!</span>
+        </div>
+        <% } %>
+
+        <!-- Form Nota Interaktif -->
+        <form action="/admin/orders/<%= order.id %>/nota" method="POST" id="notaForm" class="space-y-6">
+            
+            <!-- Box Desain Nota Menyerupai Fisik Asli -->
+            <div class="bg-white rounded-2xl border-2 border-slate-300 shadow-xl overflow-hidden">
+                
+                <!-- HEADER NOTA TRCH (Kuning & Merah Khas TRCH) -->
+                <div class="grid grid-cols-1 md:grid-cols-12 border-b-4 border-black">
+                    <!-- Sisi Kiri Merah + Logo -->
+                    <div class="md:col-span-3 bg-red-700 p-3 flex items-center justify-center border-b md:border-b-0 md:border-r border-black">
+                        <img src="/images/trch-logo.svg" alt="TRCH Logo" class="h-16 w-auto bg-black rounded p-0.5 border border-white">
+                    </div>
+
+                    <!-- Tengah Kuning -->
+                    <div class="md:col-span-7 bg-yellow-400 p-3 text-center flex flex-col justify-center text-slate-900">
+                        <h2 class="text-2xl font-serif font-black tracking-widest text-red-700 leading-tight">NOTA</h2>
+                        <h3 class="text-xl font-bold tracking-wider text-red-700">TRCH SCREEN PRINTING</h3>
+                        <p class="text-[10px] font-bold uppercase tracking-tight text-slate-900 mt-1">
+                            JALAN CINCIN KOTA, RT 11 RW 03, SUMELANG KELURAHAN: GEMEKSEKTI, KEBUMEN, JAWA TENGAH
+                        </p>
+                        <p class="text-[10px] font-black text-slate-900">HP. 081514418116</p>
+                    </div>
+
+                    <!-- Sisi Kanan Merah (No & Bulan) -->
+                    <div class="md:col-span-2 bg-red-700 p-3 text-white flex flex-col justify-center space-y-2 border-t md:border-t-0 md:border-l border-black">
+                        <div>
+                            <span class="text-[10px] font-bold block">No :</span>
+                            <input type="text" name="nota_number" value="<%= order.nota_number || order.po_number || order.id %>" class="w-full bg-red-800/90 text-white font-mono font-bold text-xs px-2 py-0.5 rounded border border-red-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold block">BULAN :</span>
+                            <input type="text" name="nota_month" value="<%= order.nota_month || 'OKTOBER 2026' %>" class="w-full bg-red-800/90 text-white font-bold text-[10px] px-2 py-0.5 rounded border border-red-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BODY NOTA: DUA KOLOM -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 text-xs">
+                    
+                    <!-- KOLOM KIRI (Info Customer & Ringkasan Tagihan, Warna Peach/Orange Muda) -->
+                    <div class="lg:col-span-4 bg-orange-100/60 p-4 border-b lg:border-b-0 lg:border-r-2 border-black space-y-3">
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider text-[11px] pb-1 border-b border-orange-200">Data Pemesan</h4>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">NAMA</span>
+                                <input type="text" value="<%= order.customer_name %>" readonly class="flex-1 font-bold bg-white/70 border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">ALAMAT</span>
+                                <input type="text" name="customer_address" value="<%= order.customer_address || '' %>" placeholder="Alamat pemesan..." class="flex-1 bg-white border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs focus:ring-1 focus:ring-amber-500">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">TLP</span>
+                                <input type="text" value="<%= order.customer_phone || '-' %>" readonly class="flex-1 bg-white/70 border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">DESIGN</span>
+                                <input type="text" value="<%= order.article_name %>" readonly class="flex-1 font-semibold bg-white/70 border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">JENIS</span>
+                                <input type="text" value="<%= order.category === 'jersey' ? 'JERSEY' : 'KAOS OBLONG' %>" readonly class="flex-1 font-semibold bg-white/70 border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">WARNA</span>
+                                <input type="text" value="<%= order.warna_kaos || 'HITAM, PUTIH' %>" readonly class="flex-1 bg-white/70 border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">MATERIAL</span>
+                                <input type="text" value="<%= order.fabric_type || 'COMBED 24S' %>" readonly class="flex-1 bg-white/70 border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">SABLON</span>
+                                <input type="text" value="<%= order.tinta_type || 'PLASTISOL' %>" readonly class="flex-1 bg-white/70 border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">JUMLAH</span>
+                                <span class="font-black text-slate-900 bg-white border border-orange-300 rounded px-2 py-1 text-xs"><span id="leftTotalPcs"><%= order.total_pcs %></span> PCS</span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-700 w-24">FREE (BONUS)</span>
+                                <input type="number" min="0" name="free_qty" id="freeQtyInput" value="<%= order.free_qty || 0 %>" class="w-20 font-bold bg-white border border-orange-300 rounded px-2 py-1 text-slate-900 text-xs text-center">
+                            </div>
+                        </div>
+
+                        <!-- RINGKASAN KEUANGAN KIRI (TOTAL, DP, SISA) -->
+                        <div class="pt-3 border-t-2 border-orange-300 space-y-2 bg-orange-200/50 p-3 rounded-xl">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-extrabold text-slate-900">TOTAL</span>
+                                <span class="font-black text-slate-900 text-sm">Rp <span id="displayGrandTotal"><%= (order.total_price || 0).toLocaleString('id-ID') %></span></span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-extrabold text-slate-900">DP (UANG MUKA)</span>
+                                <div class="flex items-center space-x-1">
+                                    <span class="font-bold text-slate-700">Rp</span>
+                                    <input type="number" min="0" step="5000" name="down_payment" id="dpInput" value="<%= order.down_payment || 0 %>" class="w-28 text-right font-black bg-white border border-orange-400 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-amber-500">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs bg-red-100 p-2 rounded-lg border border-red-300">
+                                <span class="font-black text-red-700">SISA TAGIHAN</span>
+                                <span class="font-black text-red-600 text-base">Rp <span id="displayRemaining"><%= (order.remaining_payment || 0).toLocaleString('id-ID') %></span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KOLOM KANAN (Tabel Matriks Ukuran & Harga Satuan) -->
+                    <div class="lg:col-span-8 p-4 flex flex-col justify-between">
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Rincian Ukuran &amp; Harga Satuan (Bisa Diedit Bebas)</span>
+                                <button type="button" onclick="addNewItemRow()" class="text-[11px] font-bold text-blue-700 hover:text-blue-900 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200 flex items-center space-x-1">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                    <span>Tambah Baris Kaos</span>
+                                </button>
+                            </div>
+
+                            <!-- Form Atur Harga Satuan Global per Ukuran -->
+                            <div class="mb-3 p-2.5 bg-blue-50 border border-blue-200 rounded-xl">
+                                <span class="text-[10px] font-black uppercase text-blue-900 block mb-1">Setelan Harga Satuan (@) per Ukuran:</span>
+                                <div class="grid grid-cols-5 sm:grid-cols-9 gap-1.5 text-center">
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">XS</label>
+                                        <input type="number" step="1000" name="price_xs" value="<%= priceMatrix.xs %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="xs">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">S</label>
+                                        <input type="number" step="1000" name="price_s" value="<%= priceMatrix.s %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="s">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">M</label>
+                                        <input type="number" step="1000" name="price_m" value="<%= priceMatrix.m %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="m">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">L</label>
+                                        <input type="number" step="1000" name="price_l" value="<%= priceMatrix.l %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="l">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">XL</label>
+                                        <input type="number" step="1000" name="price_xl" value="<%= priceMatrix.xl %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="xl">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">2XL</label>
+                                        <input type="number" step="1000" name="price_2xl" value="<%= priceMatrix['2xl'] %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="2xl">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">3XL</label>
+                                        <input type="number" step="1000" name="price_3xl" value="<%= priceMatrix['3xl'] %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="3xl">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">4XL</label>
+                                        <input type="number" step="1000" name="price_4xl" value="<%= priceMatrix['4xl'] || 82000 %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="4xl">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-600">5XL</label>
+                                        <input type="number" step="1000" name="price_5xl" value="<%= priceMatrix['5xl'] || 87000 %>" class="price-size-input w-full text-center text-[11px] font-bold border border-slate-300 rounded px-1 py-0.5" data-size="5xl">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TABEL RINCIAN ITEM PERSIS GAMBAR 2 -->
+                            <div class="overflow-x-auto border-2 border-black rounded-lg">
+                                <table class="w-full text-center border-collapse text-[11px]" id="notaTable">
+                                    <thead>
+                                        <tr class="bg-blue-200 border-b-2 border-black font-bold">
+                                            <th rowspan="2" class="border-r border-black p-2 text-left w-36">URAIAN DETAIL</th>
+                                            <th colspan="9" class="border-b border-black py-1">SIZE</th>
+                                            <th rowspan="2" class="border-l border-black p-2 w-16">TOTAL</th>
+                                            <th rowspan="2" class="border-l border-black p-2 w-28">SUBTOTAL</th>
+                                        </tr>
+                                        <tr class="bg-blue-100 border-b-2 border-black font-semibold text-[10px]">
+                                            <th class="border-r border-black p-1">XS</th>
+                                            <th class="border-r border-black p-1">S</th>
+                                            <th class="border-r border-black p-1">M</th>
+                                            <th class="border-r border-black p-1">L</th>
+                                            <th class="border-r border-black p-1">XL</th>
+                                            <th class="border-r border-black p-1">2XL</th>
+                                            <th class="border-r border-black p-1">3XL</th>
+                                            <th class="border-r border-black p-1">4XL</th>
+                                            <th class="p-1">5XL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="notaItemsBody">
+                                        <% items.forEach((item, idx) => { %>
+                                        <tr class="item-row border-b border-black hover:bg-slate-50">
+                                            <td class="border-r border-black p-1.5 text-left font-bold">
+                                                <input type="text" name="item_names" value="<%= item.name %>" class="w-full font-bold text-xs bg-transparent border-0 focus:ring-0 p-0 text-slate-900">
+                                            </td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_xs" value="<%= item.qty_xs || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="xs"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_s" value="<%= item.qty_s || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="s"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_m" value="<%= item.qty_m || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="m"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_l" value="<%= item.qty_l || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="l"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_xl" value="<%= item.qty_xl || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="xl"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_2xl" value="<%= item.qty_2xl || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="2xl"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_3xl" value="<%= item.qty_3xl || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="3xl"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_4xl" value="<%= item.qty_4xl || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="4xl"></td>
+                                            <td class="border-r border-black p-1"><input type="number" min="0" name="item_5xl" value="<%= item.qty_5xl || 0 %>" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="5xl"></td>
+                                            <td class="border-r border-black p-1 font-black text-slate-800 row-total-qty">0</td>
+                                            <td class="p-1 font-black text-slate-900 row-subtotal-price">Rp 0</td>
+                                        </tr>
+                                        <% }) %>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-blue-100 border-t-2 border-black font-black">
+                                            <td class="border-r border-black p-2 text-left">JUMLAH BARANG</td>
+                                            <td colspan="9" class="border-r border-black p-1 text-slate-500 text-[10px] italic">Total akumulasi pcs</td>
+                                            <td class="border-r border-black p-2 text-blue-900" id="tableTotalPcs">0</td>
+                                            <td class="p-2 text-slate-900" id="tableGrandTotal">Rp 0</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Catatan Nota (Area Kuning Khas Gambar 2) -->
+                        <div class="mt-4 bg-amber-300 p-3 rounded-xl border-2 border-amber-500">
+                            <label class="block text-[11px] font-black uppercase text-amber-950 mb-1">Catatan Tambahan Nota:</label>
+                            <textarea name="nota_notes" rows="2" placeholder="Catatan pembayaran / instruksi DP / no resi..." class="w-full bg-white/90 border border-amber-600 rounded-lg p-2 text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-600"><%= order.nota_notes || '' %></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="flex items-center justify-between pt-2">
+                <a href="/admin/orders/<%= order.id %>" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-100 transition">
+                    Kembali
+                </a>
+                <div class="flex items-center space-x-3">
+                    <button type="submit" class="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>Simpan Perubahan Nota</span>
+                    </button>
+                    <a href="/admin/orders/<%= order.id %>/nota/print" target="_blank" class="inline-flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md transition">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Cetak Nota</span>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+    </main>
+</div>
+
+<script>
+    function calculateNota() {
+        // Ambil harga per size
+        const prices = {};
+        document.querySelectorAll('.price-size-input').forEach(input => {
+            const size = input.getAttribute('data-size');
+            prices[size] = parseInt(input.value) || 0;
+        });
+
+        let grandTotal = 0;
+        let totalPcs = 0;
+
+        // Hitung per baris
+        document.querySelectorAll('.item-row').forEach(row => {
+            let rowPcs = 0;
+            let rowPrice = 0;
+
+            row.querySelectorAll('.qty-cell').forEach(qtyInput => {
+                const size = qtyInput.getAttribute('data-size');
+                const qty = parseInt(qtyInput.value) || 0;
+                const price = prices[size] || 0;
+
+                rowPcs += qty;
+                rowPrice += (qty * price);
+            });
+
+            row.querySelector('.row-total-qty').textContent = rowPcs;
+            row.querySelector('.row-subtotal-price').textContent = 'Rp ' + rowPrice.toLocaleString('id-ID');
+
+            totalPcs += rowPcs;
+            grandTotal += rowPrice;
+        });
+
+        // Update footer tabel
+        document.getElementById('tableTotalPcs').textContent = totalPcs;
+        document.getElementById('tableGrandTotal').textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+        document.getElementById('leftTotalPcs').textContent = totalPcs;
+        document.getElementById('displayGrandTotal').textContent = grandTotal.toLocaleString('id-ID');
+
+        // Update DP & Sisa
+        const dp = parseInt(document.getElementById('dpInput').value) || 0;
+        const remaining = Math.max(0, grandTotal - dp);
+        document.getElementById('displayRemaining').textContent = remaining.toLocaleString('id-ID');
+    }
+
+    // Event listener
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('qty-cell') || 
+            e.target.classList.contains('price-size-input') || 
+            e.target.id === 'dpInput') {
+            calculateNota();
+        }
+    });
+
+    function addNewItemRow() {
+        const tbody = document.getElementById('notaItemsBody');
+        const tr = document.createElement('tr');
+        tr.className = 'item-row border-b border-black hover:bg-slate-50';
+        tr.innerHTML = `
+            <td class="border-r border-black p-1.5 text-left font-bold">
+                <input type="text" name="item_names" value="PUTIH PENDEK" class="w-full font-bold text-xs bg-transparent border-0 focus:ring-0 p-0 text-slate-900">
+            </td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_xs" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="xs"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_s" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="s"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_m" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="m"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_l" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="l"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_xl" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="xl"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_2xl" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="2xl"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_3xl" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="3xl"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_4xl" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="4xl"></td>
+            <td class="border-r border-black p-1"><input type="number" min="0" name="item_5xl" value="0" class="qty-cell w-full text-center font-semibold bg-transparent" data-size="5xl"></td>
+            <td class="border-r border-black p-1 font-black text-slate-800 row-total-qty">0</td>
+            <td class="p-1 font-black text-slate-900 row-subtotal-price">Rp 0</td>
+        `;
+        tbody.appendChild(tr);
+        calculateNota();
+    }
+
+    calculateNota();
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>

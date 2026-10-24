@@ -23,10 +23,19 @@ const OrderController = {
     },
 
     showCreateForm(req, res) {
+        const nextPoNumber = OrderModel.getNextPoNumber();
         res.render('admin/order-create', {
             title: 'Buat SPK / Order Baru',
             error: null,
-            formData: {}
+            nextPoNumber,
+            formData: {
+                po_number: nextPoNumber,
+                tgl_masuk: new Date().toISOString().slice(0, 10),
+                tinta_type: 'PLASTISOL',
+                finishing_type: 'PRES DOFT',
+                warna_kaos: 'HITAM, PUTIH',
+                shipping_courier: 'TUNAI'
+            }
         });
     },
 
@@ -254,6 +263,255 @@ const OrderController = {
             publicTrackUrl,
             qrCodeDataUrl,
             ROLE_LABELS,
+            printDate: new Date().toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            })
+        });
+    },
+
+    updateOrderPOK(req, res) {
+        try {
+            const orderId = req.params.id;
+            OrderModel.updatePOK(orderId, req.body);
+            return res.redirect(`/admin/orders/${orderId}/spk?saved=1`);
+        } catch (err) {
+            console.error('Error updateOrderPOK:', err);
+            return res.redirect(`/admin/orders/${req.params.id}/spk?err=${encodeURIComponent(err.message)}`);
+        }
+    },
+
+    showNotaCheck(req, res) {
+        const orderId = req.params.id;
+        const order = OrderModel.getById(orderId);
+
+        if (!order) {
+            return res.status(404).send('Pesanan tidak ditemukan');
+        }
+
+        let items = [];
+        try {
+            items = order.items_breakdown_json ? JSON.parse(order.items_breakdown_json) : [];
+        } catch (e) {
+            items = [];
+        }
+
+        if (!Array.isArray(items) || items.length === 0) {
+            // Default 1 baris berdasarkan warna & ukuran di order
+            items = [{
+                name: order.warna_kaos ? order.warna_kaos.split(',')[0].trim() + ' PENDEK' : 'KAOS PENDEK',
+                qty_xs: parseInt(order.size_xs) || 0,
+                qty_s: parseInt(order.size_s) || 0,
+                qty_m: parseInt(order.size_m) || 0,
+                qty_l: parseInt(order.size_l) || 0,
+                qty_xl: parseInt(order.size_xl) || 0,
+                qty_2xl: parseInt(order.size_2xl) || 0,
+                qty_3xl: parseInt(order.size_3xl) || 0,
+                qty_4xl: parseInt(order.size_4xl) || 0,
+                qty_5xl: parseInt(order.size_5xl) || 0
+            }];
+
+            // Jika ada warna kedua, tambahkan baris kedua
+            const colors = (order.warna_kaos || '').split(',').map(c => c.trim()).filter(Boolean);
+            if (colors.length > 1) {
+                items.push({
+                    name: colors[1] + ' PENDEK',
+                    qty_xs: 0,
+                    qty_s: 0,
+                    qty_m: 0,
+                    qty_l: 0,
+                    qty_xl: 0,
+                    qty_2xl: 0,
+                    qty_3xl: 0,
+                    qty_4xl: 0,
+                    qty_5xl: 0
+                });
+            }
+        }
+
+        let priceMatrix = {
+            xs: 67000,
+            s: 67000,
+            m: 67000,
+            l: 67000,
+            xl: 67000,
+            '2xl': 72000,
+            '3xl': 77000,
+            '4xl': 82000,
+            '5xl': 87000
+        };
+
+        try {
+            if (order.price_matrix_json) {
+                const parsedPrices = JSON.parse(order.price_matrix_json);
+                priceMatrix = { ...priceMatrix, ...parsedPrices };
+            }
+        } catch (e) {}
+
+        res.render('admin/nota-check', {
+            title: `Cek Nota - PO #${order.po_number || order.id} (${order.customer_name})`,
+            order,
+            items,
+            priceMatrix,
+            saved: req.query.saved === '1'
+        });
+    },
+
+    saveNota(req, res) {
+        try {
+            const orderId = req.params.id;
+            const {
+                customer_address,
+                nota_number,
+                nota_month,
+                nota_notes,
+                down_payment,
+                free_qty,
+                price_m,
+                price_l,
+                price_xl,
+                price_2xl,
+                price_3xl,
+                price_xs,
+                price_s,
+                price_4xl,
+                price_5xl,
+                item_names,
+                item_m,
+                item_l,
+                item_xl,
+                item_2xl,
+                item_3xl,
+                item_xs,
+                item_s,
+                item_4xl,
+                item_5xl
+            } = req.body;
+
+            const priceMatrix = {
+                xs: parseInt(price_xs) || 67000,
+                s: parseInt(price_s) || 67000,
+                m: parseInt(price_m) || 67000,
+                l: parseInt(price_l) || 67000,
+                xl: parseInt(price_xl) || 67000,
+                '2xl': parseInt(price_2xl) || 72000,
+                '3xl': parseInt(price_3xl) || 77000,
+                '4xl': parseInt(price_4xl) || 82000,
+                '5xl': parseInt(price_5xl) || 87000
+            };
+
+            // Susun item rows
+            const items = [];
+            let grandTotal = 0;
+
+            const names = Array.isArray(item_names) ? item_names : [item_names].filter(Boolean);
+            const mArr = Array.isArray(item_m) ? item_m : [item_m];
+            const lArr = Array.isArray(item_l) ? item_l : [item_l];
+            const xlArr = Array.isArray(item_xl) ? item_xl : [item_xl];
+            const xxlArr = Array.isArray(item_2xl) ? item_2xl : [item_2xl];
+            const xxxlArr = Array.isArray(item_3xl) ? item_3xl : [item_3xl];
+            const xsArr = Array.isArray(item_xs) ? item_xs : [item_xs];
+            const sArr = Array.isArray(item_s) ? item_s : [item_s];
+            const fxlArr = Array.isArray(item_4xl) ? item_4xl : [item_4xl];
+            const ffxlArr = Array.isArray(item_5xl) ? item_5xl : [item_5xl];
+
+            names.forEach((name, idx) => {
+                const q_xs = parseInt(xsArr[idx]) || 0;
+                const q_s = parseInt(sArr[idx]) || 0;
+                const q_m = parseInt(mArr[idx]) || 0;
+                const q_l = parseInt(lArr[idx]) || 0;
+                const q_xl = parseInt(xlArr[idx]) || 0;
+                const q_2xl = parseInt(xxlArr[idx]) || 0;
+                const q_3xl = parseInt(xxxlArr[idx]) || 0;
+                const q_4xl = parseInt(fxlArr[idx]) || 0;
+                const q_5xl = parseInt(ffxlArr[idx]) || 0;
+
+                const rowSubtotal = 
+                    (q_xs * priceMatrix.xs) +
+                    (q_s * priceMatrix.s) +
+                    (q_m * priceMatrix.m) +
+                    (q_l * priceMatrix.l) +
+                    (q_xl * priceMatrix.xl) +
+                    (q_2xl * priceMatrix['2xl']) +
+                    (q_3xl * priceMatrix['3xl']) +
+                    (q_4xl * priceMatrix['4xl']) +
+                    (q_5xl * priceMatrix['5xl']);
+
+                grandTotal += rowSubtotal;
+
+                items.push({
+                    name,
+                    qty_xs: q_xs,
+                    qty_s: q_s,
+                    qty_m: q_m,
+                    qty_l: q_l,
+                    qty_xl: q_xl,
+                    qty_2xl: q_2xl,
+                    qty_3xl: q_3xl,
+                    qty_4xl: q_4xl,
+                    qty_5xl: q_5xl,
+                    subtotal: rowSubtotal
+                });
+            });
+
+            const dp = parseInt(down_payment) || 0;
+            const remaining = Math.max(0, grandTotal - dp);
+
+            OrderModel.updateNota(orderId, {
+                customer_address,
+                nota_number,
+                nota_month,
+                nota_notes,
+                items_breakdown_json: JSON.stringify(items),
+                price_matrix_json: JSON.stringify(priceMatrix),
+                total_price: grandTotal,
+                down_payment: dp,
+                remaining_payment: remaining,
+                free_qty: parseInt(free_qty) || 0
+            });
+
+            return res.redirect(`/admin/orders/${orderId}/nota?saved=1`);
+        } catch (err) {
+            console.error('Error saveNota:', err);
+            return res.redirect(`/admin/orders/${req.params.id}/nota?err=${encodeURIComponent(err.message)}`);
+        }
+    },
+
+    showNotaPrint(req, res) {
+        const orderId = req.params.id;
+        const order = OrderModel.getById(orderId);
+
+        if (!order) {
+            return res.status(404).send('Pesanan tidak ditemukan');
+        }
+
+        let items = [];
+        try {
+            items = order.items_breakdown_json ? JSON.parse(order.items_breakdown_json) : [];
+        } catch (e) {}
+
+        let priceMatrix = {
+            xs: 67000,
+            s: 67000,
+            m: 67000,
+            l: 67000,
+            xl: 67000,
+            '2xl': 72000,
+            '3xl': 77000,
+            '4xl': 82000,
+            '5xl': 87000
+        };
+        try {
+            if (order.price_matrix_json) {
+                priceMatrix = { ...priceMatrix, ...JSON.parse(order.price_matrix_json) };
+            }
+        } catch (e) {}
+
+        res.render('admin/nota-print', {
+            order,
+            items,
+            priceMatrix,
             printDate: new Date().toLocaleDateString('id-ID', {
                 day: 'numeric',
                 month: 'long',

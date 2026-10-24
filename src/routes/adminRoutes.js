@@ -17,5 +17,9 @@ router.get('/orders/:id/edit', OrderController.showEditForm);
 router.post('/orders/:id/edit', OrderController.updateOrder);
 router.post('/orders/:id/cancel', OrderController.cancelOrder);
 router.get('/orders/:id/spk', OrderController.showSpkPrint);
+router.post('/orders/:id/spk/update', OrderController.updateOrderPOK);
+router.get('/orders/:id/nota', OrderController.showNotaCheck);
+router.post('/orders/:id/nota', OrderController.saveNota);
+router.get('/orders/:id/nota/print', OrderController.showNotaPrint);
 
 module.exports = router;

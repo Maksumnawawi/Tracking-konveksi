@@ -69,6 +69,7 @@ async function initDatabase() {
             const seedSql = fs.readFileSync(seedPath, 'utf8');
             db.exec(seedSql);
         }
+        migrateTrchSchema(db);
         saveDatabase();
     } else {
         // Auto-migration untuk tabel notifikasi jika belum ada
@@ -87,10 +88,55 @@ async function initDatabase() {
                 is_read INTEGER DEFAULT 0
             );
         `);
+        migrateTrchSchema(db);
         saveDatabase();
     }
 
     return db;
+}
+
+function migrateTrchSchema(database) {
+    try {
+        const tableInfo = database.exec("PRAGMA table_info(orders);");
+        const existingCols = new Set();
+        if (tableInfo.length && tableInfo[0].values) {
+            tableInfo[0].values.forEach(row => existingCols.add(row[1]));
+        }
+
+        const newColumns = [
+            { name: 'po_number', type: 'INTEGER DEFAULT 1' },
+            { name: 'tgl_masuk', type: 'TEXT' },
+            { name: 'tgl_jadi', type: 'TEXT' },
+            { name: 'tinta_type', type: 'TEXT DEFAULT "PLASTISOL"' },
+            { name: 'finishing_type', type: 'TEXT DEFAULT "PRES DOFT"' },
+            { name: 'warna_kaos', type: 'TEXT DEFAULT "HITAM, PUTIH"' },
+            { name: 'warna_sablon_depan', type: 'TEXT DEFAULT ""' },
+            { name: 'warna_sablon_belakang', type: 'TEXT DEFAULT ""' },
+            { name: 'shipping_courier', type: 'TEXT DEFAULT "TUNAI"' },
+            { name: 'mockup_front_url', type: 'TEXT DEFAULT ""' },
+            { name: 'mockup_back_url', type: 'TEXT DEFAULT ""' },
+            { name: 'free_qty', type: 'INTEGER DEFAULT 0' },
+            { name: 'items_breakdown_json', type: 'TEXT DEFAULT "[]"' },
+            { name: 'price_matrix_json', type: 'TEXT DEFAULT "{}"' },
+            { name: 'total_price', type: 'INTEGER DEFAULT 0' },
+            { name: 'down_payment', type: 'INTEGER DEFAULT 0' },
+            { name: 'remaining_payment', type: 'INTEGER DEFAULT 0' },
+            { name: 'nota_number', type: 'TEXT DEFAULT ""' },
+            { name: 'nota_month', type: 'TEXT DEFAULT ""' },
+            { name: 'nota_notes', type: 'TEXT DEFAULT ""' },
+            { name: 'customer_address', type: 'TEXT DEFAULT ""' },
+            { name: 'size_4xl', type: 'INTEGER DEFAULT 0' },
+            { name: 'size_5xl', type: 'INTEGER DEFAULT 0' }
+        ];
+
+        newColumns.forEach(col => {
+            if (!existingCols.has(col.name)) {
+                database.run(`ALTER TABLE orders ADD COLUMN ${col.name} ${col.type};`);
+            }
+        });
+    } catch (e) {
+        console.warn('Migration TRCH notice:', e.message);
+    }
 }
 
 function saveDatabase() {

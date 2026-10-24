@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Nota - <%= order.nota_number || order.po_number || order.id %> - TRCH SCREEN PRINTING</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .nota-page {
+                box-shadow: none !important;
+                border: 2px solid black !important;
+                margin: 0 auto !important;
+                max-width: 100% !important;
+            }
+        }
+
+        @media screen {
+            body {
+                background-color: #4b5563;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .nota-page {
+                background: white;
+                width: 250mm;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+                border-radius: 4px;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-900 antialiased">
+
+    <!-- Print Control Toolbar (Layar Monitor Saja) -->
+    <div class="no-print w-full max-w-[250mm] mb-4 flex items-center justify-between bg-slate-900 text-white px-5 py-3 rounded-xl shadow-lg">
+        <div class="flex items-center space-x-3">
+            <a href="/admin/orders/<%= order.id %>/nota" class="text-xs text-slate-300 hover:text-white flex items-center space-x-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Kembali ke Edit Nota</span>
+            </a>
+            <span class="text-slate-500">|</span>
+            <span class="text-xs font-semibold text-amber-300">Pratinjau Nota Penjualan TRCH</span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-2 rounded-lg text-xs flex items-center space-x-2 shadow-md">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Cetak Nota Sekarang (Print)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Halaman Nota Fisik (Format Persis Gambar 2) -->
+    <div class="nota-page border-4 border-black text-xs overflow-hidden">
+        
+        <!-- HEADER NOTA TRCH (Kuning & Merah) -->
+        <div class="grid grid-cols-12 border-b-4 border-black">
+            <!-- Sisi Kiri Merah + Logo TRCH -->
+            <div class="col-span-3 bg-red-700 p-2.5 flex items-center justify-center border-r-2 border-black" style="background-color: #b91c1c;">
+                <img src="/images/trch-logo.svg" alt="TRCH Logo" class="h-20 w-auto bg-black rounded p-0.5 border-2 border-white">
+            </div>
+
+            <!-- Bagian Tengah Kuning Terang -->
+            <div class="col-span-7 bg-yellow-400 p-2 text-center flex flex-col justify-center text-slate-900" style="background-color: #facc15;">
+                <h1 class="text-3xl font-serif font-black tracking-widest text-red-700 leading-tight" style="color: #b91c1c;">NOTA</h1>
+                <h2 class="text-2xl font-black tracking-wide text-red-700" style="color: #b91c1c;">TRCH SCREEN PRINTING</h2>
+                <p class="text-[9px] font-black uppercase tracking-tight text-slate-900 mt-1">
+                    JALAN CINCIN KOTA, RT 11 RW 03, SUMELANG KELURAHAN: GEMEKSEKTI, KEBUMEN, JAWA TENGAH
+                </p>
+                <p class="text-[10px] font-black text-slate-900">HP. 081514418116</p>
+            </div>
+
+            <!-- Sisi Kanan Merah (No & Bulan) -->
+            <div class="col-span-2 bg-red-700 p-3 text-white flex flex-col justify-center space-y-1.5 border-l-2 border-black" style="background-color: #b91c1c;">
+                <p class="text-xs font-black">No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <span class="font-mono underline text-sm"><%= order.nota_number || order.po_number || order.id %></span></p>
+                <p class="text-[10px] font-bold">BULAN : <span class="font-mono text-xs"><%= order.nota_month || 'OKTOBER 2026' %></span></p>
+            </div>
+        </div>
+
+        <!-- ISI NOTA: DUA KOLOM -->
+        <div class="grid grid-cols-12 border-collapse">
+            
+            <!-- KOLOM KIRI (Data Pemesan & Ringkasan Total, Background Peach/Orange) -->
+            <div class="col-span-4 p-3 border-r-2 border-black space-y-1.5" style="background-color: #ffedd5;">
+                
+                <table class="w-full text-left font-bold text-[11px] leading-relaxed">
+                    <tr>
+                        <td class="w-24 text-slate-800">NAMA</td>
+                        <td class="w-3">:</td>
+                        <td class="text-slate-950 font-black"><%= order.customer_name %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">ALAMAT</td>
+                        <td>:</td>
+                        <td class="text-slate-900"><%= order.customer_address || '-' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">TLP</td>
+                        <td>:</td>
+                        <td class="text-slate-900"><%= order.customer_phone || '-' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">DESIGN</td>
+                        <td>:</td>
+                        <td class="text-slate-900 uppercase"><%= order.article_name %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">JENIS</td>
+                        <td>:</td>
+                        <td class="text-slate-900 uppercase"><%= order.category === 'jersey' ? 'JERSEY' : 'KAOS OBLONG' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">WARNA</td>
+                        <td>:</td>
+                        <td class="text-slate-900 uppercase"><%= order.warna_kaos || 'HITAM, PUTIH' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">MATERIAL</td>
+                        <td>:</td>
+                        <td class="text-slate-900 uppercase"><%= order.fabric_type || 'COMBED 24S' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">SABLON</td>
+                        <td>:</td>
+                        <td class="text-slate-900 uppercase"><%= order.tinta_type || 'PLASTISOL' %></td>
+                    </tr>
+                    <tr>
+                        <td class="text-slate-800">JUMLAH</td>
+                        <td>:</td>
+                        <td class="text-slate-950 font-black"><%= order.total_pcs %> PCS</td>
+                    </tr>
+                </table>
+
+                <div class="pt-3 border-t-2 border-orange-300 space-y-1.5 text-xs">
+                    <div class="flex items-center justify-between font-extrabold text-slate-900">
+                        <span>TOTAL</span>
+                        <span>Rp <%= (order.total_price || 0).toLocaleString('id-ID') %></span>
+                    </div>
+                    <div class="flex items-center justify-between font-extrabold text-slate-900">
+                        <span>DP</span>
+                        <span>Rp <%= (order.down_payment || 0).toLocaleString('id-ID') %></span>
+                    </div>
+                    <!-- Sisa dengan highlight merah persis Gambar 2 -->
+                    <div class="flex items-center justify-between font-black text-sm text-red-600" style="color: #dc2626;">
+                        <span>SISA</span>
+                        <span>Rp <%= (order.remaining_payment || 0).toLocaleString('id-ID') %></span>
+                    </div>
+                    <div class="flex items-center justify-between font-bold text-slate-700 text-[11px] pt-1">
+                        <span>FREE (BONUS)</span>
+                        <span><%= order.free_qty || 0 %> PCS</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- KOLOM KANAN (Tabel Rincian Size & Harga, Warna Biru Muda Khas Gambar 2) -->
+            <div class="col-span-8 flex flex-col justify-between">
+                
+                <table class="w-full text-center border-collapse text-[10px]" style="background-color: #f0f9ff;">
+                    <thead>
+                        <tr class="border-b border-black font-black" style="background-color: #bae6fd;">
+                            <th rowspan="2" class="border-r border-black p-1.5 text-left w-32">URAIAN DETAIL</th>
+                            <th colspan="9" class="border-b border-black py-0.5">SIZE</th>
+                            <th rowspan="2" class="border-l border-black p-1.5 w-14">TOTAL</th>
+                        </tr>
+                        <tr class="border-b border-black font-bold" style="background-color: #e0f2fe;">
+                            <th class="border-r border-black p-0.5 w-8">XS</th>
+                            <th class="border-r border-black p-0.5 w-8">S</th>
+                            <th class="border-r border-black p-0.5 w-8">M</th>
+                            <th class="border-r border-black p-0.5 w-8">L</th>
+                            <th class="border-r border-black p-0.5 w-8">XL</th>
+                            <th class="border-r border-black p-0.5 w-8">2XL</th>
+                            <th class="border-r border-black p-0.5 w-8">3XL</th>
+                            <th class="border-r border-black p-0.5 w-8">4XL</th>
+                            <th class="border-r border-black p-0.5 w-8">5XL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (items && items.length > 0) { %>
+                            <% items.forEach((it) => { %>
+                            <!-- Baris Kuantitas -->
+                            <tr class="border-b border-black font-bold text-slate-900" style="background-color: #ffffff;">
+                                <td class="border-r border-black p-1 text-left uppercase font-black"><%= it.name %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_xs || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_s || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_m || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_l || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_2xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_3xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_4xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= it.qty_5xl || '' %></td>
+                                <td class="p-1 font-black"><%= (it.qty_xs||0) + (it.qty_s||0) + (it.qty_m||0) + (it.qty_l||0) + (it.qty_xl||0) + (it.qty_2xl||0) + (it.qty_3xl||0) + (it.qty_4xl||0) + (it.qty_5xl||0) %></td>
+                            </tr>
+                            <!-- Baris Harga Satuan -->
+                            <tr class="border-b border-black text-[9px] text-slate-700 font-semibold" style="background-color: #f8fafc;">
+                                <td class="border-r border-black p-1 text-left font-bold text-slate-500">HARGA @</td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_xs ? (priceMatrix.xs/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_s ? (priceMatrix.s/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_m ? (priceMatrix.m/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_l ? (priceMatrix.l/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_xl ? (priceMatrix.xl/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_2xl ? (priceMatrix['2xl']/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_3xl ? (priceMatrix['3xl']/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_4xl ? (priceMatrix['4xl']/1000) + 'k' : '' %></td>
+                                <td class="border-r border-black p-0.5"><%= it.qty_5xl ? (priceMatrix['5xl']/1000) + 'k' : '' %></td>
+                                <td class="p-0.5 font-bold text-slate-900">Rp <%= (it.subtotal || 0).toLocaleString('id-ID') %></td>
+                            </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr class="border-b border-black font-bold">
+                                <td class="border-r border-black p-1 text-left font-black">KAOS PENDEK</td>
+                                <td class="border-r border-black p-1"><%= order.size_xs || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_s || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_m || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_l || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_2xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_3xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_4xl || '' %></td>
+                                <td class="border-r border-black p-1"><%= order.size_5xl || '' %></td>
+                                <td class="p-1 font-black"><%= order.total_pcs %></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-b border-black font-black" style="background-color: #bae6fd;">
+                            <td class="border-r border-black p-1.5 text-left">JUMLAH BARANG</td>
+                            <td colspan="9" class="border-r border-black p-1 text-right pr-2">TOTAL PCS:</td>
+                            <td class="p-1.5 font-black text-blue-950"><%= order.total_pcs %></td>
+                        </tr>
+                        <tr class="border-b-2 border-black font-black" style="background-color: #7dd3fc;">
+                            <td class="border-r border-black p-1.5 text-left">JUMLAH HARGA</td>
+                            <td colspan="9" class="border-r border-black p-1 text-right pr-2">GRAND TOTAL:</td>
+                            <td class="p-1.5 font-black text-slate-950">Rp <%= (order.total_price || 0).toLocaleString('id-ID') %></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <!-- Catatan Nota (Area Kuning Khas Gambar 2) -->
+                <div class="p-2 border-t-2 border-black" style="background-color: #facc15;">
+                    <p class="font-black text-[10px] text-slate-900 uppercase">Catatan:</p>
+                    <p class="text-[10px] text-slate-900 font-medium min-h-[35px] leading-tight mt-0.5">
+                        <%= order.nota_notes || 'Barang yang sudah dibeli tidak dapat ditukar/dikembalikan kecuali ada perjanjian sebelumnya. Terima kasih atas kepercayaan Anda memesan di TRCH Screen Printing.' %>
+                    </p>
+                </div>
+
+                <!-- Tanda Tangan Pembeli & TRCH -->
+                <div class="grid grid-cols-2 text-center p-3 text-[10px] bg-white border-t border-slate-300">
+                    <div>
+                        <p class="font-bold text-slate-600">Penerima / Pemesan,</p>
+                        <div class="h-12"></div>
+                        <p class="font-black underline">( <%= order.customer_name %> )</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-600">Hormat Kami (TRCH),</p>
+                        <div class="h-12"></div>
+                        <p class="font-black underline">( Admin TRCH Production )</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" width="100%" height="100%">
+  <!-- Background Box -->
+  <rect x="5" y="5" width="590" height="230" fill="#000000" rx="6" />
+  <rect x="12" y="12" width="576" height="216" fill="none" stroke="#ffffff" stroke-width="2" />
+
+  <!-- Main "TRCH" Typography -->
+  <g fill="#ffffff" font-family="'Times New Roman', Times, 'Cinzel', Georgia, serif" font-weight="900" font-size="140" letter-spacing="4">
+    <!-- T -->
+    <text x="35" y="145">T</text>
+    <!-- R -->
+    <text x="145" y="145">R</text>
+    <!-- C -->
+    <text x="290" y="145">C</text>
+    <!-- H -->
+    <text x="430" y="145">H</text>
+  </g>
+
+  <!-- Diagonal Slice Accent across R and C -->
+  <line x1="170" y1="175" x2="390" y2="45" stroke="#000000" stroke-width="12" />
+  <line x1="173" y1="175" x2="393" y2="45" stroke="#ffffff" stroke-width="3" />
+
+  <!-- Sub-banner divider -->
+  <rect x="35" y="172" width="530" height="2" fill="#ffffff" />
+
+  <!-- Bottom Banner Details -->
+  <g fill="#ffffff" font-family="'Montserrat', 'Arial Black', sans-serif">
+    <!-- 2016 -->
+    <text x="50" y="202" font-size="20" font-weight="800" letter-spacing="3">= 2016 =</text>
+    
+    <!-- Feather / Arrow Divider -->
+    <polygon points="175,195 190,190 190,200" fill="#ffffff"/>
+    <line x1="195" y1="195" x2="225" y2="195" stroke="#ffffff" stroke-width="2" />
+
+    <!-- SCREEN PRINTING -->
+    <text x="240" y="202" font-size="22" font-weight="900" letter-spacing="6">SCREEN PRINTING</text>
+
+    <!-- Right Feather -->
+    <line x1="535" y1="195" x2="560" y2="195" stroke="#ffffff" stroke-width="2" />
+  </g>
+</svg>
