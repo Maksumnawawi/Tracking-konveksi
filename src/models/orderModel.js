@@ -112,6 +112,11 @@ const OrderModel = {
         const warnaKaos = data.warna_kaos || 'HITAM, PUTIH';
         const shippingCourier = data.shipping_courier || 'TUNAI';
 
+        let warnaSablonDepan = data.warna_sablon_depan || '';
+        if (Array.isArray(warnaSablonDepan)) warnaSablonDepan = warnaSablonDepan.join(',');
+        let warnaSablonBelakang = data.warna_sablon_belakang || '';
+        if (Array.isArray(warnaSablonBelakang)) warnaSablonBelakang = warnaSablonBelakang.join(',');
+
         // Insert Order
         const insertOrderSql = `
             INSERT INTO orders (
@@ -165,8 +170,8 @@ const OrderModel = {
             tintaType,
             finishingType,
             warnaKaos,
-            data.warna_sablon_depan || '',
-            data.warna_sablon_belakang || '',
+            warnaSablonDepan,
+            warnaSablonBelakang,
             shippingCourier,
             data.mockup_front_url || '',
             data.mockup_back_url || '',
@@ -295,6 +300,11 @@ const OrderModel = {
     },
 
     updatePOK(orderId, data) {
+        let warnaSablonDepan = data.warna_sablon_depan || '';
+        if (Array.isArray(warnaSablonDepan)) warnaSablonDepan = warnaSablonDepan.join(',');
+        let warnaSablonBelakang = data.warna_sablon_belakang || '';
+        if (Array.isArray(warnaSablonBelakang)) warnaSablonBelakang = warnaSablonBelakang.join(',');
+
         const sql = `
             UPDATE orders SET
                 po_number = ?,
@@ -317,8 +327,8 @@ const OrderModel = {
             data.tinta_type || '',
             data.finishing_type || '',
             data.warna_kaos || '',
-            data.warna_sablon_depan || '',
-            data.warna_sablon_belakang || '',
+            warnaSablonDepan,
+            warnaSablonBelakang,
             data.shipping_courier || 'TUNAI',
             data.mockup_front_url || '',
             data.mockup_back_url || '',

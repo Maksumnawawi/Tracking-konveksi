@@ -134,6 +134,16 @@ function migrateTrchSchema(database) {
                 database.run(`ALTER TABLE orders ADD COLUMN ${col.name} ${col.type};`);
             }
         });
+
+        // Update nama dummy lama menjadi 'Nama Kepala' dan 'Admin' jika masih berisi nama sampel bawaan
+        database.run(`
+            UPDATE users SET full_name = 'Admin', division_name = 'Admin' 
+            WHERE username = 'admin' AND (full_name LIKE '%Hendra%' OR full_name LIKE '%Owner%');
+        `);
+        database.run(`
+            UPDATE users SET full_name = 'Nama Kepala' 
+            WHERE username != 'admin' AND full_name IN ('Bagus Pratama', 'Fajar Ramadhan', 'Slamet Riyadi', 'Ibu Siti Aminah', 'Dewi Lestari', 'Rian Hidayat');
+        `);
     } catch (e) {
         console.warn('Migration TRCH notice:', e.message);
     }

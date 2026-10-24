@@ -4,14 +4,15 @@
 -- ====================================================================
 
 -- 1. DATA PENGGUNA (ROLE & PIC DIVISI)
+-- Default Sandi: Admin -> admin123 | Divisi -> 123456 (bisa diedit di sistem)
 INSERT OR IGNORE INTO users (id, username, password_hash, full_name, role, division_name, phone) VALUES
-(1, 'admin', '$2b$10$yVnOZ1oSKNKgYYKrieWateH9iyAcrdGB5s7Ywl3O/rfaE39kc9yPm', 'Hendra Wijaya (Owner/Admin)', 'admin', 'Manajemen & Owner', '081234567800'),
-(2, 'desain', '$2b$10$yVnOZ1oSKNKgYYKrieWateH9iyAcrdGB5s7Ywl3O/rfaE39kc9yPm', 'Bagus Pratama', 'desain', 'Divisi Desain & Pola', '081234567801'),
-(3, 'print_sablon', '$2b$10$yVnOZ1oSKNKgYYKrieWateH9iyAcrdGB5s7Ywl3O/rfaE39kc9yPm', 'Fajar Ramadhan', 'print_sablon', 'Divisi Cetak Sablon & Sublim', '081234567802'),
-(4, 'potong', '$2b$10$yVnOZ1oSKNKgYYKrieWateH9iyAcrdGB5s7Ywl3O/rfaE39kc9yPm', 'Slamet Riyadi', 'potong', 'Divisi Potong (Cutting)', '081234567803'),
-(5, 'jahit', '$2b$10$yVnOZ1oSKNKgYYKrieWateH9iyAcrdGB5s7Ywl3O/rfaE39kc9yPm', 'Ibu Siti Aminah', 'jahit', 'Divisi Jahit (Sewing)', '081234567804'),
-(6, 'qc_packing', '$2b$10$yVnOZ1oSKNKgYYKrieWateH9iyAcrdGB5s7Ywl3O/rfaE39kc9yPm', 'Dewi Lestari', 'qc_packing', 'Divisi QC & Packing', '081234567805'),
-(7, 'kirim', '$2b$10$yVnOZ1oSKNKgYYKrieWateH9iyAcrdGB5s7Ywl3O/rfaE39kc9yPm', 'Rian Hidayat', 'kirim', 'Divisi Pengiriman & Ekspedisi', '081234567806');
+(1, 'admin', '$2b$10$Sn05EhTJbH4tN.9lxEnnU.eBK06ttr99XbNQgGLxH8.slLthTuTtG', 'Admin', 'admin', 'Admin', '081514418116'),
+(2, 'desain', '$2b$10$4hWziEKBezF2mle.D5IHQuQUTFwwoLAqs.F/ZjmxuwafvBb4RSNL6', 'Nama Kepala', 'desain', 'Divisi Desain & Pola', '081234567801'),
+(3, 'print_sablon', '$2b$10$4hWziEKBezF2mle.D5IHQuQUTFwwoLAqs.F/ZjmxuwafvBb4RSNL6', 'Nama Kepala', 'print_sablon', 'Divisi Cetak Sablon & Sublim', '081234567802'),
+(4, 'potong', '$2b$10$4hWziEKBezF2mle.D5IHQuQUTFwwoLAqs.F/ZjmxuwafvBb4RSNL6', 'Nama Kepala', 'potong', 'Divisi Potong (Cutting)', '081234567803'),
+(5, 'jahit', '$2b$10$4hWziEKBezF2mle.D5IHQuQUTFwwoLAqs.F/ZjmxuwafvBb4RSNL6', 'Nama Kepala', 'jahit', 'Divisi Jahit (Sewing)', '081234567804'),
+(6, 'qc_packing', '$2b$10$4hWziEKBezF2mle.D5IHQuQUTFwwoLAqs.F/ZjmxuwafvBb4RSNL6', 'Nama Kepala', 'qc_packing', 'Divisi QC & Packing', '081234567805'),
+(7, 'kirim', '$2b$10$4hWziEKBezF2mle.D5IHQuQUTFwwoLAqs.F/ZjmxuwafvBb4RSNL6', 'Nama Kepala', 'kirim', 'Divisi Pengiriman & Ekspedisi', '081234567806');
 
 -- 2. PESANAN SAMPEL 1: KAOS KOMUNITAS (SEDANG DI TAHAP JAHIT)
 INSERT OR IGNORE INTO orders (

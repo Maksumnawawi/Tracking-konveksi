@@ -10,6 +10,18 @@
     </div>
 
     <div class="sm:mx-auto sm:w-full sm:max-w-lg">
+        <% 
+        const userMap = {}; 
+        (users || []).forEach(u => { userMap[u.username] = u; }); 
+        const getDisplayName = (uname) => {
+            if (uname === 'admin') return 'Admin';
+            const u = userMap[uname];
+            if (u && u.full_name && !['Bagus Pratama', 'Fajar Ramadhan', 'Slamet Riyadi', 'Ibu Siti Aminah', 'Dewi Lestari', 'Rian Hidayat'].includes(u.full_name)) {
+                return u.full_name;
+            }
+            return 'Nama Kepala';
+        };
+        %>
         
         <!-- Flash Alert Error -->
         <% if (error) { %>
@@ -19,19 +31,19 @@
         </div>
         <% } %>
 
-        <!-- Grid 7 Akun (Owner + 6 Divisi) -->
+        <!-- Grid 7 Akun (Admin + 6 Divisi) -->
         <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-2xl backdrop-blur-sm">
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 
-                <!-- 1. Owner / Admin -->
-                <button type="button" onclick="openLoginModal('admin', 'Owner / Manajemen', '👑', 'border-purple-500/50 bg-purple-950/20 text-purple-300')" class="col-span-2 sm:col-span-3 p-3.5 rounded-xl border border-purple-500/40 bg-purple-900/20 hover:bg-purple-900/40 transition flex items-center justify-between text-left group">
+                <!-- 1. Admin -->
+                <button type="button" onclick="openLoginModal('admin', 'Admin', '👑', 'border-purple-500/50 bg-purple-950/20 text-purple-300')" class="col-span-2 sm:col-span-3 p-3.5 rounded-xl border border-purple-500/40 bg-purple-900/20 hover:bg-purple-900/40 transition flex items-center justify-between text-left group">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-xl">
                             👑
                         </div>
                         <div>
-                            <span class="text-sm font-bold text-white block group-hover:text-purple-300 transition">Owner / Manajemen</span>
-                            <span class="text-[11px] text-purple-300/70">Akses penuh semua divisi & pesanan</span>
+                            <span class="text-sm font-bold text-white block group-hover:text-purple-300 transition">Admin</span>
+                            <span class="text-[11px] text-purple-300/70">Akses penuh semua divisi, pesanan &amp; sandi</span>
                         </div>
                     </div>
                     <i data-lucide="key-round" class="w-4 h-4 text-purple-400 opacity-60 group-hover:opacity-100 transition"></i>
@@ -41,48 +53,54 @@
                 <button type="button" onclick="openLoginModal('desain', 'Divisi Desain & Pola', '🎨', 'border-blue-500/50 bg-blue-950/20 text-blue-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-blue-500/50 hover:bg-slate-900/80 transition text-center group">
                     <span class="text-2xl block mb-1">🎨</span>
                     <span class="text-xs font-bold text-slate-200 block group-hover:text-blue-400 transition">Desain</span>
-                    <span class="text-[10px] text-slate-400">Bagus Pratama</span>
+                    <span class="text-[10px] text-slate-400"><%= getDisplayName('desain') %></span>
                 </button>
 
                 <!-- 3. Sablon & Sublim -->
                 <button type="button" onclick="openLoginModal('print_sablon', 'Divisi Sablon & Sublim', '🖨️', 'border-amber-500/50 bg-amber-950/20 text-amber-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-amber-500/50 hover:bg-slate-900/80 transition text-center group">
                     <span class="text-2xl block mb-1">🖨️</span>
                     <span class="text-xs font-bold text-slate-200 block group-hover:text-amber-400 transition">Sablon / Sublim</span>
-                    <span class="text-[10px] text-slate-400">Fajar Ramadhan</span>
+                    <span class="text-[10px] text-slate-400"><%= getDisplayName('print_sablon') %></span>
                 </button>
 
                 <!-- 4. Potong -->
                 <button type="button" onclick="openLoginModal('potong', 'Divisi Potong (Cutting)', '✂️', 'border-indigo-500/50 bg-indigo-950/20 text-indigo-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-indigo-500/50 hover:bg-slate-900/80 transition text-center group">
                     <span class="text-2xl block mb-1">✂️</span>
                     <span class="text-xs font-bold text-slate-200 block group-hover:text-indigo-400 transition">Potong</span>
-                    <span class="text-[10px] text-slate-400">Slamet Riyadi</span>
+                    <span class="text-[10px] text-slate-400"><%= getDisplayName('potong') %></span>
                 </button>
 
                 <!-- 5. Jahit -->
                 <button type="button" onclick="openLoginModal('jahit', 'Divisi Jahit (Sewing)', '🧵', 'border-emerald-500/50 bg-emerald-950/20 text-emerald-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-emerald-500/50 hover:bg-slate-900/80 transition text-center group">
                     <span class="text-2xl block mb-1">🧵</span>
                     <span class="text-xs font-bold text-slate-200 block group-hover:text-emerald-400 transition">Jahit</span>
-                    <span class="text-[10px] text-slate-400">Ibu Siti Aminah</span>
+                    <span class="text-[10px] text-slate-400"><%= getDisplayName('jahit') %></span>
                 </button>
 
                 <!-- 6. QC & Packing -->
                 <button type="button" onclick="openLoginModal('qc_packing', 'Divisi QC & Packing', '🔍', 'border-rose-500/50 bg-rose-950/20 text-rose-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-rose-500/50 hover:bg-slate-900/80 transition text-center group">
                     <span class="text-2xl block mb-1">🔍</span>
                     <span class="text-xs font-bold text-slate-200 block group-hover:text-rose-400 transition">QC & Packing</span>
-                    <span class="text-[10px] text-slate-400">Dewi Lestari</span>
+                    <span class="text-[10px] text-slate-400"><%= getDisplayName('qc_packing') %></span>
                 </button>
 
                 <!-- 7. Ekspedisi & Kirim -->
                 <button type="button" onclick="openLoginModal('kirim', 'Divisi Ekspedisi & Kirim', '📦', 'border-sky-500/50 bg-sky-950/20 text-sky-300')" class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:border-sky-500/50 hover:bg-slate-900/80 transition text-center group">
                     <span class="text-2xl block mb-1">📦</span>
                     <span class="text-xs font-bold text-slate-200 block group-hover:text-sky-400 transition">Kirim</span>
-                    <span class="text-[10px] text-slate-400">Rian Hidayat</span>
+                    <span class="text-[10px] text-slate-400"><%= getDisplayName('kirim') %></span>
                 </button>
 
             </div>
 
             <!-- Tautan Publik -->
             <div class="mt-5 pt-4 border-t border-slate-700/60 text-center">
+                <a href="/track" target="_blank" class="text-xs text-slate-400 hover:text-blue-400 transition inline-flex items-center space-x-1">
+                    <span>Portal Tracking Publik Pelanggan</span>
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        </div>
                 <a href="/track" target="_blank" class="text-xs text-slate-400 hover:text-blue-400 transition inline-flex items-center space-x-1">
                     <span>Portal Tracking Publik Pelanggan</span>
                     <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
@@ -121,6 +139,10 @@
                         <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
                     </button>
                 </div>
+                <p class="text-[10px] text-slate-400 mt-1.5 flex items-center space-x-1">
+                    <span class="text-amber-400 font-semibold">Sandi:</span>
+                    <span>Admin: <strong class="text-slate-200">admin123</strong> &bull; Divisi: <strong class="text-slate-200">123456</strong></span>
+                </p>
             </div>
 
             <!-- Checkbox Ingat Sandi -->

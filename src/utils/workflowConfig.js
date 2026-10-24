@@ -29,7 +29,7 @@ const WORKFLOW_CONFIG = {
 };
 
 const ROLE_LABELS = {
-    admin: 'Owner & Manajemen',
+    admin: 'Admin',
     desain: 'Divisi Desain & Pola',
     print_sablon: 'Divisi Cetak Sablon / Sublim',
     potong: 'Divisi Potong (Cutting)',

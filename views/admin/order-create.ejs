@@ -145,6 +145,79 @@
                         <input type="text" name="warna_kaos" value="<%= formData.warna_kaos || 'HITAM, PUTIH' %>" placeholder="Contoh: HITAM, PUTIH" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     </div>
 
+                    <!-- Pilihan 5 Warna Tinta Sablon (Depan & Belakang) -->
+                    <div class="sm:col-span-2 md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/80 rounded-2xl border border-slate-200">
+                        <!-- Depan -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                <span>Warna Sablon Depan (Pilih Warna)</span>
+                            </label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_depan" value="merah" class="rounded text-red-600 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block shrink-0"></span>
+                                    <span>Merah</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_depan" value="kuning" class="rounded text-amber-500 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 inline-block shrink-0"></span>
+                                    <span>Kuning</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_depan" value="hijau" class="rounded text-lime-600 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-lime-500 inline-block shrink-0"></span>
+                                    <span>Hijau</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_depan" value="putih" class="rounded text-slate-600 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white border border-slate-400 inline-block shrink-0"></span>
+                                    <span>Putih</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_depan" value="hitam" class="rounded text-black focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-black inline-block shrink-0"></span>
+                                    <span>Hitam</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Belakang -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                <span>Warna Sablon Belakang (Pilih Warna)</span>
+                            </label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_belakang" value="merah" class="rounded text-red-600 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block shrink-0"></span>
+                                    <span>Merah</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_belakang" value="kuning" class="rounded text-amber-500 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 inline-block shrink-0"></span>
+                                    <span>Kuning</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_belakang" value="hijau" class="rounded text-lime-600 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-lime-500 inline-block shrink-0"></span>
+                                    <span>Hijau</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_belakang" value="putih" class="rounded text-slate-600 focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white border border-slate-400 inline-block shrink-0"></span>
+                                    <span>Putih</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-white border border-slate-200 hover:border-slate-400 rounded-xl cursor-pointer text-xs font-bold text-slate-800 transition shadow-xs">
+                                    <input type="checkbox" name="warna_sablon_belakang" value="hitam" class="rounded text-black focus:ring-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-black inline-block shrink-0"></span>
+                                    <span>Hitam</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="sm:col-span-2 md:col-span-3">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Metode Pengiriman / Ekspedisi</label>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
@@ -161,12 +234,11 @@
 
             <!-- Section 3: Upload Mockup Desain Kaos -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="border-b border-slate-100 pb-3">
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
                         <i data-lucide="image" class="w-4 h-4 text-purple-600"></i>
                         <span>3. Upload Desain / Mockup Kaos (Depan &amp; Belakang)</span>
                     </h2>
-                    <span class="text-xs text-slate-400">Jika belum diupload, sistem akan memakai mockup default</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

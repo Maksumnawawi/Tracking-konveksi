@@ -20,6 +20,12 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
+            .sheet-viewport {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+            }
             .a4-page {
                 box-shadow: none !important;
                 border: 2px solid black !important;
@@ -27,24 +33,58 @@
                 width: 100% !important;
                 min-height: auto !important;
                 padding: 8mm 10mm !important;
+                transform: none !important;
             }
         }
 
         @media screen {
             body {
                 background-color: #525659;
-                padding: 20px;
+                padding: 16px 8px;
+                margin: 0;
+                min-height: 100vh;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
             }
+            .sheet-viewport {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 24px;
+            }
             .a4-page {
                 background: white;
                 width: 210mm;
+                min-width: 210mm;
                 min-height: 297mm;
                 padding: 10mm 12mm;
                 box-shadow: 0 4px 25px rgba(0,0,0,0.35);
                 border-radius: 4px;
+                box-sizing: border-box;
+                transform-origin: top center;
+                transition: transform 0.2s ease;
+            }
+        }
+
+        @media screen and (max-width: 820px) {
+            body {
+                padding: 8px 4px !important;
+                align-items: stretch !important;
+            }
+            .sheet-viewport {
+                justify-content: flex-start !important;
+                padding: 4px 2px !important;
+            }
+            .sheet-viewport.is-fit-mobile {
+                justify-content: center !important;
+                overflow-x: hidden !important;
+            }
+            .sheet-viewport.is-fit-mobile .a4-page {
+                transform: scale(var(--mobile-scale, 0.46)) !important;
+                margin-bottom: calc(-1 * (297mm * (1 - var(--mobile-scale, 0.46)))) !important;
             }
         }
     </style>
@@ -52,141 +92,169 @@
 <body class="font-sans text-black antialiased">
 
     <!-- Floating Print Control Toolbar (Hanya di Layar Monitor) -->
-    <div class="no-print w-full max-w-[210mm] mb-4 flex items-center justify-between bg-slate-900 text-white px-5 py-3 rounded-xl shadow-lg">
-        <div class="flex items-center space-x-3">
-            <a href="/admin/orders/<%= order.id %>" class="text-xs text-slate-300 hover:text-white flex items-center space-x-1">
+    <div class="no-print w-full max-w-[210mm] mb-4 bg-slate-900 text-white p-3 sm:px-5 sm:py-3 rounded-xl shadow-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="flex items-center justify-between sm:justify-start space-x-2">
+            <a href="/admin/orders/<%= order.id %>" class="text-xs text-slate-300 hover:text-white flex items-center space-x-1 py-1">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                <span>Kembali ke Detail Pesanan</span>
+                <span>Kembali</span>
             </a>
-            <span class="text-slate-500">|</span>
-            <span class="text-xs font-semibold text-amber-300">Pratinjau Lembar Kerja POK TRCH</span>
+            <span class="text-slate-600 hidden sm:inline">|</span>
+            <span class="text-xs font-bold text-amber-300 flex items-center space-x-1">
+                <i data-lucide="file-check" class="w-3.5 h-3.5"></i>
+                <span>POK TRCH #<%= order.po_number || order.id %></span>
+            </span>
+            <!-- Tombol Fit Layar HP (Hanya di Layar HP) -->
+            <button type="button" onclick="toggleMobileFit()" id="btnMobileFit" class="sm:hidden text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 px-2.5 py-1 rounded border border-slate-700 flex items-center space-x-1 ml-auto">
+                <i data-lucide="maximize" class="w-3 h-3"></i>
+                <span id="fitText">Pas Layar</span>
+            </button>
         </div>
-        <div class="flex items-center space-x-2">
-            <a href="/admin/orders/<%= order.id %>/nota" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs flex items-center space-x-1.5 shadow-md">
-                <i data-lucide="receipt" class="w-4 h-4"></i>
-                <span>Cek &amp; Edit Nota</span>
+        <div class="grid grid-cols-3 sm:flex items-center gap-2">
+            <button type="button" onclick="openPokModal()" class="bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold px-2.5 py-2 sm:px-3 rounded-lg text-xs flex items-center justify-center space-x-1 border border-slate-700 transition">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                <span>Edit POK</span>
+            </button>
+            <a href="/admin/orders/<%= order.id %>/nota" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-2.5 py-2 sm:px-3 rounded-lg text-xs flex items-center justify-center space-x-1 shadow-md transition">
+                <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                <span>Cek Nota</span>
             </a>
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center space-x-2 shadow-md">
-                <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>Cetak Lembar POK (A4)</span>
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-black px-2.5 py-2 sm:px-4 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-blue-500/20 transition">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>Cetak A4</span>
             </button>
         </div>
     </div>
 
-    <!-- Halaman Fisik Standar A4 (Format Persis Gambar 1) -->
-    <div class="a4-page border-4 border-black text-black">
-        
-        <!-- BANNER INSTRUKSI ATAS (PERSIS GAMBAR 1) -->
-        <div class="text-center font-bold text-[11px] leading-tight pb-2 border-b-2 border-black">
-            <p class="font-black text-xs">Berdo'a Lah Sebelum Bekerja.</p>
-            <p>Cek Dan Pahami POK Terlebih Dahulu Sebelum Memulai Pekerjaan, Utamakan Keselamatan, Kerapian Dan Kebersihan.</p>
-        </div>
+    <!-- Alert Notifikasi jika baru disimpan -->
+    <% if (typeof saved !== 'undefined' || (typeof query !== 'undefined' && query && query.saved)) { %>
+    <div class="no-print w-full max-w-[210mm] mb-3 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-between">
+        <span>✔ Data Lembar POK berhasil diperbarui!</span>
+    </div>
+    <% } %>
 
-        <!-- HEADER POK: LOGO, SPESIFIKASI, NOMOR PO & TANGGAL -->
-        <div class="grid grid-cols-12 border-b-2 border-black py-2.5 items-center">
+    <!-- Viewport Pembungkus Lembar A4 (Responsif HP & Desktop) -->
+    <div class="sheet-viewport" id="sheetViewport">
+        <!-- Halaman Fisik Standar A4 (Format Persis Gambar 1) -->
+        <div id="pokSheet" class="a4-page border-4 border-black text-black">
             
-            <!-- Logo TRCH (Kiri) -->
-            <div class="col-span-3 pr-2">
-                <img src="/images/trch-logo.svg" alt="TRCH SCREEN PRINTING" class="w-full h-16 bg-black rounded p-0.5 border border-black">
+            <!-- BANNER INSTRUKSI ATAS (PERSIS GAMBAR 1) -->
+            <div class="text-center font-bold text-[11px] leading-tight pb-2 border-b-2 border-black">
+                <p class="font-black text-xs">Berdo'a Lah Sebelum Bekerja.</p>
+                <p>Cek Dan Pahami POK Terlebih Dahulu Sebelum Memulai Pekerjaan, Utamakan Keselamatan, Kerapian Dan Kebersihan.</p>
             </div>
 
-            <!-- Spesifikasi Keterangan Bahan & Tinta (Tengah) -->
-            <div class="col-span-6 px-2 text-[11px] leading-tight">
-                <table class="w-full font-bold">
-                    <tr>
-                        <td class="w-28 text-slate-800">KETERANGAN</td>
-                        <td class="w-3">:</td>
-                        <td class="font-black uppercase text-xs"><%= order.category === 'jersey' ? 'JERSEY SUBLIM' : 'KAOS OBLONG' %> (<%= order.article_name %>)</td>
-                    </tr>
-                    <tr>
-                        <td class="text-slate-800">BAHAN</td>
-                        <td>:</td>
-                        <td class="font-black uppercase"><%= order.fabric_type || 'COMBED 24S' %></td>
-                    </tr>
-                    <tr>
-                        <td class="text-slate-800">TINTA</td>
-                        <td>:</td>
-                        <td class="font-black uppercase"><%= order.tinta_type || 'PLASTISOL' %></td>
-                    </tr>
-                    <tr>
-                        <td class="text-slate-800">FINISHING</td>
-                        <td>:</td>
-                        <td class="font-black uppercase"><%= order.finishing_type || 'PRES DOFT' %></td>
-                    </tr>
-                </table>
-                <p class="font-black text-sm uppercase mt-1 tracking-wide">
-                    WARNA KAOS : <span class="underline"><%= order.warna_kaos || 'HITAM, PUTIH' %></span>
-                </p>
-            </div>
-
-            <!-- Kotak Nomor PO & Tanggal (Kanan) -->
-            <div class="col-span-3 pl-2 flex flex-col justify-center">
-                <div class="border-2 border-black flex">
-                    <!-- NOMOR PO (Besar) -->
-                    <div class="w-1/2 p-1 text-center border-r-2 border-black flex flex-col items-center justify-center bg-slate-50">
-                        <span class="text-[9px] font-bold uppercase text-slate-500">NO. PO</span>
-                        <span class="text-4xl font-black font-sans leading-none my-0.5"><%= order.po_number || order.id %></span>
-                    </div>
-
-                    <!-- TGL M & TGL J -->
-                    <div class="w-1/2 flex flex-col text-[10px] text-center font-bold">
-                        <div class="border-b border-black py-0.5 bg-slate-100">
-                            <span>TGL M</span>
-                            <p class="text-xs font-black"><%= order.tgl_masuk || new Date(order.created_at).toLocaleDateString('id-ID') %></p>
-                        </div>
-                        <div class="py-0.5 bg-red-50">
-                            <span class="text-red-700">TGL J</span>
-                            <p class="text-xs font-black text-red-600" style="color: #dc2626;"><%= order.tgl_jadi || order.deadline_date || '-' %></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-[9px] text-right font-mono text-slate-500 mt-1">
-                    SPK: <%= order.order_number %>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- AREA GAMBAR MOCKUP DESAIN KAOS (PERSIS GAMBAR 1) -->
-        <div class="py-3 border-b-2 border-black">
-            <div class="grid grid-cols-2 gap-4 items-center justify-center">
+            <!-- HEADER POK: LOGO, SPESIFIKASI, NOMOR PO & TANGGAL -->
+            <div class="grid grid-cols-12 border-b-2 border-black py-2.5 items-center">
                 
-                <!-- Mockup Depan -->
-                <div class="text-center">
-                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-700 mb-1">Tampak Depan</p>
-                    <div class="h-56 bg-slate-50 border border-slate-300 rounded p-1 flex items-center justify-center overflow-hidden">
+                <!-- Logo TRCH (Kiri) -->
+                <div class="col-span-3 pr-2">
+                    <img src="/images/trch-logo.svg" alt="TRCH SCREEN PRINTING" class="w-full h-16 bg-black rounded p-0.5 border border-black">
+                </div>
+
+                <!-- Spesifikasi Keterangan Bahan & Tinta (Tengah) -->
+                <div class="col-span-6 px-2 text-[11px] leading-tight">
+                    <table class="w-full font-bold">
+                        <tr>
+                            <td class="w-28 text-slate-800">KETERANGAN</td>
+                            <td class="w-3">:</td>
+                            <td class="font-black uppercase text-xs"><%= order.category === 'jersey' ? 'JERSEY SUBLIM' : 'KAOS OBLONG' %> (<%= order.article_name %>)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-slate-800">BAHAN</td>
+                            <td>:</td>
+                            <td class="font-black uppercase"><%= order.fabric_type || 'COMBED 24S' %></td>
+                        </tr>
+                        <tr>
+                            <td class="text-slate-800">TINTA</td>
+                            <td>:</td>
+                            <td class="font-black uppercase"><%= order.tinta_type || 'PLASTISOL' %></td>
+                        </tr>
+                        <tr>
+                            <td class="text-slate-800">FINISHING</td>
+                            <td>:</td>
+                            <td class="font-black uppercase"><%= order.finishing_type || 'PRES DOFT' %></td>
+                        </tr>
+                    </table>
+                    <p class="font-black text-sm uppercase mt-1 tracking-wide">
+                        WARNA KAOS : <span class="underline"><%= order.warna_kaos || 'HITAM, PUTIH' %></span>
+                    </p>
+                </div>
+
+                <!-- Box Nomor PO & Tanggal (Kanan - Persis Gambar 1) -->
+                <div class="col-span-3 border-2 border-black rounded text-center overflow-hidden">
+                    <div class="grid grid-cols-2 divide-x-2 divide-black">
+                        <!-- Nomor PO Besar -->
+                        <div class="flex flex-col justify-center items-center py-2 bg-slate-50">
+                            <span class="text-[9px] font-bold text-slate-600 block">NO. PO</span>
+                            <span class="text-3xl font-black text-black leading-none mt-0.5"><%= order.po_number || order.id %></span>
+                        </div>
+
+                        <!-- Kolom Tanggal Masuk (TGL M) & Jadi (TGL J) -->
+                        <div class="divide-y-2 divide-black text-[10px] font-bold">
+                            <div class="py-1 px-1">
+                                <span class="block text-slate-600 text-[9px]">TGL M</span>
+                                <span class="font-black text-red-600 text-[11px] block"><%= order.tgl_masuk || (order.created_at ? order.created_at.slice(0, 10) : '21.10.26') %></span>
+                            </div>
+                            <div class="py-1 px-1">
+                                <span class="block text-slate-600 text-[9px]">TGL J</span>
+                                <span class="font-black text-red-600 text-[11px] block"><%= order.tgl_jadi || (order.deadline_date ? order.deadline_date.slice(0, 10) : '08.11.26') %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SUB-HEADER KECIL: SPK & PELANGGAN -->
+            <div class="flex justify-between items-center py-1 text-[10px] text-slate-500 border-b border-black">
+                <span>Pelanggan: <strong class="text-black"><%= order.customer_name %></strong> (<%= order.customer_phone || '-' %>)</span>
+                <span>SPK: <strong class="text-black"><%= order.order_number %></strong></span>
+            </div>
+
+            <!-- AREA MOCKUP VISUAL DESAIN (TAMPAK DEPAN & TAMPAK BELAKANG) -->
+            <div class="py-3 border-b-2 border-black">
+                <div class="grid grid-cols-2 gap-4">
+                    
+                    <!-- Tampak Depan -->
+                    <div class="border border-slate-300 rounded p-2 text-center bg-slate-50/30">
+                        <p class="font-black text-[11px] uppercase tracking-wider mb-2">TAMPAK DEPAN</p>
                         <% if (order.mockup_front_url) { %>
-                            <img src="<%= order.mockup_front_url %>" alt="Mockup Depan" class="h-full w-full object-contain">
+                            <div class="w-full h-56 flex items-center justify-center overflow-hidden">
+                                <img src="<%= order.mockup_front_url %>" alt="Mockup Depan" class="max-h-full max-w-full object-contain">
+                            </div>
                         <% } else { %>
-                            <!-- Mockup Kaos Hitam & Putih Default Sesuai Contoh Gambar 1 -->
-                            <div class="flex items-center justify-center space-x-2 w-full h-full">
+                            <!-- Mockup Template Standar (Kaos Hitam & Kaos Putih) -->
+                            <div class="flex justify-center items-center space-x-3 h-56">
                                 <div class="w-24 h-48 bg-slate-900 rounded-lg p-2 text-white flex flex-col justify-between items-center shadow-md">
                                     <span class="text-[8px] font-bold uppercase">HITAM</span>
-                                    <div class="w-16 h-8 bg-slate-800 border border-slate-600 rounded text-[7px] flex items-center justify-center text-center p-0.5 font-bold text-emerald-400">
-                                        <%= order.article_name %>
+                                    <div class="w-16 h-12 bg-slate-800 border border-slate-600 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-amber-300">
+                                        <span>TRCH</span>
+                                        <span>GARAGE</span>
                                     </div>
                                     <span class="text-[7px] text-slate-400">Depan</span>
                                 </div>
                                 <div class="w-24 h-48 bg-white border border-slate-400 rounded-lg p-2 text-slate-900 flex flex-col justify-between items-center shadow-md">
                                     <span class="text-[8px] font-bold uppercase">PUTIH</span>
-                                    <div class="w-16 h-8 bg-slate-100 border border-slate-300 rounded text-[7px] flex items-center justify-center text-center p-0.5 font-bold text-slate-800">
-                                        <%= order.article_name %>
+                                    <div class="w-16 h-12 bg-slate-100 border border-slate-300 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-slate-800">
+                                        <span>TRCH</span>
+                                        <span>GARAGE</span>
                                     </div>
                                     <span class="text-[7px] text-slate-400">Depan</span>
                                 </div>
                             </div>
                         <% } %>
                     </div>
-                </div>
 
-                <!-- Mockup Belakang -->
-                <div class="text-center">
-                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-700 mb-1">Tampak Belakang</p>
-                    <div class="h-56 bg-slate-50 border border-slate-300 rounded p-1 flex items-center justify-center overflow-hidden">
+                    <!-- Tampak Belakang -->
+                    <div class="border border-slate-300 rounded p-2 text-center bg-slate-50/30">
+                        <p class="font-black text-[11px] uppercase tracking-wider mb-2">TAMPAK BELAKANG</p>
                         <% if (order.mockup_back_url) { %>
-                            <img src="<%= order.mockup_back_url %>" alt="Mockup Belakang" class="h-full w-full object-contain">
+                            <div class="w-full h-56 flex items-center justify-center overflow-hidden">
+                                <img src="<%= order.mockup_back_url %>" alt="Mockup Belakang" class="max-h-full max-w-full object-contain">
+                            </div>
                         <% } else { %>
-                            <div class="flex items-center justify-center space-x-2 w-full h-full">
+                            <!-- Mockup Template Standar Belakang -->
+                            <div class="flex justify-center items-center space-x-3 h-56">
                                 <div class="w-24 h-48 bg-slate-900 rounded-lg p-2 text-white flex flex-col justify-between items-center shadow-md">
                                     <span class="text-[8px] font-bold uppercase">HITAM</span>
                                     <div class="w-16 h-12 bg-slate-800 border border-slate-600 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-emerald-400">
@@ -206,189 +274,370 @@
                             </div>
                         <% } %>
                     </div>
+
                 </div>
-
             </div>
-        </div>
 
-        <!-- TABEL RINCIAN UKURAN & WARNA SABLON (PERSIS GAMBAR 1) -->
-        <div class="py-2.5 border-b-2 border-black">
-            <table class="w-full text-center border-collapse border-2 border-black text-xs font-bold">
-                <thead>
-                    <tr class="bg-slate-100 border-b-2 border-black font-black">
-                        <th class="border-r-2 border-black py-1.5 px-2 text-left w-36">UKURAN</th>
-                        <th class="border-r border-black py-1 w-8">XS</th>
-                        <th class="border-r border-black py-1 w-8">S</th>
-                        <th class="border-r border-black py-1 w-8">M</th>
-                        <th class="border-r border-black py-1 w-8">L</th>
-                        <th class="border-r border-black py-1 w-8">XL</th>
-                        <th class="border-r border-black py-1 w-8">2XL</th>
-                        <th class="border-r border-black py-1 w-8">3XL</th>
-                        <th class="border-r border-black py-1 w-8">4XL</th>
-                        <th class="border-r-2 border-black py-1 w-8">5XL</th>
-                        <th colspan="2" class="py-1">WARNA SABLON</th>
-                    </tr>
-                    <tr class="bg-slate-50 border-b-2 border-black text-[10px]">
-                        <th colspan="10" class="border-r-2 border-black text-left pl-2">RINCIAN VARIAN KAOS</th>
-                        <th class="border-r border-black py-0.5 w-16">DEPAN</th>
-                        <th class="py-0.5 w-16">BELAKANG</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Baris 1: Hitam Pendek -->
-                    <tr class="border-b border-black">
-                        <td class="border-r-2 border-black py-1.5 px-2 text-left font-black">HITAM PENDEK</td>
-                        <td class="border-r border-black"><%= order.size_xs || '' %></td>
-                        <td class="border-r border-black"><%= order.size_s || '' %></td>
-                        <td class="border-r border-black"><%= order.size_m || '' %></td>
-                        <td class="border-r border-black"><%= order.size_l || '' %></td>
-                        <td class="border-r border-black"><%= order.size_xl || '' %></td>
-                        <td class="border-r border-black"><%= order.size_2xl || '' %></td>
-                        <td class="border-r border-black"><%= order.size_3xl || '' %></td>
-                        <td class="border-r border-black"><%= order.size_4xl || '' %></td>
-                        <td class="border-r-2 border-black"><%= order.size_5xl || '' %></td>
-                        
-                        <!-- Swatches Warna Sablon Depan & Belakang -->
-                        <td class="border-r border-black p-1 align-top">
-                            <div class="grid grid-cols-2 gap-1 p-0.5">
-                                <span class="w-4 h-4 rounded border border-black bg-lime-400 inline-block shadow-sm"></span>
-                                <span class="w-4 h-4 rounded border border-black bg-white inline-block"></span>
-                                <span class="w-4 h-4 rounded border border-black bg-slate-500 inline-block"></span>
-                                <span class="w-4 h-4 rounded border border-black bg-black inline-block"></span>
-                            </div>
-                        </td>
-                        <td class="p-1 align-top">
-                            <div class="grid grid-cols-2 gap-1 p-0.5">
-                                <span class="w-4 h-4 rounded border border-black bg-lime-400 inline-block shadow-sm"></span>
-                                <span class="w-4 h-4 rounded border border-black bg-white inline-block"></span>
-                                <span class="w-4 h-4 rounded border border-black bg-slate-500 inline-block"></span>
-                                <span class="w-4 h-4 rounded border border-black bg-black inline-block"></span>
-                            </div>
-                        </td>
-                    </tr>
+            <%
+            // Konfigurasi 5 Warna Tinta Sablon Utama (Merah, Kuning, Hijau/Lime, Putih, Hitam)
+            const COLOR_MAP = {
+                'merah': { bg: '#ef4444', title: 'Merah' },
+                'kuning': { bg: '#eab308', title: 'Kuning' },
+                'hijau': { bg: '#84cc16', title: 'Hijau / Lime' },
+                'putih': { bg: '#ffffff', title: 'Putih' },
+                'hitam': { bg: '#000000', title: 'Hitam' }
+            };
 
-                    <!-- Baris 2: Putih Pendek / Varian 2 -->
-                    <tr class="border-b border-black">
-                        <td class="border-r-2 border-black py-1.5 px-2 text-left font-black">PUTIH PENDEK</td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r-2 border-black"></td>
-                        <td class="border-r border-black p-1"></td>
-                        <td class="p-1"></td>
-                    </tr>
+            function parseColorList(str) {
+                if (!str) return [];
+                return str.toLowerCase().split(',').map(s => s.trim()).filter(s => COLOR_MAP[s]);
+            }
 
-                    <!-- Baris Kosong Cadangan (Sesuai Layout Gambar 1) -->
-                    <tr class="border-b border-black h-6">
-                        <td class="border-r-2 border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td class="border-r-2 border-black"></td>
-                        <td class="border-r border-black"></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr class="bg-slate-100 font-black border-t-2 border-black">
-                        <td class="border-r-2 border-black py-1.5 px-2 text-left">TOTAL PRODUKSI</td>
-                        <td colspan="9" class="border-r-2 border-black text-center text-sm font-black"><%= order.total_pcs %> PCS</td>
-                        <td colspan="2" class="text-[10px] text-slate-600">Free: <%= order.free_qty || 0 %> pcs</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+            const depanList = parseColorList(order.warna_sablon_depan);
+            const belakangList = parseColorList(order.warna_sablon_belakang);
 
-        <!-- PILIHAN EKSPEDISI / PENGIRIMAN (PERSIS GAMBAR 1) -->
-        <div class="py-2.5 border-b-2 border-black">
-            <div class="grid grid-cols-6 gap-2 text-center text-[10px] font-black">
+            // Jika belum diset, gunakan sampel 4 kotak bawaan Gambar 1
+            const activeDepan = depanList.length > 0 ? depanList : ['hijau', 'putih', 'hitam'];
+            const activeBelakang = belakangList.length > 0 ? belakangList : ['hijau', 'putih', 'hitam'];
+
+            // Cek items breakdown dari nota jika ada
+            let breakdownItems = [];
+            try {
+                if (order.items_breakdown_json) {
+                    breakdownItems = JSON.parse(order.items_breakdown_json);
+                }
+            } catch (e) {
+                breakdownItems = [];
+            }
+            if (!Array.isArray(breakdownItems) || breakdownItems.length === 0) {
+                breakdownItems = [
+                    {
+                        name: 'HITAM PENDEK',
+                        qty_xs: order.size_xs || '',
+                        qty_s: order.size_s || '',
+                        qty_m: order.size_m || '',
+                        qty_l: order.size_l || '',
+                        qty_xl: order.size_xl || '',
+                        qty_2xl: order.size_2xl || '',
+                        qty_3xl: order.size_3xl || '',
+                        qty_4xl: order.size_4xl || '',
+                        qty_5xl: order.size_5xl || ''
+                    },
+                    {
+                        name: 'PUTIH PENDEK',
+                        qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '', qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
+                    }
+                ];
+            }
+            %>
+
+            <!-- TABEL RINCIAN UKURAN & WARNA SABLON (PERSIS GAMBAR 1) -->
+            <div class="py-2.5 border-b-2 border-black">
+                <table class="w-full text-center border-collapse border-2 border-black text-xs font-bold">
+                    <thead>
+                        <tr class="bg-slate-100 border-b-2 border-black font-black">
+                            <th class="border-r-2 border-black py-1.5 px-2 text-left w-36">UKURAN</th>
+                            <th class="border-r border-black py-1 w-8">XS</th>
+                            <th class="border-r border-black py-1 w-8">S</th>
+                            <th class="border-r border-black py-1 w-8">M</th>
+                            <th class="border-r border-black py-1 w-8">L</th>
+                            <th class="border-r border-black py-1 w-8">XL</th>
+                            <th class="border-r border-black py-1 w-8">2XL</th>
+                            <th class="border-r border-black py-1 w-8">3XL</th>
+                            <th class="border-r border-black py-1 w-8">4XL</th>
+                            <th class="border-r-2 border-black py-1 w-8">5XL</th>
+                            <th colspan="2" class="py-1">WARNA SABLON</th>
+                        </tr>
+                        <tr class="bg-slate-50 border-b-2 border-black text-[10px]">
+                            <th colspan="10" class="border-r-2 border-black text-left pl-2">RINCIAN VARIAN KAOS</th>
+                            <th class="border-r border-black py-0.5 w-16">DEPAN</th>
+                            <th class="py-0.5 w-16">BELAKANG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let r = 0; r < 6; r++) { 
+                            const itm = breakdownItems[r] || null;
+                        %>
+                        <tr class="border-b border-black h-7">
+                            <td class="border-r-2 border-black py-1 px-2 text-left font-black uppercase">
+                                <%= itm ? itm.name : '' %>
+                            </td>
+                            <td class="border-r border-black"><%= itm && itm.qty_xs ? itm.qty_xs : '' %></td>
+                            <td class="border-r border-black"><%= itm && itm.qty_s ? itm.qty_s : '' %></td>
+                            <td class="border-r border-black"><%= itm && itm.qty_m ? itm.qty_m : '' %></td>
+                            <td class="border-r border-black"><%= itm && itm.qty_l ? itm.qty_l : '' %></td>
+                            <td class="border-r border-black"><%= itm && itm.qty_xl ? itm.qty_xl : '' %></td>
+                            <td class="border-r border-black"><%= itm && itm.qty_2xl ? itm.qty_2xl : '' %></td>
+                            <td class="border-r border-black"><%= itm && itm.qty_3xl ? itm.qty_3xl : '' %></td>
+                            <td class="border-r border-black"><%= itm && itm.qty_4xl ? itm.qty_4xl : '' %></td>
+                            <td class="border-r-2 border-black"><%= itm && itm.qty_5xl ? itm.qty_5xl : '' %></td>
+                            
+                            <!-- Hanya di baris pertama (r === 0), kita buat rowspan="6" untuk WARNA SABLON agar persis Gambar 1 -->
+                            <% if (r === 0) { %>
+                            <!-- Swatches Warna Sablon Depan (8 Kotak Grid 2x4) -->
+                            <td rowspan="6" class="border-r border-black p-1 align-top bg-white">
+                                <div class="grid grid-cols-2 gap-1 justify-items-center py-1">
+                                    <% for(let i = 0; i < 8; i++) { 
+                                        const cKey = activeDepan[i];
+                                        if (cKey && COLOR_MAP[cKey]) { %>
+                                            <span class="w-4 h-4 rounded-xs border-2 border-black inline-block shadow-xs" style="background-color: <%= COLOR_MAP[cKey].bg %>;" title="<%= COLOR_MAP[cKey].title %>"></span>
+                                        <% } else { %>
+                                            <span class="w-4 h-4 rounded-xs border border-black/40 bg-white inline-block"></span>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                            </td>
+
+                            <!-- Swatches Warna Sablon Belakang (8 Kotak Grid 2x4) -->
+                            <td rowspan="6" class="p-1 align-top bg-white">
+                                <div class="grid grid-cols-2 gap-1 justify-items-center py-1">
+                                    <% for(let i = 0; i < 8; i++) { 
+                                        const cKey = activeBelakang[i];
+                                        if (cKey && COLOR_MAP[cKey]) { %>
+                                            <span class="w-4 h-4 rounded-xs border-2 border-black inline-block shadow-xs" style="background-color: <%= COLOR_MAP[cKey].bg %>;" title="<%= COLOR_MAP[cKey].title %>"></span>
+                                        <% } else { %>
+                                            <span class="w-4 h-4 rounded-xs border border-black/40 bg-white inline-block"></span>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                            </td>
+                            <% } %>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-slate-100 font-black border-t-2 border-black">
+                            <td class="border-r-2 border-black py-1.5 px-2 text-left">TOTAL PRODUKSI</td>
+                            <td colspan="9" class="border-r-2 border-black text-center text-sm font-black"><%= order.total_pcs %> PCS</td>
+                            <td colspan="2" class="text-[10px] text-slate-600">Free: <%= order.free_qty || 0 %> pcs</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- PILIHAN EKSPEDISI / PENGIRIMAN (PERSIS GAMBAR 1) -->
+            <div class="py-2.5 border-b-2 border-black">
+                <div class="grid grid-cols-6 gap-2 text-center text-[10px] font-black">
+                    
+                    <!-- TUNAI -->
+                    <div class="flex flex-col items-center">
+                        <span class="mb-1 text-xs">TUNAI</span>
+                        <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                            <%= order.shipping_courier === 'TUNAI' ? '✔' : '' %>
+                        </div>
+                    </div>
+
+                    <!-- DFOD -->
+                    <div class="flex flex-col items-center">
+                        <span class="mb-1 text-xs">DFOD</span>
+                        <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                            <%= order.shipping_courier === 'DFOD' ? '✔' : '' %>
+                        </div>
+                    </div>
+
+                    <!-- J&T CARGO -->
+                    <div class="flex flex-col items-center">
+                        <span class="mb-1 text-emerald-800">J&amp;T CARGO</span>
+                        <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                            <%= order.shipping_courier === 'J&T CARGO' ? '✔' : '' %>
+                        </div>
+                    </div>
+
+                    <!-- J&T EXPRESS -->
+                    <div class="flex flex-col items-center">
+                        <span class="mb-1 text-red-700">J&amp;T EXPRESS</span>
+                        <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                            <%= order.shipping_courier === 'J&T EXPRESS' ? '✔' : '' %>
+                        </div>
+                    </div>
+
+                    <!-- KAI LOGISTIK -->
+                    <div class="flex flex-col items-center">
+                        <span class="mb-1 text-blue-800">KAI Logistik</span>
+                        <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                            <%= order.shipping_courier === 'KAI Logistik' ? '✔' : '' %>
+                        </div>
+                    </div>
+
+                    <!-- KIB CEPAT -->
+                    <div class="flex flex-col items-center">
+                        <span class="mb-1 text-indigo-800">KIB CEPAT</span>
+                        <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
+                            <%= order.shipping_courier === 'KIB CEPAT' ? '✔' : '' %>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- FOOTER NB & QR CODE TRACKING (PERSIS GAMBAR 1) -->
+            <div class="pt-2 flex items-center justify-between text-[10px]">
+                <div class="flex-1 pr-4">
+                    <p class="font-black text-black leading-tight">
+                        NB : Setiap Selesai Memotong Dan Menyablon Harap Potongan Cek Kembali Sudah Sesuai Dengan POK Yang Tertera Dan Masukan Ke Kranjang.
+                    </p>
+                    <p class="text-[9px] text-slate-600 mt-1">
+                        TRCH SCREEN PRINTING &bull; Jl. Cincin Kota RT 11/03 Sumelang, Gemeksekti, Kebumen &bull; WA: 081514418116
+                    </p>
+                </div>
                 
-                <!-- TUNAI -->
-                <div class="flex flex-col items-center">
-                    <span class="mb-1 text-xs">TUNAI</span>
-                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
-                        <%= order.shipping_courier === 'TUNAI' ? '✔' : '' %>
-                    </div>
+                <% if (qrCodeDataUrl) { %>
+                <div class="flex flex-col items-center border border-black p-1 rounded bg-white shrink-0">
+                    <img src="<%= qrCodeDataUrl %>" alt="QR Tracking" class="w-12 h-12">
+                    <span class="text-[7px] font-bold text-slate-600 mt-0.5">Scan Tracking</span>
                 </div>
-
-                <!-- DFOD -->
-                <div class="flex flex-col items-center">
-                    <span class="mb-1 text-xs">DFOD</span>
-                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
-                        <%= order.shipping_courier === 'DFOD' ? '✔' : '' %>
-                    </div>
-                </div>
-
-                <!-- J&T CARGO -->
-                <div class="flex flex-col items-center">
-                    <span class="mb-1 text-emerald-800">J&amp;T CARGO</span>
-                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
-                        <%= order.shipping_courier === 'J&T CARGO' ? '✔' : '' %>
-                    </div>
-                </div>
-
-                <!-- J&T EXPRESS -->
-                <div class="flex flex-col items-center">
-                    <span class="mb-1 text-red-700">J&amp;T EXPRESS</span>
-                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
-                        <%= order.shipping_courier === 'J&T EXPRESS' ? '✔' : '' %>
-                    </div>
-                </div>
-
-                <!-- KAI LOGISTIK -->
-                <div class="flex flex-col items-center">
-                    <span class="mb-1 text-blue-800">KAI Logistik</span>
-                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
-                        <%= order.shipping_courier === 'KAI Logistik' ? '✔' : '' %>
-                    </div>
-                </div>
-
-                <!-- KIB CEPAT -->
-                <div class="flex flex-col items-center">
-                    <span class="mb-1 text-indigo-800">KIB CEPAT</span>
-                    <div class="w-8 h-8 border-2 border-black flex items-center justify-center text-base font-black">
-                        <%= order.shipping_courier === 'KIB CEPAT' ? '✔' : '' %>
-                    </div>
-                </div>
-
+                <% } %>
             </div>
+
         </div>
+    </div>
 
-        <!-- FOOTER NB & QR CODE TRACKING (PERSIS GAMBAR 1) -->
-        <div class="pt-2 flex items-center justify-between text-[10px]">
-            <div class="flex-1 pr-4">
-                <p class="font-black text-black leading-tight">
-                    NB : Setiap Selesai Memotong Dan Menyablon Harap Potongan Cek Kembali Sudah Sesuai Dengan POK Yang Tertera Dan Masukan Ke Kranjang.
-                </p>
-                <p class="text-[9px] text-slate-600 mt-1">
-                    TRCH SCREEN PRINTING &bull; Jl. Cincin Kota RT 11/03 Sumelang, Gemeksekti, Kebumen &bull; WA: 081514418116
-                </p>
+    <!-- MODAL EDIT POK ON-THE-FLY (BISA EDIT NO PO, SPEK & 5 WARNA SABLON) -->
+    <div id="pokEditModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs no-print">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl text-slate-900 border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <h3 class="text-base font-black text-slate-900 flex items-center space-x-2">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-amber-500"></i>
+                    <span>Edit Spesifikasi POK #<%= order.po_number || order.id %></span>
+                </h3>
+                <button type="button" onclick="closePokModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
-            
-            <% if (qrCodeDataUrl) { %>
-            <div class="flex flex-col items-center border border-black p-1 rounded bg-white">
-                <img src="<%= qrCodeDataUrl %>" alt="QR Tracking" class="w-12 h-12">
-                <span class="text-[7px] font-bold text-slate-600 mt-0.5">Scan Tracking</span>
-            </div>
-            <% } %>
+
+            <form action="/admin/orders/<%= order.id %>/spk/update" method="POST" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor PO (Mulai 1)</label>
+                        <input type="number" name="po_number" value="<%= order.po_number || 1 %>" min="1" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Warna Kaos</label>
+                        <input type="text" name="warna_kaos" value="<%= order.warna_kaos || 'HITAM, PUTIH' %>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tgl Masuk (TGL M)</label>
+                        <input type="text" name="tgl_masuk" value="<%= order.tgl_masuk || (order.created_at ? order.created_at.slice(0, 10) : '') %>" placeholder="Contoh: 21.10.26" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tgl Jadi (TGL J)</label>
+                        <input type="text" name="tgl_jadi" value="<%= order.tgl_jadi || (order.deadline_date ? order.deadline_date.slice(0, 10) : '') %>" placeholder="Contoh: 08.11.26" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Tinta</label>
+                        <input type="text" name="tinta_type" value="<%= order.tinta_type || 'PLASTISOL' %>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Finishing</label>
+                        <input type="text" name="finishing_type" value="<%= order.finishing_type || 'PRES DOFT' %>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- 5 Warna Sablon Depan & Belakang -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                    <div>
+                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wide mb-1.5 flex items-center space-x-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                            <span>Warna Sablon Depan (Pilih Warna)</span>
+                        </label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <% ['merah', 'kuning', 'hijau', 'putih', 'hitam'].forEach(col => { 
+                                const isChecked = (order.warna_sablon_depan || '').toLowerCase().includes(col);
+                            %>
+                            <label class="flex items-center space-x-1.5 p-1.5 bg-white border border-slate-300 rounded cursor-pointer text-xs font-bold">
+                                <input type="checkbox" name="warna_sablon_depan" value="<%= col %>" <%= isChecked ? 'checked' : '' %> class="rounded text-blue-600">
+                                <span class="capitalize"><%= col %></span>
+                            </label>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wide mb-1.5 flex items-center space-x-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                            <span>Warna Sablon Belakang (Pilih Warna)</span>
+                        </label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <% ['merah', 'kuning', 'hijau', 'putih', 'hitam'].forEach(col => { 
+                                const isChecked = (order.warna_sablon_belakang || '').toLowerCase().includes(col);
+                            %>
+                            <label class="flex items-center space-x-1.5 p-1.5 bg-white border border-slate-300 rounded cursor-pointer text-xs font-bold">
+                                <input type="checkbox" name="warna_sablon_belakang" value="<%= col %>" <%= isChecked ? 'checked' : '' %> class="rounded text-blue-600">
+                                <span class="capitalize"><%= col %></span>
+                            </label>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metode Pengiriman -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pengiriman / Ekspedisi</label>
+                    <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                        <% ['TUNAI', 'DFOD', 'J&T CARGO', 'J&T EXPRESS', 'KAI Logistik', 'KIB CEPAT'].forEach(c => { %>
+                        <label class="flex items-center space-x-1.5 p-2 border border-slate-200 rounded-lg cursor-pointer bg-slate-50 hover:bg-white">
+                            <input type="radio" name="shipping_courier" value="<%= c %>" <%= (order.shipping_courier || 'TUNAI') === c ? 'checked' : '' %>>
+                            <span><%= c %></span>
+                        </label>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closePokModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20">
+                        Simpan Perubahan POK
+                    </button>
+                </div>
+            </form>
         </div>
-
     </div>
 
     <script>
         if (window.lucide) {
             lucide.createIcons();
         }
+
+        function openPokModal() {
+            document.getElementById('pokEditModal').classList.remove('hidden');
+        }
+
+        function closePokModal() {
+            document.getElementById('pokEditModal').classList.add('hidden');
+        }
+
+        function toggleMobileFit() {
+            const viewport = document.getElementById('sheetViewport');
+            const pokSheet = document.getElementById('pokSheet');
+            const fitText = document.getElementById('fitText');
+            
+            const isFit = viewport.classList.toggle('is-fit-mobile');
+            if (isFit) {
+                const screenWidth = window.innerWidth - 12;
+                const pagePixelWidth = 794; // 210mm
+                const scale = Math.min(1, Math.max(0.3, screenWidth / pagePixelWidth));
+                pokSheet.style.setProperty('--mobile-scale', scale);
+                fitText.textContent = 'Ukuran 100%';
+            } else {
+                fitText.textContent = 'Pas Layar';
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Auto-scale jika layar HP saat pertama kali buka agar langsung pas terlihat
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.innerWidth <= 640) {
+                // Beri pengguna fleksibilitas: default scrollable penuh, dengan tombol Pas Layar
+            }
+        });
     </script>
 </body>
 </html>
