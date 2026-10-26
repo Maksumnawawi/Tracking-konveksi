@@ -266,6 +266,20 @@
                         <% } %>
 
                     </div>
+                    <!-- Khusus Divisi Sablon: Tombol Cepat Langsung ke Packing (Kaos Jadi / Tanpa Jahit) -->
+                    <% if (item.assigned_role === 'print_sablon') { %>
+                    <div class="mt-2 pt-2 border-t border-slate-100">
+                        <form action="/division/stage/<%= item.id %>/action" method="POST" onsubmit="return confirmAction('Selesai Sablon & Langsung ke QC Packing (Lewati Potong & Jahit)?', '<%= item.order_number %>')">
+                            <input type="hidden" name="action" value="complete">
+                            <input type="hidden" name="jump_to_role" value="qc_packing">
+                            <button type="submit" class="w-full py-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold rounded-xl text-[11px] flex items-center justify-center space-x-1.5 transition cursor-pointer" title="Gunakan jika order adalah kaos jadi yang tidak perlu dipotong atau dijahit">
+                                <i data-lucide="fast-forward" class="w-3.5 h-3.5 text-indigo-600"></i>
+                                <span>Kaos Jadi: Selesai Langsung ke Packing ⚡</span>
+                            </button>
+                        </form>
+                    </div>
+                    <% } %>
+
 
                 </div>
                 <% }) %>

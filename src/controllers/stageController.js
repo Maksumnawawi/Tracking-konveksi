@@ -55,7 +55,7 @@ const StageController = {
     handleStageAction(req, res) {
         try {
             const stageId = parseInt(req.params.id);
-            const { action } = req.body; // 'start', 'pause', 'resume', 'complete'
+            const { action, jump_to_role } = req.body; // 'start', 'pause', 'resume', 'complete'
             const userId = req.session.user.id;
             const userRole = req.session.user.role;
 
@@ -113,7 +113,7 @@ const StageController = {
                     });
                 }
 
-                result = StageModel.completeStage(stageId, userId);
+                result = StageModel.completeStage(stageId, userId, jump_to_role || null);
             } else {
                 return res.status(400).json({ success: false, error: 'Aksi tidak dikenal' });
             }

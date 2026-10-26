@@ -189,8 +189,9 @@ const StageModel = {
 
     /**
      * AKSI: SELESAI (COMPLETE) - Otomatis lempar ke antrean divisi berikutnya
+     * Mendukung jumpToRole (misal: dari Sablon langsung ke QC & Packing jika kaos jadi)
      */
-    completeStage(stageId, userId) {
+    completeStage(stageId, userId, jumpToRole = null) {
         const stage = db.get('SELECT * FROM order_stages WHERE id = ?', [stageId]);
         if (!stage) throw new Error('Stage tidak ditemukan');
 
@@ -222,11 +223,38 @@ const StageModel = {
             VALUES (?, ?, ?, 'COMPLETE', ?, ?)
         `, [stageId, stage.order_id, userId, elapsed, nowIso]);
 
-        // Cari tahap berikutnya (stage_order = current + 1)
-        const nextStage = db.get(`
-            SELECT * FROM order_stages 
-            WHERE order_id = ? AND stage_order = ?
-        `, [stage.order_id, stage.stage_order + 1]);
+        let nextStage = null;
+
+        // Fitur lewati/bypass tahap (contoh: dari Sablon langsung ke QC Packing jika kaos jadi tanpa potong/jahit)
+        if (jumpToRole) {
+            nextStage = db.get(`
+                SELECT * FROM order_stages 
+                WHERE order_id = ? AND assigned_role = ? AND stage_order > ?
+                ORDER BY stage_order ASC LIMIT 1
+            `, [stage.order_id, jumpToRole, stage.stage_order]);
+
+            if (nextStage) {
+                // Tandai semua tahap perantara sebagai COMPLETED (Dilewati)
+                db.run(`
+                    UPDATE order_stages
+                    SET status = 'COMPLETED',
+                        completed_at = ?,
+                        completed_by_user_id = ?
+                    WHERE order_id = ? 
+                      AND stage_order > ? 
+                      AND stage_order < ? 
+                      AND status != 'COMPLETED'
+                `, [nowIso, userId, stage.order_id, stage.stage_order, nextStage.stage_order]);
+            }
+        }
+
+        if (!nextStage) {
+            // Cari tahap berikutnya secara berurutan (stage_order = current + 1)
+            nextStage = db.get(`
+                SELECT * FROM order_stages 
+                WHERE order_id = ? AND stage_order = ?
+            `, [stage.order_id, stage.stage_order + 1]);
+        }
 
         if (nextStage) {
             // Pindahkan order ke antrean divisi berikutnya

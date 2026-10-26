@@ -1,26 +1,27 @@
 /**
- * Definisi Alur Kerja Resmi Berdasarkan Kategori Produk:
+ * Definisi Alur Kerja Resmi Berdasarkan Kategori Produk di TRCH Screen Printing:
  * 
+ * Desain Mockup diselesaikan di awal & di-upload saat pembuatan SPK / Nota.
+ * Di lantai workshop fisik, urutan pengerjaan meja produksi adalah:
  * 1. Kaos:
- *    Desain -> Sekrining/Film -> Potong -> Sablon -> Jahit -> QC & Packing -> Kirim
+ *    Desain Mockup (Awal/Selesai) -> Sablon -> Potong -> Jahit -> QC & Packing -> Kirim
  * 
  * 2. Jersey:
- *    Desain Mockup -> Setting Sublim -> Potong -> Jahit -> QC & Packing -> Kirim
+ *    Desain Mockup (Awal/Selesai) -> Setting & Cetak Sublim -> Potong -> Jahit -> QC & Packing -> Kirim
  */
 
 const WORKFLOW_CONFIG = {
     kaos: [
-        { name: 'Desain', role: 'desain', description: 'Penyusunan mockup & approval desain artikel kaos' },
-        { name: 'Sekrining/Film', role: 'print_sablon', description: 'Pembuatan film kalkir, afdruk screen sablon' },
+        { name: 'Desain Mockup', role: 'desain', description: 'Penyusunan mockup & approval desain artikel kaos' },
+        { name: 'Sablon', role: 'print_sablon', description: 'Penyablonan manual/mesin pada kain pola / kaos' },
         { name: 'Potong', role: 'potong', description: 'Pemotongan pola kain kaos (badan, lengan, rib leher)' },
-        { name: 'Sablon', role: 'print_sablon', description: 'Penyablonan manual/mesin pada kain pola' },
         { name: 'Jahit', role: 'jahit', description: 'Perakitan obras, jahit rantai pundak, pasang rib & label' },
         { name: 'QC & Packing', role: 'qc_packing', description: 'Pemeriksaan kualitas jahitan/sablon, buang benang, steam & packing' },
         { name: 'Kirim', role: 'kirim', description: 'Pengepakan koli ekspedisi & serah terima kurir/pelanggan' }
     ],
     jersey: [
         { name: 'Desain Mockup', role: 'desain', description: 'Setting pola jersey, nameset pemain, nomor & sponsor' },
-        { name: 'Setting Sublim', role: 'print_sablon', description: 'RIP printing kertas sublim & transfer heat press roll' },
+        { name: 'Setting & Cetak Sublim', role: 'print_sablon', description: 'RIP printing kertas sublim & transfer heat press roll' },
         { name: 'Potong', role: 'potong', description: 'Pemotongan pola jersey hasil press sublim' },
         { name: 'Jahit', role: 'jahit', description: 'Perakitan jersey, pasang kerah V/O-neck, manset lengan' },
         { name: 'QC & Packing', role: 'qc_packing', description: 'Pemeriksaan jahitan sublim, size tag, lipat & plastik OPP' },

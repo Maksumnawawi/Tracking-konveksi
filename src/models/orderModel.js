@@ -215,26 +215,46 @@ const OrderModel = {
         // Buat tahapan (order_stages) secara berurutan sesuai alur kategori
         let firstStageId = null;
         let firstRole = null;
+        let sablonStageId = null;
+        let sablonRole = null;
+
+        const nowIso = new Date().toISOString();
 
         workflow.forEach((step, idx) => {
             const stageOrder = idx + 1;
+            // Tahap Desain Mockup diselesaikan di awal karena desain sudah dibuat & diupload saat pembuatan SPK / Nota
+            const isDesain = step.role === 'desain' || idx === 0;
+            const initialStatus = isDesain ? 'COMPLETED' : 'WAITING';
+            const completedAt = isDesain ? nowIso : null;
+            const completedBy = isDesain ? (creatorId || 1) : null;
+
             const insertStageSql = `
-                INSERT INTO order_stages (order_id, stage_name, stage_order, assigned_role, status)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO order_stages (
+                    order_id, stage_name, stage_order, assigned_role, 
+                    status, completed_at, completed_by_user_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
             `;
-            const initialStatus = idx === 0 ? 'WAITING' : 'WAITING';
-            const stageRes = db.run(insertStageSql, [orderId, step.name, stageOrder, step.role, initialStatus]);
+            const stageRes = db.run(insertStageSql, [
+                orderId, step.name, stageOrder, step.role, 
+                initialStatus, completedAt, completedBy
+            ]);
 
             if (idx === 0) {
                 firstStageId = stageRes.lastInsertRowid;
                 firstRole = step.role;
+            } else if (idx === 1) {
+                sablonStageId = stageRes.lastInsertRowid;
+                sablonRole = step.role;
             }
         });
 
-        // Set current_stage_id dan current_role di pesanan
+        // Set pesanan langsung aktif di meja SABLON (tahap pertama produksi fisik di workshop)
+        const activeStageId = sablonStageId || firstStageId;
+        const activeRole = sablonRole || firstRole;
+
         db.run(
-            `UPDATE orders SET current_stage_id = ?, current_role = ? WHERE id = ?`,
-            [firstStageId, firstRole, orderId]
+            `UPDATE orders SET current_stage_id = ?, current_role = ?, status = 'IN_PROGRESS' WHERE id = ?`,
+            [activeStageId, activeRole, orderId]
         );
 
         return { orderId, orderNumber, trackingCode };
