@@ -75,9 +75,13 @@ const OrderController = {
                 (parseInt(size_l) || 0) +
                 (parseInt(size_xl) || 0) +
                 (parseInt(size_2xl) || 0) +
-                (parseInt(size_3xl) || 0);
+                (parseInt(size_3xl) || 0) +
+                (parseInt(req.body.size_4xl) || 0) +
+                (parseInt(req.body.size_5xl) || 0);
 
-            if (totalPcs <= 0 && !req.body.total_pcs) {
+            const effectiveTotal = parseInt(req.body.total_pcs) || totalPcs;
+
+            if (effectiveTotal <= 0) {
                 return res.render('admin/order-create', {
                     title: 'Buat SPK / Order Baru',
                     error: 'Masukkan jumlah rincian ukuran baju (minimal 1 pcs)!',
@@ -172,18 +176,22 @@ const OrderController = {
                 customer_name, customer_phone, article_name,
                 fabric_type, print_type, notes, deadline_date,
                 size_xs, size_s, size_m, size_l, size_xl, size_2xl, size_3xl,
-                revision_notes
+                size_4xl, size_5xl, revision_notes
             } = req.body;
 
             const oldTotalPcs = currentOrder.total_pcs;
             const newTotalPcs = 
-                (parseInt(size_xs) || 0) +
-                (parseInt(size_s) || 0) +
-                (parseInt(size_m) || 0) +
-                (parseInt(size_l) || 0) +
-                (parseInt(size_xl) || 0) +
-                (parseInt(size_2xl) || 0) +
-                (parseInt(size_3xl) || 0);
+                parseInt(req.body.total_pcs) || (
+                    (parseInt(size_xs) || 0) +
+                    (parseInt(size_s) || 0) +
+                    (parseInt(size_m) || 0) +
+                    (parseInt(size_l) || 0) +
+                    (parseInt(size_xl) || 0) +
+                    (parseInt(size_2xl) || 0) +
+                    (parseInt(size_3xl) || 0) +
+                    (parseInt(size_4xl) || 0) +
+                    (parseInt(size_5xl) || 0)
+                );
 
             // Simpan update ke database
             OrderModel.update(orderId, req.body);

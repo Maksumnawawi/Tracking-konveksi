@@ -161,37 +161,57 @@
 
                 <!-- Rincian Size Table -->
                 <div class="pt-2">
-                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Rincian Ukuran (Size Breakdown)</p>
-                    <div class="grid grid-cols-7 gap-1 text-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-semibold">XS</span>
-                            <span class="text-xs font-bold text-slate-800"><%= order.size_xs %></span>
+                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Rincian Ukuran &amp; Varian Model</p>
+                    
+                    <% 
+                    let detailVariants = [];
+                    try {
+                        if (order.items_breakdown_json) detailVariants = JSON.parse(order.items_breakdown_json);
+                    } catch(e) {}
+                    %>
+
+                    <% if (Array.isArray(detailVariants) && detailVariants.length > 0) { %>
+                    <div class="space-y-2 mb-3">
+                        <% detailVariants.forEach(v => { 
+                            const rowSub = ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].reduce((acc, sz) => acc + (parseInt(v['qty_' + sz]) || 0), 0);
+                        %>
+                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                            <div class="flex items-center justify-between font-bold text-slate-800 mb-1.5">
+                                <span class="uppercase text-[11px] text-blue-900 font-black"><%= v.name || 'Varian Kaos' %></span>
+                                <span class="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded-lg font-mono font-bold text-slate-700 shadow-2xs"><%= rowSub %> Pcs</span>
+                            </div>
+                            <div class="grid grid-cols-5 sm:grid-cols-9 gap-1 text-center text-[10px]">
+                                <% ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].forEach(sz => { %>
+                                <div class="bg-white p-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                                    <span class="text-slate-400 block uppercase font-bold"><%= sz %></span>
+                                    <span class="font-bold text-[11px] <%= v['qty_' + sz] ? 'text-blue-700 font-mono' : 'text-slate-300' %>"><%= v['qty_' + sz] || '-' %></span>
+                                </div>
+                                <% }) %>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-semibold">S</span>
-                            <span class="text-xs font-bold text-slate-800"><%= order.size_s %></span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-semibold">M</span>
-                            <span class="text-xs font-bold text-slate-800"><%= order.size_m %></span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-semibold">L</span>
-                            <span class="text-xs font-bold text-slate-800"><%= order.size_l %></span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-semibold">XL</span>
-                            <span class="text-xs font-bold text-slate-800"><%= order.size_xl %></span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-semibold">2XL</span>
-                            <span class="text-xs font-bold text-slate-800"><%= order.size_2xl %></span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-semibold">3XL</span>
-                            <span class="text-xs font-bold text-slate-800"><%= order.size_3xl %></span>
-                        </div>
+                        <% }) %>
                     </div>
+                    <% } else { %>
+                    <div class="grid grid-cols-5 sm:grid-cols-9 gap-1 text-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                        <% [
+                            { l: 'XS', v: order.size_xs },
+                            { l: 'S', v: order.size_s },
+                            { l: 'M', v: order.size_m },
+                            { l: 'L', v: order.size_l },
+                            { l: 'XL', v: order.size_xl },
+                            { l: '2XL', v: order.size_2xl },
+                            { l: '3XL', v: order.size_3xl },
+                            { l: '4XL', v: order.size_4xl },
+                            { l: '5XL', v: order.size_5xl }
+                        ].forEach(item => { %>
+                        <div class="bg-white p-1 rounded border border-slate-100">
+                            <span class="text-[10px] text-slate-400 block font-semibold"><%= item.l %></span>
+                            <span class="text-xs font-bold text-slate-800"><%= item.v || 0 %></span>
+                        </div>
+                        <% }) %>
+                    </div>
+                    <% } %>
+
                     <div class="mt-2 text-right text-xs">
                         <span class="text-slate-500">Total Produksi:</span>
                         <span class="font-black text-slate-900 text-sm ml-1"><%= order.total_pcs %> Pcs</span>

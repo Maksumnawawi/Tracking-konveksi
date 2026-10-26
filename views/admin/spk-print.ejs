@@ -373,6 +373,7 @@
                     }
                 ];
             }
+            const totalRows = Math.max(6, breakdownItems.length);
             %>
 
             <!-- TABEL RINCIAN UKURAN & WARNA SABLON (PERSIS GAMBAR 1) -->
@@ -399,7 +400,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% for (let r = 0; r < 6; r++) { 
+                        <% for (let r = 0; r < totalRows; r++) { 
                             const itm = breakdownItems[r] || null;
                         %>
                         <tr class="border-b border-black h-7">
@@ -416,10 +417,10 @@
                             <td class="border-r border-black"><%= itm && itm.qty_4xl ? itm.qty_4xl : '' %></td>
                             <td class="border-r-2 border-black"><%= itm && itm.qty_5xl ? itm.qty_5xl : '' %></td>
                             
-                            <!-- Hanya di baris pertama (r === 0), kita buat rowspan="6" untuk WARNA SABLON agar persis Gambar 1 -->
+                            <!-- Hanya di baris pertama (r === 0), kita buat rowspan="<%= totalRows %>" untuk WARNA SABLON agar persis Gambar 1 -->
                             <% if (r === 0) { %>
                             <!-- Swatches Warna Sablon Depan (8 Kotak Grid 2x4) -->
-                            <td rowspan="6" class="border-r border-black p-1 align-top bg-white">
+                            <td rowspan="<%= totalRows %>" class="border-r border-black p-1 align-top bg-white">
                                 <div class="grid grid-cols-2 gap-1 justify-items-center py-1">
                                     <% for(let i = 0; i < 8; i++) { 
                                         const cObj = activeDepan[i];
@@ -433,7 +434,7 @@
                             </td>
 
                             <!-- Swatches Warna Sablon Belakang (8 Kotak Grid 2x4) -->
-                            <td rowspan="6" class="p-1 align-top bg-white">
+                            <td rowspan="<%= totalRows %>" class="p-1 align-top bg-white">
                                 <div class="grid grid-cols-2 gap-1 justify-items-center py-1">
                                     <% for(let i = 0; i < 8; i++) { 
                                         const cObj = activeBelakang[i];

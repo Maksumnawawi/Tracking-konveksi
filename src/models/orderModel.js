@@ -268,7 +268,9 @@ const OrderModel = {
             (parseInt(data.size_l) || 0) +
             (parseInt(data.size_xl) || 0) +
             (parseInt(data.size_2xl) || 0) +
-            (parseInt(data.size_3xl) || 0);
+            (parseInt(data.size_3xl) || 0) +
+            (parseInt(data.size_4xl) || 0) +
+            (parseInt(data.size_5xl) || 0);
 
         const sql = `
             UPDATE orders SET
@@ -287,6 +289,9 @@ const OrderModel = {
                 size_xl = ?,
                 size_2xl = ?,
                 size_3xl = ?,
+                size_4xl = ?,
+                size_5xl = ?,
+                items_breakdown_json = COALESCE(NULLIF(?, ''), items_breakdown_json),
                 total_pcs = ?
             WHERE id = ?
         `;
@@ -307,6 +312,9 @@ const OrderModel = {
             parseInt(data.size_xl) || 0,
             parseInt(data.size_2xl) || 0,
             parseInt(data.size_3xl) || 0,
+            parseInt(data.size_4xl) || 0,
+            parseInt(data.size_5xl) || 0,
+            data.items_breakdown_json || '',
             totalPcs > 0 ? totalPcs : (parseInt(data.total_pcs) || 1),
             orderId
         ]);

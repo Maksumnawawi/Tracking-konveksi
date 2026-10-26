@@ -41,7 +41,7 @@
                 </div>
                 <div class="w-full sm:w-36 bg-white p-2.5 rounded-xl border border-amber-300 shadow-inner text-center">
                     <label class="block text-[10px] font-black uppercase text-amber-900 tracking-wider mb-0.5">NOMOR PO (AUTO)</label>
-                    <input type="number" min="1" name="po_number" value="<%= formData.po_number || nextPoNumber || 1 %>" class="w-full text-center text-2xl font-black bg-amber-50/50 border border-amber-400 rounded-lg py-1 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <input type="number" min="1" name="po_number" value="<%= formData.po_number || (typeof nextPoNumber !== 'undefined' ? nextPoNumber : 1) %>" class="w-full text-center text-2xl font-black bg-amber-50/50 border border-amber-400 rounded-lg py-1 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
                 </div>
             </div>
 
@@ -293,56 +293,64 @@
                 </div>
             </div>
 
-            <!-- Section 4: Rincian Ukuran / Size Breakdown -->
+            <!-- Section 4: Rincian Ukuran & Model Varian (Size Breakdown) -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
-                        <i data-lucide="ruler" class="w-4 h-4 text-blue-600"></i>
-                        <span>4. Rincian Ukuran (Size Breakdown)</span>
-                    </h2>
-                    <div class="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                        Total: <span id="displayTotalPcs" class="text-sm font-black">0</span> Pcs
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
+                    <div>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                            <i data-lucide="ruler" class="w-4 h-4 text-blue-600"></i>
+                            <span>4. Rincian Ukuran & Model (Size Breakdown)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Atur rincian ukuran untuk Lengan Pendek, Lengan Panjang, dan Ukuran Anak-Anak / Dewasa</p>
+                    </div>
+                    <div class="flex items-center space-x-2 self-start sm:self-auto">
+                        <span class="text-xs text-slate-500 font-semibold">Total Seluruhnya:</span>
+                        <div class="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 shadow-2xs">
+                            <span id="displayTotalPcs" class="text-sm font-black">0</span> Pcs
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2.5">
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">XS</label>
-                        <input type="number" min="0" name="size_xs" value="<%= formData.size_xs || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">S</label>
-                        <input type="number" min="0" name="size_s" value="<%= formData.size_s || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">M</label>
-                        <input type="number" min="0" name="size_m" value="<%= formData.size_m || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">L</label>
-                        <input type="number" min="0" name="size_l" value="<%= formData.size_l || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">XL</label>
-                        <input type="number" min="0" name="size_xl" value="<%= formData.size_xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">2XL</label>
-                        <input type="number" min="0" name="size_2xl" value="<%= formData.size_2xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">3XL</label>
-                        <input type="number" min="0" name="size_3xl" value="<%= formData.size_3xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">4XL</label>
-                        <input type="number" min="0" name="size_4xl" value="<%= formData.size_4xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-center text-xs font-bold text-slate-600 uppercase mb-1">5XL</label>
-                        <input type="number" min="0" name="size_5xl" value="<%= formData.size_5xl || 0 %>" class="size-input text-center font-bold w-full px-2 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
+                <!-- Tombol Cepat Tambah Varian / Model (1-Click Presets) -->
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center gap-2">
+                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mr-1 flex items-center space-x-1">
+                        <i data-lucide="plus" class="w-3.5 h-3.5 text-blue-600"></i>
+                        <span>Pilihan Varian:</span>
+                    </span>
+                    <button type="button" onclick="addVariantRow('Lengan Pendek (Dewasa)')" class="px-3 py-1.5 bg-white hover:bg-blue-50 text-blue-700 hover:border-blue-300 border border-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer">
+                        <span>👕 + Lengan Pendek</span>
+                    </button>
+                    <button type="button" onclick="addVariantRow('Lengan Panjang (Dewasa)')" class="px-3 py-1.5 bg-white hover:bg-indigo-50 text-indigo-700 hover:border-indigo-300 border border-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer">
+                        <span>🥋 + Lengan Panjang</span>
+                    </button>
+                    <button type="button" onclick="addVariantRow('Kaos Anak-Anak (Pendek)')" class="px-3 py-1.5 bg-white hover:bg-amber-50 text-amber-800 hover:border-amber-300 border border-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer">
+                        <span>🧒 + Anak-Anak (Pendek)</span>
+                    </button>
+                    <button type="button" onclick="addVariantRow('Kaos Anak-Anak (Panjang)')" class="px-3 py-1.5 bg-white hover:bg-purple-50 text-purple-700 hover:border-purple-300 border border-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer">
+                        <span>🧒🥋 + Anak-Anak (Panjang)</span>
+                    </button>
+                    <button type="button" onclick="addVariantRow('')" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1 shadow-2xs cursor-pointer">
+                        <span>+ Varian Lain</span>
+                    </button>
                 </div>
+
+                <!-- Container Kartu-Kartu Varian -->
+                <div id="variantCardsContainer" class="space-y-3">
+                    <!-- Di-render dinamis oleh JavaScript -->
+                </div>
+
+                <!-- Hidden inputs untuk sinkronisasi form & database -->
+                <input type="hidden" name="items_breakdown_json" id="items_breakdown_json" value="<%= formData.items_breakdown_json || '' %>">
+                <input type="hidden" name="size_xs" id="sum_size_xs" value="<%= formData.size_xs || 0 %>">
+                <input type="hidden" name="size_s" id="sum_size_s" value="<%= formData.size_s || 0 %>">
+                <input type="hidden" name="size_m" id="sum_size_m" value="<%= formData.size_m || 0 %>">
+                <input type="hidden" name="size_l" id="sum_size_l" value="<%= formData.size_l || 0 %>">
+                <input type="hidden" name="size_xl" id="sum_size_xl" value="<%= formData.size_xl || 0 %>">
+                <input type="hidden" name="size_2xl" id="sum_size_2xl" value="<%= formData.size_2xl || 0 %>">
+                <input type="hidden" name="size_3xl" id="sum_size_3xl" value="<%= formData.size_3xl || 0 %>">
+                <input type="hidden" name="size_4xl" id="sum_size_4xl" value="<%= formData.size_4xl || 0 %>">
+                <input type="hidden" name="size_5xl" id="sum_size_5xl" value="<%= formData.size_5xl || 0 %>">
+                <input type="hidden" name="total_pcs" id="sum_total_pcs" value="<%= formData.total_pcs || 0 %>">
             </div>
 
             <!-- Section 5: Instruksi & Catatan Khusus -->
@@ -387,21 +395,203 @@
 <%- include('../partials/mobile-nav') %>
 
 <script>
-    // Live Auto Sum Total Pcs
-    function updateTotalPcs() {
-        const inputs = document.querySelectorAll('.size-input');
-        let total = 0;
-        inputs.forEach(input => {
-            total += parseInt(input.value) || 0;
-        });
-        document.getElementById('displayTotalPcs').textContent = total;
+    // Multi-Variant Size Breakdown Manager
+    let variants = [];
+
+    try {
+        const rawJson = document.getElementById('items_breakdown_json').value;
+        if (rawJson && rawJson.trim() !== '' && rawJson.trim() !== '[]') {
+            variants = JSON.parse(rawJson);
+        }
+    } catch (e) {
+        variants = [];
     }
 
-    document.querySelectorAll('.size-input').forEach(input => {
-        input.addEventListener('input', updateTotalPcs);
-    });
+    if (!Array.isArray(variants) || variants.length === 0) {
+        variants = [{
+            name: 'Lengan Pendek (Dewasa)',
+            qty_xs: parseInt('<%= formData.size_xs || 0 %>') || '',
+            qty_s: parseInt('<%= formData.size_s || 0 %>') || '',
+            qty_m: parseInt('<%= formData.size_m || 0 %>') || '',
+            qty_l: parseInt('<%= formData.size_l || 0 %>') || '',
+            qty_xl: parseInt('<%= formData.size_xl || 0 %>') || '',
+            qty_2xl: parseInt('<%= formData.size_2xl || 0 %>') || '',
+            qty_3xl: parseInt('<%= formData.size_3xl || 0 %>') || '',
+            qty_4xl: parseInt('<%= formData.size_4xl || 0 %>') || '',
+            qty_5xl: parseInt('<%= formData.size_5xl || 0 %>') || ''
+        }];
+    }
 
-    updateTotalPcs();
+    function renderVariants() {
+        const container = document.getElementById('variantCardsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+
+        variants.forEach((v, idx) => {
+            const card = document.createElement('div');
+            card.className = 'p-3.5 sm:p-4 bg-slate-50/90 border border-slate-200 rounded-2xl space-y-3 variant-card shadow-xs transition';
+            card.dataset.index = idx;
+
+            const subtotal = 
+                (parseInt(v.qty_xs) || 0) +
+                (parseInt(v.qty_s) || 0) +
+                (parseInt(v.qty_m) || 0) +
+                (parseInt(v.qty_l) || 0) +
+                (parseInt(v.qty_xl) || 0) +
+                (parseInt(v.qty_2xl) || 0) +
+                (parseInt(v.qty_3xl) || 0) +
+                (parseInt(v.qty_4xl) || 0) +
+                (parseInt(v.qty_5xl) || 0);
+
+            const isKids = (v.name || '').toLowerCase().includes('anak');
+
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-200">
+                    <div class="flex items-center space-x-2 flex-1">
+                        <span class="w-6 h-6 rounded-lg bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                            ${idx + 1}
+                        </span>
+                        <div class="flex-1 max-w-sm">
+                            <input type="text" class="w-full font-bold text-xs px-3 py-1.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase" 
+                                   value="${v.name || ''}" placeholder="Nama Varian / Model (Contoh: Lengan Pendek)" 
+                                   oninput="updateVariantName(${idx}, this.value)">
+                        </div>
+                        <div class="hidden md:flex items-center space-x-1">
+                            <button type="button" onclick="setVariantName(${idx}, 'Lengan Pendek (Dewasa)')" class="text-[10px] font-bold bg-white border border-slate-200 hover:border-blue-400 px-2 py-1 rounded-lg text-slate-600 hover:text-blue-700 transition">Pendek</button>
+                            <button type="button" onclick="setVariantName(${idx}, 'Lengan Panjang (Dewasa)')" class="text-[10px] font-bold bg-white border border-slate-200 hover:border-indigo-400 px-2 py-1 rounded-lg text-slate-600 hover:text-indigo-700 transition">Panjang</button>
+                            <button type="button" onclick="setVariantName(${idx}, 'Kaos Anak-Anak (Pendek)')" class="text-[10px] font-bold bg-white border border-slate-200 hover:border-amber-400 px-2 py-1 rounded-lg text-slate-600 hover:text-amber-800 transition">Anak</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-end space-x-2 shrink-0">
+                        <span class="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-xl shadow-2xs">
+                            Subtotal: <strong class="text-blue-700 font-mono font-black variant-subtotal">${subtotal}</strong> Pcs
+                        </span>
+                        ${variants.length > 1 ? `
+                        <button type="button" onclick="removeVariantRow(${idx})" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer" title="Hapus Baris Varian">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>` : `
+                        <button type="button" onclick="clearVariantRow(${idx})" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-xl transition cursor-pointer" title="Kosongkan Angka">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        </button>`}
+                    </div>
+                </div>
+
+                ${isKids ? `
+                <div class="text-[10px] font-semibold text-amber-800 bg-amber-50/90 border border-amber-200/90 px-2.5 py-1 rounded-lg flex items-center space-x-1">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                    <span>Panduan Size Anak: XS (Size 2 / 2-3 th) &bull; S (Size 4 / 4-5 th) &bull; M (Size 6 / 6-7 th) &bull; L (Size 8 / 8-9 th) &bull; XL (Size 10 / 10-11 th) &bull; 2XL (Size 12)</span>
+                </div>` : ''}
+
+                <!-- Kolom Input Ukuran XS s/d 5XL -->
+                <div class="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2 text-center">
+                    ${['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].map(sz => `
+                    <div>
+                        <span class="text-[10px] font-black text-slate-500 uppercase block mb-1">${sz}</span>
+                        <input type="number" min="0" value="${v['qty_' + sz] || ''}" placeholder="0" 
+                               class="qty-input w-full p-2 text-center font-bold text-xs sm:text-sm border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition shadow-2xs" 
+                               oninput="updateVariantQty(${idx}, '${sz}', this.value)">
+                    </div>`).join('')}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        recalculateTotals();
+    }
+
+    function addVariantRow(presetName = '') {
+        const name = presetName || 'Lengan Pendek (Dewasa)';
+        variants.push({
+            name: name,
+            qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
+            qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
+        });
+        renderVariants();
+    }
+
+    function setVariantName(idx, name) {
+        if (variants[idx]) {
+            variants[idx].name = name;
+            renderVariants();
+        }
+    }
+
+    function updateVariantName(idx, name) {
+        if (variants[idx]) {
+            variants[idx].name = name;
+            syncHiddenInputs();
+        }
+    }
+
+    function updateVariantQty(idx, size, val) {
+        if (variants[idx]) {
+            variants[idx]['qty_' + size] = val === '' ? '' : parseInt(val) || 0;
+            const card = document.querySelector(`.variant-card[data-index="${idx}"]`);
+            if (card) {
+                const subtotal = ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl']
+                    .reduce((acc, sz) => acc + (parseInt(variants[idx]['qty_' + sz]) || 0), 0);
+                const subtotalEl = card.querySelector('.variant-subtotal');
+                if (subtotalEl) subtotalEl.textContent = subtotal;
+            }
+            recalculateTotals();
+        }
+    }
+
+    function removeVariantRow(idx) {
+        if (variants.length > 1) {
+            variants.splice(idx, 1);
+            renderVariants();
+        }
+    }
+
+    function clearVariantRow(idx) {
+        if (variants[idx]) {
+            ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].forEach(sz => {
+                variants[idx]['qty_' + sz] = '';
+            });
+            renderVariants();
+        }
+    }
+
+    function recalculateTotals() {
+        const totals = { xs: 0, s: 0, m: 0, l: 0, xl: 0, '2xl': 0, '3xl': 0, '4xl': 0, '5xl': 0 };
+        let grandTotal = 0;
+
+        variants.forEach(v => {
+            Object.keys(totals).forEach(sz => {
+                const q = parseInt(v['qty_' + sz]) || 0;
+                totals[sz] += q;
+                grandTotal += q;
+            });
+        });
+
+        // Update hidden inputs
+        Object.keys(totals).forEach(sz => {
+            const hid = document.getElementById('sum_size_' + sz);
+            if (hid) hid.value = totals[sz];
+        });
+
+        const totalPcsHid = document.getElementById('sum_total_pcs');
+        if (totalPcsHid) totalPcsHid.value = grandTotal;
+
+        const disp = document.getElementById('displayTotalPcs');
+        if (disp) disp.textContent = grandTotal;
+
+        syncHiddenInputs();
+    }
+
+    function syncHiddenInputs() {
+        const jsonInput = document.getElementById('items_breakdown_json');
+        if (jsonInput) {
+            jsonInput.value = JSON.stringify(variants);
+        }
+    }
+
+    renderVariants();
 
     // Auto-update Nomor PO Harian saat Tanggal Masuk Diubah
     const tglMasukInput = document.querySelector('input[name="tgl_masuk"]');

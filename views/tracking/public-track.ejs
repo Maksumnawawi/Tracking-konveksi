@@ -282,6 +282,35 @@
                 </div>
 
                 <!-- Rincian Ukuran (Size Breakdown) -->
+                <% 
+                let publicVariants = [];
+                try {
+                    if (order.items_breakdown_json) publicVariants = JSON.parse(order.items_breakdown_json);
+                } catch(e) {}
+                %>
+                <% if (Array.isArray(publicVariants) && publicVariants.length > 0) { %>
+                <div class="space-y-2">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Rincian Varian &amp; Ukuran Pesanan:</span>
+                    <% publicVariants.forEach(v => { 
+                        const rowSub = ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].reduce((acc, sz) => acc + (parseInt(v['qty_' + sz]) || 0), 0);
+                    %>
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+                        <div class="flex items-center justify-between font-bold text-slate-800 mb-1.5">
+                            <span class="uppercase text-[11px] text-blue-900 font-black"><%= v.name || 'Varian Kaos' %></span>
+                            <span class="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded-lg font-mono font-bold text-slate-700 shadow-2xs"><%= rowSub %> Pcs</span>
+                        </div>
+                        <div class="grid grid-cols-5 sm:grid-cols-9 gap-1 text-center text-[10px]">
+                            <% ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].forEach(sz => { %>
+                            <div class="bg-white p-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                                <span class="text-slate-400 block uppercase font-bold"><%= sz %></span>
+                                <span class="font-bold text-[11px] <%= v['qty_' + sz] ? 'text-blue-700 font-mono' : 'text-slate-300' %>"><%= v['qty_' + sz] || '-' %></span>
+                            </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+                <% } else { %>
                 <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
                     <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Rincian Ukuran (Size Breakdown):</span>
                     <div class="grid grid-cols-3 sm:grid-cols-9 gap-2 text-center text-xs">
@@ -303,6 +332,7 @@
                         <% }) %>
                     </div>
                 </div>
+                <% } %>
             </div>
 
             <!-- HASIL QC & MUTU (JIKA SUDAH LEWAT TAHAP QC) -->
