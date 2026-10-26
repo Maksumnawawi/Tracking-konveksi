@@ -144,9 +144,9 @@
                 <div>
                     <div class="flex items-center space-x-2">
                         <h3 class="text-sm font-black uppercase tracking-wider text-white">Scan Barcode / QR Lembar POK</h3>
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-red-500 text-white animate-pulse">Auto-Start</span>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-slate-700 text-slate-300 border border-slate-600">Preview &amp; Mulai</span>
                     </div>
-                    <p class="text-xs text-slate-300 mt-0.5">Scan lembar POK yang tiba di meja Anda untuk mulai pengerjaan otomatis.</p>
+                    <p class="text-xs text-slate-300 mt-0.5">Scan lembar POK yang tiba di meja Anda untuk melihat spesifikasi atau mulai pengerjaan.</p>
                 </div>
             </div>
 
@@ -418,7 +418,7 @@
 <!-- Modal Dialog QC & Packing -->
 <%- include('./partials/qc-modal') %>
 
-<!-- MODAL SCANNER QR BARCODE KAMERA -->
+<!-- MODAL SCANNER QR BARCODE KAMERA (DILENGKAPI KARTU PREVIEW SEBELUM MULAI) -->
 <div id="qrScannerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm" onclick="closeQrScannerModal()">
     <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl text-slate-900 border border-slate-200 relative overflow-hidden" onclick="event.stopPropagation()">
         
@@ -429,8 +429,8 @@
                     <i data-lucide="qr-code" class="w-4 h-4"></i>
                 </span>
                 <div>
-                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-900">Scan QR Lembar POK</h3>
-                    <p class="text-[11px] text-slate-500">Arahkan kamera ke QR Code di kertas POK</p>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-900" id="scannerModalTitle">Scan QR Lembar POK</h3>
+                    <p class="text-[11px] text-slate-500" id="scannerModalSubtitle">Arahkan kamera ke QR Code di kertas POK</p>
                 </div>
             </div>
             <button type="button" onclick="closeQrScannerModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm transition cursor-pointer">
@@ -438,26 +438,86 @@
             </button>
         </div>
 
-        <!-- Kamera Viewport -->
-        <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-slate-300 mb-3 shadow-inner">
-            <div id="qr-reader" class="w-full h-full"></div>
-            <!-- Target scanning animation frame -->
-            <div id="scanOverlay" class="absolute inset-8 border-2 border-dashed border-red-500 rounded-2xl pointer-events-none flex flex-col items-center justify-center z-10">
-                <div class="w-full h-0.5 bg-red-500 shadow-md shadow-red-500 animate-bounce"></div>
-                <span class="text-[10px] font-bold text-white/90 bg-black/70 px-2 py-0.5 rounded-md uppercase tracking-wider mt-2">Posisikan QR di Kotak</span>
+        <!-- TAMPILAN 1: KAMERA PEMINDAI LIVE -->
+        <div id="scannerCameraView" class="space-y-3">
+            <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-slate-300 shadow-inner">
+                <div id="qr-reader" class="w-full h-full"></div>
+                <!-- Target scanning animation frame -->
+                <div id="scanOverlay" class="absolute inset-8 border-2 border-dashed border-red-500 rounded-2xl pointer-events-none flex flex-col items-center justify-center z-10">
+                    <div class="w-full h-0.5 bg-red-500 shadow-md shadow-red-500 animate-bounce"></div>
+                    <span class="text-[10px] font-bold text-white/90 bg-black/70 px-2 py-0.5 rounded-md uppercase tracking-wider mt-2">Posisikan QR di Kotak</span>
+                </div>
+            </div>
+
+            <!-- Status Scan Feedback -->
+            <div id="scanStatusBox" class="hidden p-3 rounded-xl text-xs font-bold flex items-start space-x-2 transition"></div>
+
+            <!-- Tombol Ganti Kamera & Petunjuk -->
+            <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+                <span class="text-[10px] text-slate-400">Scan untuk cek detail pesanan</span>
+                <button type="button" onclick="switchCamera()" class="text-xs font-bold text-red-600 hover:text-red-700 flex items-center space-x-1 cursor-pointer">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Ganti Kamera</span>
+                </button>
             </div>
         </div>
 
-        <!-- Status Scan Feedback -->
-        <div id="scanStatusBox" class="hidden p-3 rounded-xl text-xs font-bold mb-3 flex items-start space-x-2 transition"></div>
+        <!-- TAMPILAN 2: KARTU PREVIEW DETAIL HASIL SCAN (TIDAK LANGSUNG MULAI) -->
+        <div id="scannerResultCard" class="hidden space-y-4">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-3">
+                
+                <!-- Tag Header -->
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                    <div class="flex items-center space-x-2">
+                        <span id="previewPoBadge" class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase bg-red-100 text-red-800 border border-red-200">
+                            PO #1
+                        </span>
+                        <span id="previewCategoryBadge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-200 text-slate-700">
+                            KAOS
+                        </span>
+                    </div>
+                    <span id="previewOrderNumber" class="font-mono text-[11px] font-bold text-slate-500">SPK-001</span>
+                </div>
 
-        <!-- Tombol Ganti Kamera & Petunjuk -->
-        <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
-            <span class="text-[10px] text-slate-400">Scan otomatis memulai timer</span>
-            <button type="button" onclick="switchCamera()" class="text-xs font-bold text-red-600 hover:text-red-700 flex items-center space-x-1 cursor-pointer">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                <span>Ganti Kamera</span>
-            </button>
+                <!-- Info Artikel & Customer -->
+                <div>
+                    <h4 id="previewArticleName" class="text-base font-black text-slate-900 leading-snug">Nama Artikel</h4>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Pemesan: <strong id="previewCustomerName" class="text-slate-800">Nama Customer</strong> &bull; 
+                        Total: <strong id="previewTotalPcs" class="text-red-600 font-black">0 Pcs</strong>
+                    </p>
+                </div>
+
+                <!-- Spesifikasi Teknis Box -->
+                <div class="grid grid-cols-2 gap-2 text-[11px] bg-white p-2.5 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Kain / Bahan:</span>
+                        <span id="previewFabric" class="font-bold text-slate-800">-</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Sablon / Tinta:</span>
+                        <span id="previewPrint" class="font-bold text-slate-800">-</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Warna Kaos:</span>
+                        <span id="previewWarnaKaos" class="font-bold text-slate-800">-</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Tahapan Anda:</span>
+                        <span id="previewStageName" class="font-bold text-blue-700">-</span>
+                    </div>
+                </div>
+
+                <!-- Status Badge -->
+                <div id="previewStatusContainer" class="pt-1">
+                    <!-- Status disuntikkan secara dinamis -->
+                </div>
+            </div>
+
+            <!-- Tombol Aksi: Mulai Kerjakan vs Tutup (Cuma Mau Lihat) -->
+            <div id="previewActionButtons" class="space-y-2">
+                <!-- Disuntikkan secara dinamis -->
+            </div>
         </div>
 
     </div>
@@ -479,21 +539,48 @@
             po_number: item.po_number,
             article_name: item.article_name,
             customer_name: item.customer_name,
-            total_pcs: item.total_pcs
+            total_pcs: item.total_pcs,
+            stage_name: item.stage_name,
+            category: item.category,
+            fabric_type: item.fabric_type,
+            print_type: item.print_type,
+            warna_kaos: item.warna_kaos,
+            notes: item.notes,
+            deadline_date: item.deadline_date
         }))) %>,
         inProgress: <%- JSON.stringify((inProgressList || []).map(item => ({
             id: item.id,
+            order_id: item.order_id,
             order_number: item.order_number,
             tracking_code: item.tracking_code,
             po_number: item.po_number,
-            article_name: item.article_name
+            article_name: item.article_name,
+            customer_name: item.customer_name,
+            total_pcs: item.total_pcs,
+            stage_name: item.stage_name,
+            category: item.category,
+            fabric_type: item.fabric_type,
+            print_type: item.print_type,
+            warna_kaos: item.warna_kaos,
+            notes: item.notes,
+            deadline_date: item.deadline_date
         }))) %>,
         paused: <%- JSON.stringify((pausedList || []).map(item => ({
             id: item.id,
+            order_id: item.order_id,
             order_number: item.order_number,
             tracking_code: item.tracking_code,
             po_number: item.po_number,
-            article_name: item.article_name
+            article_name: item.article_name,
+            customer_name: item.customer_name,
+            total_pcs: item.total_pcs,
+            stage_name: item.stage_name,
+            category: item.category,
+            fabric_type: item.fabric_type,
+            print_type: item.print_type,
+            warna_kaos: item.warna_kaos,
+            notes: item.notes,
+            deadline_date: item.deadline_date
         }))) %>
     };
 
@@ -535,6 +622,118 @@
         box.innerHTML = message;
     }
 
+    function renderPreviewCard(matched, statusType) {
+        stopCameraScanner();
+
+        // Sembunyikan kamera, tampilkan kartu preview
+        document.getElementById('scannerCameraView').classList.add('hidden');
+        const resultCard = document.getElementById('scannerResultCard');
+        resultCard.classList.remove('hidden');
+
+        // Update teks header modal
+        document.getElementById('scannerModalTitle').textContent = `Detail POK #${matched.po_number || 1}`;
+        document.getElementById('scannerModalSubtitle').textContent = 'Periksa rincian sebelum memutuskan mulai bekerja';
+
+        // Isi konten
+        document.getElementById('previewPoBadge').textContent = `PO #${matched.po_number || 1}`;
+        document.getElementById('previewCategoryBadge').textContent = (matched.category || 'KAOS').toUpperCase();
+        document.getElementById('previewOrderNumber').textContent = matched.order_number || '';
+        document.getElementById('previewArticleName').textContent = matched.article_name || '';
+        document.getElementById('previewCustomerName').textContent = matched.customer_name || '';
+        document.getElementById('previewTotalPcs').textContent = `${matched.total_pcs || 0} Pcs`;
+        document.getElementById('previewFabric').textContent = matched.fabric_type || '-';
+        document.getElementById('previewPrint').textContent = matched.print_type || '-';
+        document.getElementById('previewWarnaKaos').textContent = matched.warna_kaos || '-';
+        document.getElementById('previewStageName').textContent = matched.stage_name || '-';
+
+        const statusContainer = document.getElementById('previewStatusContainer');
+        const actionsContainer = document.getElementById('previewActionButtons');
+
+        if (statusType === 'waiting') {
+            statusContainer.innerHTML = `
+                <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between">
+                    <span class="font-bold text-blue-900 text-xs flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        <span>Status: Antrean Masuk (Belum Dimulai)</span>
+                    </span>
+                    <span class="text-[10px] text-blue-700 font-semibold">Siap Dikerjakan</span>
+                </div>
+            `;
+
+            actionsContainer.innerHTML = `
+                <form action="/division/stage/${matched.id}/action" method="POST" class="m-0">
+                    <input type="hidden" name="action" value="start">
+                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/20 transition cursor-pointer">
+                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                        <span>Mulai Kerjakan Sekarang (Start Timer)</span>
+                    </button>
+                </form>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button type="button" onclick="closeQrScannerModal()" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer text-center">
+                        ✕ Tutup (Cuma Lihat)
+                    </button>
+                    <button type="button" onclick="resetToScannerView()" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-red-600 font-bold rounded-xl text-xs transition cursor-pointer flex items-center justify-center space-x-1">
+                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                        <span>Scan POK Lain</span>
+                    </button>
+                </div>
+            `;
+        } else if (statusType === 'inProgress') {
+            statusContainer.innerHTML = `
+                <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                    <span class="font-bold text-emerald-900 text-xs flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+                        <span>Status: Sedang Aktif Dikerjakan</span>
+                    </span>
+                    <span class="text-[10px] text-emerald-700 font-semibold font-mono">Timer Berjalan</span>
+                </div>
+            `;
+
+            actionsContainer.innerHTML = `
+                <button type="button" onclick="closeQrScannerModal()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition cursor-pointer">
+                    Tutup (Pesanan Sudah Berjalan)
+                </button>
+                <button type="button" onclick="resetToScannerView()" class="w-full py-2 text-slate-500 hover:text-red-600 font-bold text-xs flex items-center justify-center space-x-1 cursor-pointer">
+                    <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                    <span>Scan POK Lain</span>
+                </button>
+            `;
+        } else if (statusType === 'paused') {
+            statusContainer.innerHTML = `
+                <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+                    <span class="font-bold text-amber-900 text-xs flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-600"></span>
+                        <span>Status: Sedang Dijeda (Pause)</span>
+                    </span>
+                    <span class="text-[10px] text-amber-700 font-semibold">Menunggu Lanjut</span>
+                </div>
+            `;
+
+            actionsContainer.innerHTML = `
+                <form action="/division/stage/${matched.id}/action" method="POST" class="m-0">
+                    <input type="hidden" name="action" value="resume">
+                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/20 transition cursor-pointer">
+                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                        <span>Lanjutkan Pengerjaan (Resume Timer)</span>
+                    </button>
+                </form>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button type="button" onclick="closeQrScannerModal()" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer text-center">
+                        ✕ Tutup
+                    </button>
+                    <button type="button" onclick="resetToScannerView()" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-red-600 font-bold rounded-xl text-xs transition cursor-pointer flex items-center justify-center space-x-1">
+                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                        <span>Scan POK Lain</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
     function processScannedCode(rawText) {
         if (!rawText) return;
         let code = String(rawText).trim();
@@ -558,23 +757,8 @@
 
         if (matchedWaiting) {
             playBeep('success');
-            showScanResult(true, `✓ Berhasil Scan PO #${matchedWaiting.po_number || 1}! Memulai pengerjaan ${matchedWaiting.article_name}...`);
-            
-            stopCameraScanner();
-
-            // Auto-submit form start setelah 700ms
-            setTimeout(() => {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/division/stage/${matchedWaiting.id}/action`;
-                const actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'start';
-                form.appendChild(actionInput);
-                document.body.appendChild(form);
-                form.submit();
-            }, 700);
+            // Tampilkan kartu preview, JANGAN langsung submit otomatis
+            renderPreviewCard(matchedWaiting, 'waiting');
             return;
         }
 
@@ -587,8 +771,8 @@
         });
 
         if (matchedProgress) {
-            playBeep('error');
-            showScanResult(false, `⚠️ PO #${matchedProgress.po_number || 1} (${matchedProgress.article_name}) SUDAH SEDANG DIKERJAKAN di meja Anda.`);
+            playBeep('success');
+            renderPreviewCard(matchedProgress, 'inProgress');
             return;
         }
 
@@ -602,42 +786,39 @@
 
         if (matchedPaused) {
             playBeep('success');
-            showScanResult(true, `✓ PO #${matchedPaused.po_number || 1} sedang dijeda. Melanjutkan pengerjaan...`);
-            stopCameraScanner();
-            setTimeout(() => {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/division/stage/${matchedPaused.id}/action`;
-                const actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'resume';
-                form.appendChild(actionInput);
-                document.body.appendChild(form);
-                form.submit();
-            }, 700);
+            renderPreviewCard(matchedPaused, 'paused');
             return;
         }
 
         // 4. Tidak ditemukan pada antrean meja ini
         playBeep('error');
-        showScanResult(false, `❌ Kode "${code}" tidak ditemukan pada antrean meja Anda.`);
+        showScanResult(false, `❌ Kode "${code}" tidak ditemukan pada antrean meja Anda saat ini.`);
     }
 
     function handleManualBarcodeInput(e) {
         e.preventDefault();
         const input = document.getElementById('manualBarcodeInput');
         if (!input || !input.value.trim()) return;
-        processScannedCode(input.value.trim());
+        const code = input.value.trim();
         input.value = '';
+        openQrScannerModal();
+        processScannedCode(code);
+    }
+
+    function resetToScannerView() {
+        document.getElementById('scannerResultCard').classList.add('hidden');
+        document.getElementById('scannerCameraView').classList.remove('hidden');
+        document.getElementById('scannerModalTitle').textContent = 'Scan QR Lembar POK';
+        document.getElementById('scannerModalSubtitle').textContent = 'Arahkan kamera ke QR Code di kertas POK';
+        document.getElementById('scanStatusBox').classList.add('hidden');
+        startCameraScanner();
     }
 
     function openQrScannerModal() {
         const modal = document.getElementById('qrScannerModal');
         if (!modal) return;
         modal.classList.remove('hidden');
-        document.getElementById('scanStatusBox').classList.add('hidden');
-        startCameraScanner();
+        resetToScannerView();
     }
 
     function closeQrScannerModal() {
