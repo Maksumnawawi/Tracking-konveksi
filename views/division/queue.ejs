@@ -135,6 +135,36 @@
             </div>
         </div>
 
+        <!-- BANNER SCANNER BARCODE / QR LEMBAR POK MEJA DIVISI -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-red-950 text-white p-4 sm:p-5 rounded-2xl shadow-lg border border-red-500/30 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3.5 w-full md:w-auto">
+                <div class="w-12 h-12 rounded-2xl bg-red-600/30 border border-red-500/50 flex items-center justify-center text-red-400 shrink-0 shadow-inner">
+                    <i data-lucide="qr-code" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h3 class="text-sm font-black uppercase tracking-wider text-white">Scan Barcode / QR Lembar POK</h3>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-red-500 text-white animate-pulse">Auto-Start</span>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-0.5">Scan lembar POK yang tiba di meja Anda untuk mulai pengerjaan otomatis.</p>
+                </div>
+            </div>
+
+            <!-- Tombol Buka Kamera Scanner & Input Scanner Tembak USB -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto shrink-0">
+                <!-- Input Tembak Barcode / Manual -->
+                <form onsubmit="handleManualBarcodeInput(event)" class="relative m-0 flex-1 sm:w-52">
+                    <input type="text" id="manualBarcodeInput" placeholder="Tembak / ketik No. PO..." class="w-full pl-8 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:ring-2 focus:ring-red-500 focus:outline-none font-mono">
+                    <i data-lucide="barcode" class="w-4 h-4 text-slate-400 absolute left-2.5 top-3"></i>
+                </form>
+                <!-- Tombol Kamera -->
+                <button type="button" onclick="openQrScannerModal()" class="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 shadow-md shadow-red-500/30 shrink-0 cursor-pointer">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                    <span>Buka Kamera Scan</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Section 1: SEDANG DIKERJAKAN (ACTIVE LIVE TIMER) -->
         <div class="mb-8">
             <div class="flex items-center space-x-2 mb-3">
@@ -388,11 +418,281 @@
 <!-- Modal Dialog QC & Packing -->
 <%- include('./partials/qc-modal') %>
 
+<!-- MODAL SCANNER QR BARCODE KAMERA -->
+<div id="qrScannerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm" onclick="closeQrScannerModal()">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl text-slate-900 border border-slate-200 relative overflow-hidden" onclick="event.stopPropagation()">
+        
+        <!-- Header Modal -->
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+            <div class="flex items-center space-x-2.5">
+                <span class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="qr-code" class="w-4 h-4"></i>
+                </span>
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-900">Scan QR Lembar POK</h3>
+                    <p class="text-[11px] text-slate-500">Arahkan kamera ke QR Code di kertas POK</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeQrScannerModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm transition cursor-pointer">
+                &times;
+            </button>
+        </div>
+
+        <!-- Kamera Viewport -->
+        <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-slate-300 mb-3 shadow-inner">
+            <div id="qr-reader" class="w-full h-full"></div>
+            <!-- Target scanning animation frame -->
+            <div id="scanOverlay" class="absolute inset-8 border-2 border-dashed border-red-500 rounded-2xl pointer-events-none flex flex-col items-center justify-center z-10">
+                <div class="w-full h-0.5 bg-red-500 shadow-md shadow-red-500 animate-bounce"></div>
+                <span class="text-[10px] font-bold text-white/90 bg-black/70 px-2 py-0.5 rounded-md uppercase tracking-wider mt-2">Posisikan QR di Kotak</span>
+            </div>
+        </div>
+
+        <!-- Status Scan Feedback -->
+        <div id="scanStatusBox" class="hidden p-3 rounded-xl text-xs font-bold mb-3 flex items-start space-x-2 transition"></div>
+
+        <!-- Tombol Ganti Kamera & Petunjuk -->
+        <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+            <span class="text-[10px] text-slate-400">Scan otomatis memulai timer</span>
+            <button type="button" onclick="switchCamera()" class="text-xs font-bold text-red-600 hover:text-red-700 flex items-center space-x-1 cursor-pointer">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>Ganti Kamera</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
 <%- include('../partials/mobile-nav') %>
 
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="/js/live-timer.js"></script>
 <script src="/js/queue-actions.js"></script>
 <script>
+    // Data antrean divisi untuk pencocokan instan di sisi klien
+    const QUEUE_DATA = {
+        waiting: <%- JSON.stringify((waitingList || []).map(item => ({
+            id: item.id,
+            order_id: item.order_id,
+            order_number: item.order_number,
+            tracking_code: item.tracking_code,
+            po_number: item.po_number,
+            article_name: item.article_name,
+            customer_name: item.customer_name,
+            total_pcs: item.total_pcs
+        }))) %>,
+        inProgress: <%- JSON.stringify((inProgressList || []).map(item => ({
+            id: item.id,
+            order_number: item.order_number,
+            tracking_code: item.tracking_code,
+            po_number: item.po_number,
+            article_name: item.article_name
+        }))) %>,
+        paused: <%- JSON.stringify((pausedList || []).map(item => ({
+            id: item.id,
+            order_number: item.order_number,
+            tracking_code: item.tracking_code,
+            po_number: item.po_number,
+            article_name: item.article_name
+        }))) %>
+    };
+
+    let html5QrScanner = null;
+    let currentFacingMode = "environment"; // default kamera belakang HP
+
+    function playBeep(type = 'success') {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            if (type === 'success') {
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15);
+            } else {
+                osc.frequency.setValueAtTime(320, ctx.currentTime);
+                gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.22);
+            }
+        } catch(e) {}
+    }
+
+    function showScanResult(isSuccess, message) {
+        const box = document.getElementById('scanStatusBox');
+        if (!box) return;
+        box.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+        if (isSuccess) {
+            box.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+        } else {
+            box.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-200');
+        }
+        box.innerHTML = message;
+    }
+
+    function processScannedCode(rawText) {
+        if (!rawText) return;
+        let code = String(rawText).trim();
+        
+        // Ekstrak jika formatnya URL tracking
+        if (code.includes('/track/')) {
+            const parts = code.split('/track/');
+            code = parts[1].split('?')[0].split('#')[0];
+        }
+
+        const cleanCode = code.toUpperCase().replace(/\s+/g, '');
+        const numOnly = code.replace(/[^0-9]/g, '');
+
+        // 1. Cek apakah ada di antrean masuk (waitingList)
+        const matchedWaiting = QUEUE_DATA.waiting.find(item => {
+            if (item.tracking_code && item.tracking_code.toUpperCase() === cleanCode) return true;
+            if (item.order_number && item.order_number.toUpperCase() === cleanCode) return true;
+            if (numOnly && item.po_number && parseInt(item.po_number) === parseInt(numOnly)) return true;
+            return false;
+        });
+
+        if (matchedWaiting) {
+            playBeep('success');
+            showScanResult(true, `✓ Berhasil Scan PO #${matchedWaiting.po_number || 1}! Memulai pengerjaan ${matchedWaiting.article_name}...`);
+            
+            stopCameraScanner();
+
+            // Auto-submit form start setelah 700ms
+            setTimeout(() => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/division/stage/${matchedWaiting.id}/action`;
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'start';
+                form.appendChild(actionInput);
+                document.body.appendChild(form);
+                form.submit();
+            }, 700);
+            return;
+        }
+
+        // 2. Cek apakah sedang dikerjakan
+        const matchedProgress = QUEUE_DATA.inProgress.find(item => {
+            if (item.tracking_code && item.tracking_code.toUpperCase() === cleanCode) return true;
+            if (item.order_number && item.order_number.toUpperCase() === cleanCode) return true;
+            if (numOnly && item.po_number && parseInt(item.po_number) === parseInt(numOnly)) return true;
+            return false;
+        });
+
+        if (matchedProgress) {
+            playBeep('error');
+            showScanResult(false, `⚠️ PO #${matchedProgress.po_number || 1} (${matchedProgress.article_name}) SUDAH SEDANG DIKERJAKAN di meja Anda.`);
+            return;
+        }
+
+        // 3. Cek apakah sedang dijeda (paused)
+        const matchedPaused = QUEUE_DATA.paused.find(item => {
+            if (item.tracking_code && item.tracking_code.toUpperCase() === cleanCode) return true;
+            if (item.order_number && item.order_number.toUpperCase() === cleanCode) return true;
+            if (numOnly && item.po_number && parseInt(item.po_number) === parseInt(numOnly)) return true;
+            return false;
+        });
+
+        if (matchedPaused) {
+            playBeep('success');
+            showScanResult(true, `✓ PO #${matchedPaused.po_number || 1} sedang dijeda. Melanjutkan pengerjaan...`);
+            stopCameraScanner();
+            setTimeout(() => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/division/stage/${matchedPaused.id}/action`;
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'resume';
+                form.appendChild(actionInput);
+                document.body.appendChild(form);
+                form.submit();
+            }, 700);
+            return;
+        }
+
+        // 4. Tidak ditemukan pada antrean meja ini
+        playBeep('error');
+        showScanResult(false, `❌ Kode "${code}" tidak ditemukan pada antrean meja Anda.`);
+    }
+
+    function handleManualBarcodeInput(e) {
+        e.preventDefault();
+        const input = document.getElementById('manualBarcodeInput');
+        if (!input || !input.value.trim()) return;
+        processScannedCode(input.value.trim());
+        input.value = '';
+    }
+
+    function openQrScannerModal() {
+        const modal = document.getElementById('qrScannerModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        document.getElementById('scanStatusBox').classList.add('hidden');
+        startCameraScanner();
+    }
+
+    function closeQrScannerModal() {
+        const modal = document.getElementById('qrScannerModal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        stopCameraScanner();
+    }
+
+    function startCameraScanner() {
+        if (!window.Html5Qrcode) {
+            alert('Library scanner belum selesai dimuat, silakan periksa koneksi internet.');
+            return;
+        }
+        
+        stopCameraScanner();
+
+        html5QrScanner = new Html5Qrcode("qr-reader");
+        const config = { 
+            fps: 12, 
+            qrbox: { width: 220, height: 220 },
+            aspectRatio: 1.0
+        };
+
+        html5QrScanner.start(
+            { facingMode: currentFacingMode },
+            config,
+            (decodedText) => {
+                processScannedCode(decodedText);
+            },
+            (error) => {
+                // scanning frame error (ignore continuous polling)
+            }
+        ).catch(err => {
+            console.warn('Gagal akses kamera:', err);
+            showScanResult(false, 'Kamera tidak dapat diakses (' + err + '). Pastikan Anda memberi izin kamera atau gunakan kolom input manual di atas.');
+        });
+    }
+
+    function stopCameraScanner() {
+        if (html5QrScanner) {
+            html5QrScanner.stop().then(() => {
+                html5QrScanner.clear();
+                html5QrScanner = null;
+            }).catch(e => {
+                html5QrScanner = null;
+            });
+        }
+    }
+
+    function switchCamera() {
+        currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+        startCameraScanner();
+    }
+
     if (window.lucide) {
         lucide.createIcons();
     }
