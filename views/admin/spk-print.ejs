@@ -219,77 +219,90 @@
                 <span>SPK: <strong class="text-black"><%= order.order_number %></strong></span>
             </div>
 
-            <!-- AREA MOCKUP VISUAL DESAIN (OPSI 1 & OPSI 2 - MASING-MASING TAMPAK DEPAN & BELAKANG) -->
+            <!-- AREA MOCKUP VISUAL DESAIN (DINAMIS: JIKA UPLOAD 1 OPSI MAKA MUNCUL 1 LEBAR PENUH, JIKA 2 OPSI MAKA 2 KOLOM) -->
+            <%
+                const hasMockup1 = Boolean(order.mockup_front_url && order.mockup_front_url.trim());
+                const hasMockup2 = Boolean(order.mockup_back_url && order.mockup_back_url.trim());
+                const bothUploaded = hasMockup1 && hasMockup2;
+            %>
             <div class="py-3 border-b-2 border-black">
-                <div class="grid grid-cols-2 gap-4">
-                    
-                    <!-- Desain Opsi 1 (Depan & Belakang) -->
-                    <div class="border border-slate-300 rounded p-2 text-center bg-slate-50/30">
-                        <div class="flex items-center justify-between mb-2 px-1">
-                            <span class="font-black text-[11px] uppercase tracking-wider text-slate-900">MOCKUP DESAIN - OPSI 1</span>
-                            <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-200/70 px-1.5 py-0.5 rounded">Depan &amp; Belakang</span>
-                        </div>
-                        <% if (order.mockup_front_url) { %>
+                <% if (bothUploaded) { %>
+                    <!-- KEDUANYA DIUPLOAD: 2 KOLOM BERDAMPINGAN -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Desain Opsi 1 (Depan & Belakang) -->
+                        <div class="border border-slate-300 rounded p-2 text-center bg-slate-50/30">
+                            <div class="flex items-center justify-between mb-2 px-1">
+                                <span class="font-black text-[11px] uppercase tracking-wider text-slate-900">MOCKUP DESAIN - OPSI 1</span>
+                                <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-200/70 px-1.5 py-0.5 rounded">Depan &amp; Belakang</span>
+                            </div>
                             <div class="w-full h-56 flex items-center justify-center overflow-hidden bg-white border border-slate-200 rounded">
                                 <img src="<%= order.mockup_front_url %>" alt="Mockup Opsi 1 (Depan & Belakang)" class="max-h-full max-w-full object-contain">
                             </div>
-                        <% } else { %>
-                            <!-- Mockup Template Standar Opsi 1 (Depan & Belakang) -->
-                            <div class="flex justify-center items-center space-x-3 h-56 bg-white border border-dashed border-slate-300 rounded">
-                                <div class="w-24 h-48 bg-slate-900 rounded-lg p-2 text-white flex flex-col justify-between items-center shadow-md">
-                                    <span class="text-[8px] font-bold uppercase">HITAM</span>
-                                    <div class="w-16 h-12 bg-slate-800 border border-slate-600 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-amber-300">
-                                        <span>TRCH</span>
-                                        <span>OPSI 1</span>
-                                    </div>
-                                    <span class="text-[7px] text-slate-400">Depan-Blkg</span>
-                                </div>
-                                <div class="w-24 h-48 bg-white border border-slate-400 rounded-lg p-2 text-slate-900 flex flex-col justify-between items-center shadow-md">
-                                    <span class="text-[8px] font-bold uppercase">PUTIH</span>
-                                    <div class="w-16 h-12 bg-slate-100 border border-slate-300 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-slate-800">
-                                        <span>TRCH</span>
-                                        <span>OPSI 1</span>
-                                    </div>
-                                    <span class="text-[7px] text-slate-400">Depan-Blkg</span>
-                                </div>
-                            </div>
-                        <% } %>
-                    </div>
-
-                    <!-- Desain Opsi 2 (Depan & Belakang) -->
-                    <div class="border border-slate-300 rounded p-2 text-center bg-slate-50/30">
-                        <div class="flex items-center justify-between mb-2 px-1">
-                            <span class="font-black text-[11px] uppercase tracking-wider text-slate-900">MOCKUP DESAIN - OPSI 2</span>
-                            <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-200/70 px-1.5 py-0.5 rounded">Depan &amp; Belakang</span>
                         </div>
-                        <% if (order.mockup_back_url) { %>
+
+                        <!-- Desain Opsi 2 (Depan & Belakang) -->
+                        <div class="border border-slate-300 rounded p-2 text-center bg-slate-50/30">
+                            <div class="flex items-center justify-between mb-2 px-1">
+                                <span class="font-black text-[11px] uppercase tracking-wider text-slate-900">MOCKUP DESAIN - OPSI 2</span>
+                                <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-200/70 px-1.5 py-0.5 rounded">Depan &amp; Belakang</span>
+                            </div>
                             <div class="w-full h-56 flex items-center justify-center overflow-hidden bg-white border border-slate-200 rounded">
                                 <img src="<%= order.mockup_back_url %>" alt="Mockup Opsi 2 (Depan & Belakang)" class="max-h-full max-w-full object-contain">
                             </div>
-                        <% } else { %>
-                            <!-- Mockup Template Standar Opsi 2 (Depan & Belakang) -->
-                            <div class="flex justify-center items-center space-x-3 h-56 bg-white border border-dashed border-slate-300 rounded">
-                                <div class="w-24 h-48 bg-slate-900 rounded-lg p-2 text-white flex flex-col justify-between items-center shadow-md">
-                                    <span class="text-[8px] font-bold uppercase">HITAM</span>
-                                    <div class="w-16 h-12 bg-slate-800 border border-slate-600 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-emerald-400">
-                                        <span>TRCH</span>
-                                        <span>OPSI 2</span>
-                                    </div>
-                                    <span class="text-[7px] text-slate-400">Depan-Blkg</span>
-                                </div>
-                                <div class="w-24 h-48 bg-white border border-slate-400 rounded-lg p-2 text-slate-900 flex flex-col justify-between items-center shadow-md">
-                                    <span class="text-[8px] font-bold uppercase">PUTIH</span>
-                                    <div class="w-16 h-12 bg-slate-100 border border-slate-300 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-slate-800">
-                                        <span>TRCH</span>
-                                        <span>OPSI 2</span>
-                                    </div>
-                                    <span class="text-[7px] text-slate-400">Depan-Blkg</span>
-                                </div>
-                            </div>
-                        <% } %>
+                        </div>
                     </div>
 
-                </div>
+                <% } else if (hasMockup1 && !hasMockup2) { %>
+                    <!-- HANYA OPSI 1 YANG DIUPLOAD: TAMPIL 1 KOLOM LEBAR PENUH (OPSI 2 TIDAK MUNCUL) -->
+                    <div class="w-full border border-slate-300 rounded p-2 text-center bg-slate-50/30">
+                        <div class="flex items-center justify-between mb-2 px-2">
+                            <span class="font-black text-[12px] uppercase tracking-wider text-slate-900">MOCKUP DESAIN - OPSI 1</span>
+                            <span class="text-[10px] font-bold text-slate-600 uppercase bg-slate-200/80 px-2 py-0.5 rounded">Tampak Depan &amp; Belakang</span>
+                        </div>
+                        <div class="w-full h-64 flex items-center justify-center overflow-hidden bg-white border border-slate-200 rounded p-1">
+                            <img src="<%= order.mockup_front_url %>" alt="Mockup Opsi 1 (Depan & Belakang)" class="max-h-full max-w-full object-contain">
+                        </div>
+                    </div>
+
+                <% } else if (!hasMockup1 && hasMockup2) { %>
+                    <!-- HANYA OPSI 2 YANG DIUPLOAD: TAMPIL 1 KOLOM LEBAR PENUH (OPSI 1 TIDAK MUNCUL) -->
+                    <div class="w-full border border-slate-300 rounded p-2 text-center bg-slate-50/30">
+                        <div class="flex items-center justify-between mb-2 px-2">
+                            <span class="font-black text-[12px] uppercase tracking-wider text-slate-900">MOCKUP DESAIN - OPSI 2</span>
+                            <span class="text-[10px] font-bold text-slate-600 uppercase bg-slate-200/80 px-2 py-0.5 rounded">Tampak Depan &amp; Belakang</span>
+                        </div>
+                        <div class="w-full h-64 flex items-center justify-center overflow-hidden bg-white border border-slate-200 rounded p-1">
+                            <img src="<%= order.mockup_back_url %>" alt="Mockup Opsi 2 (Depan & Belakang)" class="max-h-full max-w-full object-contain">
+                        </div>
+                    </div>
+
+                <% } else { %>
+                    <!-- TIDAK ADA UPLOAD SAMA SEKALI: TEMPLATE BAWAAN STANDAR -->
+                    <div class="w-full border border-slate-300 rounded p-2 text-center bg-slate-50/30">
+                        <div class="flex items-center justify-between mb-2 px-1">
+                            <span class="font-black text-[11px] uppercase tracking-wider text-slate-900">MOCKUP VISUAL DESAIN</span>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-200/70 px-1.5 py-0.5 rounded">Depan &amp; Belakang</span>
+                        </div>
+                        <div class="flex justify-center items-center space-x-6 h-56 bg-white border border-dashed border-slate-300 rounded">
+                            <div class="w-24 h-48 bg-slate-900 rounded-lg p-2 text-white flex flex-col justify-between items-center shadow-md">
+                                <span class="text-[8px] font-bold uppercase">HITAM</span>
+                                <div class="w-16 h-12 bg-slate-800 border border-slate-600 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-amber-300">
+                                    <span>TRCH</span>
+                                    <span>GARAGE</span>
+                                </div>
+                                <span class="text-[7px] text-slate-400">Depan-Blkg</span>
+                            </div>
+                            <div class="w-24 h-48 bg-white border border-slate-400 rounded-lg p-2 text-slate-900 flex flex-col justify-between items-center shadow-md">
+                                <span class="text-[8px] font-bold uppercase">PUTIH</span>
+                                <div class="w-16 h-12 bg-slate-100 border border-slate-300 rounded text-[7px] flex flex-col items-center justify-center text-center p-0.5 font-bold text-slate-800">
+                                    <span>TRCH</span>
+                                    <span>GARAGE</span>
+                                </div>
+                                <span class="text-[7px] text-slate-400">Depan-Blkg</span>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
             </div>
 
             <%

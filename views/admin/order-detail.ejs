@@ -326,9 +326,9 @@
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm mb-8">
             <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 mb-4">
                 <i data-lucide="image" class="w-4 h-4 text-purple-600"></i>
-                <span>Mockup Visual Desain (Opsi 1 &amp; Opsi 2)</span>
+                <span>Mockup Visual Desain <%= (order.mockup_front_url && order.mockup_back_url) ? '(Opsi 1 & Opsi 2)' : '' %></span>
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-<%= (order.mockup_front_url && order.mockup_back_url) ? 2 : 1 %> gap-4">
                 <% if (order.mockup_front_url) { %>
                 <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 text-center">
                     <div class="flex items-center justify-between mb-2">

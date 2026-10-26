@@ -140,14 +140,14 @@
                 <div class="flex items-center justify-between mb-3 border-b border-slate-200/80 pb-2.5">
                     <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 flex items-center space-x-2">
                         <i data-lucide="image" class="w-4 h-4 text-purple-600"></i>
-                        <span>Desain Mockup Produksi (Opsi 1 &amp; Opsi 2)</span>
+                        <span>Desain Mockup Produksi <%= (order.mockup_front_url && order.mockup_back_url) ? '(Opsi 1 & Opsi 2)' : '' %></span>
                     </h3>
                     <span class="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
                         Depan &amp; Belakang
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-<%= (order.mockup_front_url && order.mockup_back_url) ? 2 : 1 %> gap-4">
                     <!-- Opsi 1 -->
                     <% if (order.mockup_front_url) { %>
                     <div class="border border-slate-200 rounded-xl p-3 bg-white text-center shadow-xs">
