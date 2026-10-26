@@ -321,6 +321,40 @@
 
         </div>
 
+        <!-- Section Visual Mockup Desain (Opsi 1 & Opsi 2) -->
+        <% if (order.mockup_front_url || order.mockup_back_url) { %>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm mb-8">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 mb-4">
+                <i data-lucide="image" class="w-4 h-4 text-purple-600"></i>
+                <span>Mockup Visual Desain (Opsi 1 &amp; Opsi 2)</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <% if (order.mockup_front_url) { %>
+                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 text-center">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-black uppercase text-purple-800 bg-purple-100 px-2.5 py-0.5 rounded">Desain Opsi 1</span>
+                        <span class="text-[11px] font-bold text-slate-500">Tampak Depan &amp; Belakang</span>
+                    </div>
+                    <div class="w-full h-64 flex items-center justify-center bg-white rounded-lg border border-slate-200 p-2 overflow-hidden">
+                        <img src="<%= order.mockup_front_url %>" alt="Desain Opsi 1 (Depan & Belakang)" class="max-h-full max-w-full object-contain">
+                    </div>
+                </div>
+                <% } %>
+                <% if (order.mockup_back_url) { %>
+                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 text-center">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-black uppercase text-indigo-800 bg-indigo-100 px-2.5 py-0.5 rounded">Desain Opsi 2</span>
+                        <span class="text-[11px] font-bold text-slate-500">Tampak Depan &amp; Belakang</span>
+                    </div>
+                    <div class="w-full h-64 flex items-center justify-center bg-white rounded-lg border border-slate-200 p-2 overflow-hidden">
+                        <img src="<%= order.mockup_back_url %>" alt="Desain Opsi 2 (Depan & Belakang)" class="max-h-full max-w-full object-contain">
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
         <!-- Section Timeline Alur Kerja -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm mb-8">
             <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 mb-6">

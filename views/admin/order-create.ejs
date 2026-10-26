@@ -230,39 +230,64 @@
                 </div>
             </div>
 
-            <!-- Section 3: Upload Mockup Desain Kaos -->
+            <!-- Section 3: Upload Mockup Desain Kaos (Opsi 1 & Opsi 2) -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                <div class="border-b border-slate-100 pb-3">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
-                        <i data-lucide="image" class="w-4 h-4 text-purple-600"></i>
-                        <span>3. Upload Desain / Mockup Kaos (Depan &amp; Belakang)</span>
-                    </h2>
+                <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                            <i data-lucide="image" class="w-4 h-4 text-purple-600"></i>
+                            <span>3. Upload Desain / Mockup Kaos (Opsi 1 &amp; Opsi 2)</span>
+                        </h2>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Setiap opsi memuat tampak depan &amp; tampak belakang sekaligus dalam satu gambar.</p>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <!-- Mockup Depan -->
-                    <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-3 bg-slate-50/50">
-                        <p class="text-xs font-bold uppercase text-slate-700">Mockup Desain Kaos Depan</p>
-                        <div id="previewFrontContainer" class="w-full h-44 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden">
-                            <span class="text-xs text-slate-400 flex flex-col items-center">
-                                <i data-lucide="shirt" class="w-8 h-8 mb-1 text-slate-300"></i>
-                                <span>Preview Tampak Depan</span>
-                            </span>
+                    <!-- Mockup Opsi 1 (Depan & Belakang) -->
+                    <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-3 bg-slate-50/50 hover:border-purple-300 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800">OPSI 1</span>
+                            <span class="text-[11px] font-bold text-slate-600">Tampak Depan &amp; Belakang</span>
                         </div>
-                        <input type="file" id="frontFileInput" accept="image/*" class="text-xs text-slate-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 cursor-pointer">
+                        <div id="previewFrontContainer" class="w-full h-48 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden">
+                            <% if (formData.mockup_front_url) { %>
+                                <img src="<%= formData.mockup_front_url %>" alt="Mockup Opsi 1" class="w-full h-full object-contain p-1 rounded-lg">
+                            <% } else { %>
+                                <span class="text-xs text-slate-400 flex flex-col items-center">
+                                    <div class="flex items-center space-x-1 mb-1 text-slate-300">
+                                        <i data-lucide="shirt" class="w-7 h-7"></i>
+                                        <i data-lucide="shirt" class="w-7 h-7"></i>
+                                    </div>
+                                    <span class="font-semibold text-slate-500">Preview Opsi 1</span>
+                                    <span class="text-[10px] text-slate-400">(Tampak Depan &amp; Belakang)</span>
+                                </span>
+                            <% } %>
+                        </div>
+                        <input type="file" id="frontFileInput" accept="image/*" class="text-xs text-slate-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 cursor-pointer w-full">
                         <input type="hidden" name="mockup_front_url" id="mockupFrontInput" value="<%= formData.mockup_front_url || '' %>">
                     </div>
 
-                    <!-- Mockup Belakang -->
-                    <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-3 bg-slate-50/50">
-                        <p class="text-xs font-bold uppercase text-slate-700">Mockup Desain Kaos Belakang</p>
-                        <div id="previewBackContainer" class="w-full h-44 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden">
-                            <span class="text-xs text-slate-400 flex flex-col items-center">
-                                <i data-lucide="shirt" class="w-8 h-8 mb-1 text-slate-300"></i>
-                                <span>Preview Tampak Belakang</span>
-                            </span>
+                    <!-- Mockup Opsi 2 (Depan & Belakang) -->
+                    <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-3 bg-slate-50/50 hover:border-purple-300 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800">OPSI 2</span>
+                            <span class="text-[11px] font-bold text-slate-600">Tampak Depan &amp; Belakang</span>
                         </div>
-                        <input type="file" id="backFileInput" accept="image/*" class="text-xs text-slate-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 cursor-pointer">
+                        <div id="previewBackContainer" class="w-full h-48 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden">
+                            <% if (formData.mockup_back_url) { %>
+                                <img src="<%= formData.mockup_back_url %>" alt="Mockup Opsi 2" class="w-full h-full object-contain p-1 rounded-lg">
+                            <% } else { %>
+                                <span class="text-xs text-slate-400 flex flex-col items-center">
+                                    <div class="flex items-center space-x-1 mb-1 text-slate-300">
+                                        <i data-lucide="shirt" class="w-7 h-7"></i>
+                                        <i data-lucide="shirt" class="w-7 h-7"></i>
+                                    </div>
+                                    <span class="font-semibold text-slate-500">Preview Opsi 2</span>
+                                    <span class="text-[10px] text-slate-400">(Tampak Depan &amp; Belakang)</span>
+                                </span>
+                            <% } %>
+                        </div>
+                        <input type="file" id="backFileInput" accept="image/*" class="text-xs text-slate-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200 cursor-pointer w-full">
                         <input type="hidden" name="mockup_back_url" id="mockupBackInput" value="<%= formData.mockup_back_url || '' %>">
                     </div>
                 </div>

@@ -6,14 +6,25 @@ const { formatDurationDetailed } = require('../utils/durationHelper');
 
 const TrackingController = {
     showPublicTrack(req, res) {
-        const queryCode = req.params.code;
+        const queryCode = (req.params.code || '').trim();
         
-        // Cari via tracking_code terlebih dahulu, atau order_number
+        // Cari via tracking_code terlebih dahulu
         let order = OrderModel.getByTrackingCode(queryCode);
+        
         if (!order) {
-            // Coba cari by order_number
             const all = OrderModel.getAll();
-            order = all.find(o => o.order_number.toUpperCase() === queryCode.toUpperCase());
+            const cleanQuery = queryCode.toUpperCase().replace(/\s+/g, '');
+            const numericPo = queryCode.replace(/[^0-9]/g, '');
+
+            order = all.find(o => {
+                if (o.order_number && o.order_number.toUpperCase() === cleanQuery) return true;
+                if (o.tracking_code && o.tracking_code.toUpperCase() === cleanQuery) return true;
+                // Match nomor PO
+                if (numericPo && o.po_number && parseInt(o.po_number) === parseInt(numericPo)) return true;
+                // Match no telp
+                if (numericPo.length >= 4 && o.customer_phone && o.customer_phone.includes(numericPo)) return true;
+                return false;
+            });
         }
 
         if (!order) {
