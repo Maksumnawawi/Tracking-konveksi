@@ -9,6 +9,7 @@ router.use(isAuthenticated);
 router.use(requireRole('admin'));
 
 router.get('/dashboard', DashboardController.showDashboard);
+router.get('/api/next-po', OrderController.getNextPoNumberApi);
 router.get('/orders', OrderController.showOrdersList);
 router.get('/orders/new', OrderController.showCreateForm);
 router.post('/orders/new', OrderController.createOrder);

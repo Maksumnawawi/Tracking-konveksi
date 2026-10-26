@@ -34,9 +34,9 @@
                     <div>
                         <h3 class="text-sm font-black uppercase text-slate-950 flex items-center space-x-1.5">
                             <span>TRCH SCREEN PRINTING</span>
-                            <span class="text-xs bg-amber-400 text-slate-950 font-bold px-2 py-0.5 rounded-full">PO Baru</span>
+                            <span class="text-xs bg-amber-400 text-slate-950 font-bold px-2 py-0.5 rounded-full">PO Harian</span>
                         </h3>
-                        <p class="text-xs text-slate-600 mt-0.5">Nomor urut PO otomatis dimulai dari 1. Anda tetap dapat mengedit nomor ini jika diperlukan.</p>
+                        <p class="text-xs text-slate-600 mt-0.5">Nomor urut PO otomatis dimulai dari 1 setiap hari baru. Anda tetap dapat mengedit nomor ini jika diperlukan.</p>
                     </div>
                 </div>
                 <div class="w-full sm:w-36 bg-white p-2.5 rounded-xl border border-amber-300 shadow-inner text-center">
@@ -402,6 +402,22 @@
     });
 
     updateTotalPcs();
+
+    // Auto-update Nomor PO Harian saat Tanggal Masuk Diubah
+    const tglMasukInput = document.querySelector('input[name="tgl_masuk"]');
+    const poNumberInput = document.querySelector('input[name="po_number"]');
+    if (tglMasukInput && poNumberInput) {
+        tglMasukInput.addEventListener('change', function() {
+            if (!this.value) return;
+            fetch('/admin/api/next-po?date=' + this.value)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.success && data.nextPoNumber) {
+                        poNumberInput.value = data.nextPoNumber;
+                    }
+                }).catch(err => console.warn('Gagal cek nomor PO harian:', err));
+        });
+    }
 
     // Image Upload Handlers for Mockups
     function setupImageUpload(fileInputId, hiddenInputId, containerId) {

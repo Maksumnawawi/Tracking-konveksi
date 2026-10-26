@@ -66,8 +66,23 @@ const OrderModel = {
         return db.get(sql, [trackingCode]);
     },
 
-    getNextPoNumber() {
-        const row = db.get("SELECT MAX(CAST(po_number AS INTEGER)) as max_po FROM orders");
+    getNextPoNumber(targetDate = null) {
+        // Format tanggal 'YYYY-MM-DD' sesuai zona waktu Indonesia (Asia/Jakarta)
+        let todayStr;
+        try {
+            todayStr = targetDate || new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date());
+        } catch(e) {
+            todayStr = targetDate || new Date().toISOString().slice(0, 10);
+        }
+
+        // Cari nomor PO terbesar khusus untuk tanggal hari ini (reset ke 1 setiap hari baru)
+        const row = db.get(`
+            SELECT MAX(CAST(po_number AS INTEGER)) as max_po 
+            FROM orders 
+            WHERE tgl_masuk = ? 
+               OR substr(created_at, 1, 10) = ?
+        `, [todayStr, todayStr]);
+
         if (!row || !row.max_po || isNaN(row.max_po)) {
             return 1;
         }
@@ -75,8 +90,17 @@ const OrderModel = {
     },
 
     create(data, creatorId) {
+        let todayStr;
+        try {
+            todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date());
+        } catch(e) {
+            todayStr = new Date().toISOString().slice(0, 10);
+        }
+
+        const tglMasuk = data.tgl_masuk || todayStr;
+
         // Generate auto nomor SPK jika tidak diinput
-        const dateStr = new Date().toISOString().slice(0, 7).replace('-', ''); // e.g. 202610
+        const dateStr = tglMasuk.replace(/-/g, '').slice(0, 6); // e.g. 202610
         const countRow = db.get(`SELECT COUNT(*) as cnt FROM orders`);
         const nextNum = String((countRow ? countRow.cnt : 0) + 1).padStart(3, '0');
         const orderNumber = data.order_number || `SPK-${dateStr}-${nextNum}`;
@@ -85,10 +109,10 @@ const OrderModel = {
         const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
         const trackingCode = data.tracking_code || `TRK-${randomHex}`;
 
-        // Nomor PO otomatis berurutan (mulai dari 1) atau sesuai input admin
+        // Nomor PO otomatis berurutan harian (reset ke 1 setiap hari baru) atau sesuai input admin
         let poNumber = parseInt(data.po_number);
         if (isNaN(poNumber) || poNumber < 1) {
-            poNumber = this.getNextPoNumber();
+            poNumber = this.getNextPoNumber(tglMasuk);
         }
 
         const totalPcs = 
@@ -105,7 +129,6 @@ const OrderModel = {
         const category = (data.category || 'kaos').toLowerCase(); // 'kaos' atau 'jersey'
         const workflow = WORKFLOW_CONFIG[category] || WORKFLOW_CONFIG['kaos'];
 
-        const tglMasuk = data.tgl_masuk || new Date().toISOString().slice(0, 10);
         const tglJadi = data.tgl_jadi || data.deadline_date || '';
         const tintaType = data.tinta_type || data.print_type || 'PLASTISOL';
         const finishingType = data.finishing_type || 'PRES DOFT';

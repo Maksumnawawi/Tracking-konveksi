@@ -23,20 +23,33 @@ const OrderController = {
     },
 
     showCreateForm(req, res) {
-        const nextPoNumber = OrderModel.getNextPoNumber();
+        let todayWib;
+        try {
+            todayWib = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date());
+        } catch(e) {
+            todayWib = new Date().toISOString().slice(0, 10);
+        }
+
+        const nextPoNumber = OrderModel.getNextPoNumber(todayWib);
         res.render('admin/order-create', {
             title: 'Buat SPK / Order Baru',
             error: null,
             nextPoNumber,
             formData: {
                 po_number: nextPoNumber,
-                tgl_masuk: new Date().toISOString().slice(0, 10),
+                tgl_masuk: todayWib,
                 tinta_type: 'PLASTISOL',
                 finishing_type: 'PRES DOFT',
                 warna_kaos: 'HITAM, PUTIH',
                 shipping_courier: 'TUNAI'
             }
         });
+    },
+
+    getNextPoNumberApi(req, res) {
+        const date = req.query.date;
+        const nextPoNumber = OrderModel.getNextPoNumber(date);
+        return res.json({ success: true, nextPoNumber });
     },
 
     createOrder(req, res) {
