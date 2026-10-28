@@ -62,57 +62,74 @@
                     </div>
                 </div>
 
-                <!-- Input Warna Kaos (Dipindah ke Sini Sesuai Instruksi) -->
-                <div class="p-4 bg-amber-50/70 border border-amber-200/90 rounded-2xl space-y-3">
-                    <div>
-                        <label class="block text-xs font-black text-amber-950 uppercase tracking-wider mb-1 flex items-center space-x-1.5">
-                            <i data-lucide="palette" class="w-4 h-4 text-amber-600"></i>
-                            <span>Warna Kaos / Bahan Kain</span>
-                        </label>
-                        <input type="text" name="warna_kaos" id="warnaKaosInput" value="<%= order.warna_kaos || 'HITAM, PUTIH' %>" placeholder="Contoh: HITAM atau HITAM, PUTIH" oninput="debounceGenerateVariants()" class="w-full px-3.5 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-black text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none uppercase">
-                        <span class="text-[11px] text-amber-800/80 mt-1 block">Bisa masukkan 1 warna atau lebih dipisah koma (Contoh: <strong>HITAM, PUTIH</strong>)</span>
+                <!-- Input Warna Kaos (Sesuai Gambar No. 4 di Kertas) -->
+                <div class="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-1">
+                    <label class="block text-xs font-black text-amber-950 uppercase tracking-wider flex items-center space-x-1.5">
+                        <i data-lucide="palette" class="w-4 h-4 text-amber-600"></i>
+                        <span>Warna Kaos / Bahan Kain</span>
+                    </label>
+                    <input type="text" name="warna_kaos" id="warnaKaosInput" value="<%= order.warna_kaos || 'HITAM, PUTIH' %>" placeholder="Contoh: HITAM atau HITAM, PUTIH" class="w-full px-3.5 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-black text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none uppercase">
+                    <span class="text-[11px] text-amber-800/80 block">Bisa masukkan 1 warna atau beberapa warna dipisah koma (Contoh: <strong>HITAM</strong> atau <strong>HITAM, PUTIH</strong>)</span>
+                </div>
+
+                <!-- Kotak Ceklis Pilihan Varian (Dewasa, Anak, Pendek, Panjang) -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i data-lucide="check-square" class="w-4 h-4 text-blue-600"></i>
+                            <span>Pilih Model yang Dikerjakan (Ceklis / Centang):</span>
+                        </span>
+                        <span class="text-[11px] text-slate-500 hidden sm:inline">Centang untuk memunculkan baris ukuran</span>
                     </div>
 
-                    <!-- Kotak Centang (Checkboxes) Dewasa, Anak, Pendek, Panjang -->
-                    <div class="pt-3 border-t border-amber-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="flex flex-wrap items-center gap-2.5">
-                            <span class="text-xs font-black text-amber-950 uppercase tracking-wider">Kotak Centang Varian:</span>
-                            
-                            <label class="inline-flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-amber-300 shadow-2xs cursor-pointer select-none">
-                                <input type="checkbox" id="chk_dewasa" checked onchange="autoGenerateVariantsFromCheckboxes()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
-                                <span class="text-xs font-bold text-slate-800">👕 Dewasa</span>
-                            </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- 1. Dewasa Pendek -->
+                        <label id="label_dewasa_pendek" class="flex items-center space-x-3 p-3 bg-white border border-slate-300 rounded-xl cursor-pointer transition select-none shadow-2xs hover:border-blue-400">
+                            <input type="checkbox" id="chk_dewasa_pendek" onchange="handlePresetCheck('dewasa_pendek', this.checked)" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                            <div class="flex-1">
+                                <span class="text-xs font-black text-slate-900 block">👕 Dewasa - Lengan Pendek</span>
+                                <span class="text-[10px] text-slate-500">Kaos oblong / polo standar dewasa lengan pendek</span>
+                            </div>
+                        </label>
 
-                            <label class="inline-flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-amber-300 shadow-2xs cursor-pointer select-none">
-                                <input type="checkbox" id="chk_anak" onchange="autoGenerateVariantsFromCheckboxes()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
-                                <span class="text-xs font-bold text-slate-800">🧒 Anak-Anak</span>
-                            </label>
+                        <!-- 2. Dewasa Panjang -->
+                        <label id="label_dewasa_panjang" class="flex items-center space-x-3 p-3 bg-white border border-slate-300 rounded-xl cursor-pointer transition select-none shadow-2xs hover:border-indigo-400">
+                            <input type="checkbox" id="chk_dewasa_panjang" onchange="handlePresetCheck('dewasa_panjang', this.checked)" class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer">
+                            <div class="flex-1">
+                                <span class="text-xs font-black text-slate-900 block">🥋 Dewasa - Lengan Panjang</span>
+                                <span class="text-[10px] text-slate-500">Kaos / jersey dewasa lengan panjang</span>
+                            </div>
+                        </label>
 
-                            <div class="h-5 w-px bg-amber-300 hidden sm:block"></div>
+                        <!-- 3. Anak Pendek -->
+                        <label id="label_anak_pendek" class="flex items-center space-x-3 p-3 bg-white border border-slate-300 rounded-xl cursor-pointer transition select-none shadow-2xs hover:border-amber-400">
+                            <input type="checkbox" id="chk_anak_pendek" onchange="handlePresetCheck('anak_pendek', this.checked)" class="w-5 h-5 text-amber-600 rounded focus:ring-amber-500 cursor-pointer">
+                            <div class="flex-1">
+                                <span class="text-xs font-black text-slate-900 block">🧒 Anak-Anak - Lengan Pendek</span>
+                                <span class="text-[10px] text-slate-500">Kaos anak ukuran XS (2th) s/d 2XL (12th)</span>
+                            </div>
+                        </label>
 
-                            <label class="inline-flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-amber-300 shadow-2xs cursor-pointer select-none">
-                                <input type="checkbox" id="chk_pendek" checked onchange="autoGenerateVariantsFromCheckboxes()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
-                                <span class="text-xs font-bold text-slate-800">Lengan Pendek</span>
-                            </label>
-
-                            <label class="inline-flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-amber-300 shadow-2xs cursor-pointer select-none">
-                                <input type="checkbox" id="chk_panjang" onchange="autoGenerateVariantsFromCheckboxes()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
-                                <span class="text-xs font-bold text-slate-800">Lengan Panjang</span>
-                            </label>
-                        </div>
-
-                        <button type="button" onclick="autoGenerateVariantsFromCheckboxes(true)" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer self-start sm:self-auto">
-                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                            <span>Buat / Sinkronkan Baris</span>
-                        </button>
+                        <!-- 4. Anak Panjang -->
+                        <label id="label_anak_panjang" class="flex items-center space-x-3 p-3 bg-white border border-slate-300 rounded-xl cursor-pointer transition select-none shadow-2xs hover:border-purple-400">
+                            <input type="checkbox" id="chk_anak_panjang" onchange="handlePresetCheck('anak_panjang', this.checked)" class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer">
+                            <div class="flex-1">
+                                <span class="text-xs font-black text-slate-900 block">🧒🥋 Anak-Anak - Lengan Panjang</span>
+                                <span class="text-[10px] text-slate-500">Kaos / jersey anak lengan panjang</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between pb-1">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Tabel Rincian Varian Kaos:</span>
-                    <button type="button" onclick="addVariantRow('')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1 shadow-2xs cursor-pointer">
-                        <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-600"></i>
-                        <span>+ Tambah Baris Manual</span>
+                <!-- Header Tabel Baris -->
+                <div class="flex items-center justify-between pt-1">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1">
+                        <i data-lucide="list" class="w-3.5 h-3.5 text-blue-600"></i>
+                        <span>Rincian Ukuran yang Dicentang:</span>
+                    </span>
+                    <button type="button" onclick="addCustomVariantRow()" class="text-[11px] font-bold text-slate-500 hover:text-blue-700 hover:underline flex items-center space-x-1 cursor-pointer">
+                        <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                        <span>+ Tambah Varian Khusus Lain</span>
                     </button>
                 </div>
 
@@ -244,135 +261,112 @@
 <script>
     const originalTotal = <%= order.total_pcs %>;
 
-    // Multi-Variant Size Breakdown Manager for Edit
+    // Multi-Variant Size Breakdown Manager (Sistem Ceklis Model & Ukuran)
+    const PRESETS = {
+        dewasa_pendek: { name: 'Lengan Pendek (Dewasa)', icon: '👕', badgeColor: 'bg-blue-100 text-blue-900 border-blue-200' },
+        dewasa_panjang: { name: 'Lengan Panjang (Dewasa)', icon: '🥋', badgeColor: 'bg-indigo-100 text-indigo-900 border-indigo-200' },
+        anak_pendek: { name: 'Lengan Pendek (Anak-Anak)', icon: '🧒', badgeColor: 'bg-amber-100 text-amber-900 border-amber-200' },
+        anak_panjang: { name: 'Lengan Panjang (Anak-Anak)', icon: '🧒🥋', badgeColor: 'bg-purple-100 text-purple-900 border-purple-200' }
+    };
+
     let variants = [];
+    const originalTotalPcs = <%= order.total_pcs || 0 %>;
 
     try {
-        const rawJson = document.getElementById('items_breakdown_json').value;
-        if (rawJson && rawJson.trim() !== '' && rawJson.trim() !== '[]') {
-            variants = JSON.parse(rawJson);
+        const rawSaved = document.getElementById('items_breakdown_json').value;
+        if (rawSaved) {
+            variants = JSON.parse(rawSaved);
         }
-    } catch (e) {
+    } catch(e) {
         variants = [];
     }
 
     if (!Array.isArray(variants) || variants.length === 0) {
         variants = [{
-            name: 'Lengan Pendek (Dewasa)',
-            qty_xs: parseInt('<%= order.size_xs || 0 %>') || '',
-            qty_s: parseInt('<%= order.size_s || 0 %>') || '',
-            qty_m: parseInt('<%= order.size_m || 0 %>') || '',
-            qty_l: parseInt('<%= order.size_l || 0 %>') || '',
-            qty_xl: parseInt('<%= order.size_xl || 0 %>') || '',
-            qty_2xl: parseInt('<%= order.size_2xl || 0 %>') || '',
-            qty_3xl: parseInt('<%= order.size_3xl || 0 %>') || '',
-            qty_4xl: parseInt('<%= order.size_4xl || 0 %>') || '',
-            qty_5xl: parseInt('<%= order.size_5xl || 0 %>') || ''
+            name: PRESETS.dewasa_pendek.name,
+            qty_xs: <%= order.size_xs || "''" %>,
+            qty_s: <%= order.size_s || "''" %>,
+            qty_m: <%= order.size_m || "''" %>,
+            qty_l: <%= order.size_l || "''" %>,
+            qty_xl: <%= order.size_xl || "''" %>,
+            qty_2xl: <%= order.size_2xl || "''" %>,
+            qty_3xl: <%= order.size_3xl || "''" %>,
+            qty_4xl: <%= order.size_4xl || "''" %>,
+            qty_5xl: <%= order.size_5xl || "''" %>
         }];
     }
 
-    function renderVariants() {
-        const container = document.getElementById('variantCardsContainer');
-        if (!container) return;
-        container.innerHTML = '';
-
-        variants.forEach((v, idx) => {
-            const card = document.createElement('div');
-            card.className = 'p-3.5 sm:p-4 bg-slate-50/90 border border-slate-200 rounded-2xl space-y-3 variant-card shadow-xs transition';
-            card.dataset.index = idx;
-
-            const subtotal = 
-                (parseInt(v.qty_xs) || 0) +
-                (parseInt(v.qty_s) || 0) +
-                (parseInt(v.qty_m) || 0) +
-                (parseInt(v.qty_l) || 0) +
-                (parseInt(v.qty_xl) || 0) +
-                (parseInt(v.qty_2xl) || 0) +
-                (parseInt(v.qty_3xl) || 0) +
-                (parseInt(v.qty_4xl) || 0) +
-                (parseInt(v.qty_5xl) || 0);
-
-            const isKids = (v.name || '').toLowerCase().includes('anak');
-
-            card.innerHTML = `
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-200">
-                    <div class="flex items-center space-x-2 flex-1">
-                        <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
-                            ${idx + 1}
-                        </span>
-                        <div class="flex-1 max-w-sm">
-                            <input type="text" class="w-full font-bold text-xs px-3 py-1.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none uppercase" 
-                                   value="${v.name || ''}" placeholder="Nama Varian / Model (Contoh: Lengan Pendek)" 
-                                   oninput="updateVariantName(${idx}, this.value)">
-                        </div>
-                        <div class="hidden md:flex items-center space-x-1">
-                            <button type="button" onclick="setVariantName(${idx}, 'Lengan Pendek (Dewasa)')" class="text-[10px] font-bold bg-white border border-slate-200 hover:border-emerald-400 px-2 py-1 rounded-lg text-slate-600 hover:text-emerald-700 transition">Pendek</button>
-                            <button type="button" onclick="setVariantName(${idx}, 'Lengan Panjang (Dewasa)')" class="text-[10px] font-bold bg-white border border-slate-200 hover:border-indigo-400 px-2 py-1 rounded-lg text-slate-600 hover:text-indigo-700 transition">Panjang</button>
-                            <button type="button" onclick="setVariantName(${idx}, 'Kaos Anak-Anak (Pendek)')" class="text-[10px] font-bold bg-white border border-slate-200 hover:border-amber-400 px-2 py-1 rounded-lg text-slate-600 hover:text-amber-800 transition">Anak</button>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between sm:justify-end space-x-2 shrink-0">
-                        <span class="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-xl shadow-2xs">
-                            Subtotal: <strong class="text-emerald-700 font-mono font-black variant-subtotal">${subtotal}</strong> Pcs
-                        </span>
-                        ${variants.length > 1 ? `
-                        <button type="button" onclick="removeVariantRow(${idx})" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer" title="Hapus Baris Varian">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>` : `
-                        <button type="button" onclick="clearVariantRow(${idx})" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-xl transition cursor-pointer" title="Kosongkan Angka">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                        </button>`}
-                    </div>
-                </div>
-
-                ${isKids ? `
-                <div class="text-[10px] font-semibold text-amber-800 bg-amber-50/90 border border-amber-200/90 px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                    <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
-                    <span>Panduan Size Anak: XS (Size 2 / 2-3 th) &bull; S (Size 4 / 4-5 th) &bull; M (Size 6 / 6-7 th) &bull; L (Size 8 / 8-9 th) &bull; XL (Size 10 / 10-11 th) &bull; 2XL (Size 12)</span>
-                </div>` : ''}
-
-                <!-- Kolom Input Ukuran XS s/d 5XL -->
-                <div class="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2 text-center">
-                    ${['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].map(sz => `
-                    <div>
-                        <span class="text-[10px] font-black text-slate-500 uppercase block mb-1">${sz}</span>
-                        <input type="number" min="0" value="${v['qty_' + sz] || ''}" placeholder="0" 
-                               class="qty-input w-full p-2 text-center font-bold text-xs sm:text-sm border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition shadow-2xs" 
-                               oninput="updateVariantQty(${idx}, '${sz}', this.value)">
-                    </div>`).join('')}
-                </div>
-            `;
-            container.appendChild(card);
+    function syncCheckboxesWithVariants() {
+        Object.keys(PRESETS).forEach(key => {
+            const presetName = PRESETS[key].name.toLowerCase();
+            const isChecked = variants.some(v => (v.name || '').toLowerCase() === presetName);
+            const chk = document.getElementById('chk_' + key);
+            const lbl = document.getElementById('label_' + key);
+            if (chk) chk.checked = isChecked;
+            if (lbl) {
+                if (isChecked) {
+                    lbl.classList.add('border-blue-400', 'ring-2', 'ring-blue-400', 'bg-blue-50/40');
+                    lbl.classList.remove('border-slate-300', 'bg-white');
+                } else {
+                    lbl.classList.remove('border-blue-400', 'ring-2', 'ring-blue-400', 'bg-blue-50/40');
+                    lbl.classList.add('border-slate-300', 'bg-white');
+                }
+            }
         });
-
-        if (window.lucide) {
-            lucide.createIcons();
-        }
-
-        recalculateTotals();
     }
 
-    function addVariantRow(presetName = '') {
-        const name = presetName || 'Lengan Pendek (Dewasa)';
-        variants.push({
-            name: name,
-            qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
-            qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
-        });
+    function handlePresetCheck(presetKey, isChecked) {
+        const preset = PRESETS[presetKey];
+        if (!preset) return;
+
+        if (isChecked) {
+            const exists = variants.some(v => (v.name || '').toLowerCase() === preset.name.toLowerCase());
+            if (!exists) {
+                variants.push({
+                    name: preset.name,
+                    qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
+                    qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
+                });
+            }
+        } else {
+            variants = variants.filter(v => (v.name || '').toLowerCase() !== preset.name.toLowerCase());
+        }
+
         renderVariants();
     }
 
-    function setVariantName(idx, name) {
-        if (variants[idx]) {
-            variants[idx].name = name;
+    function addCustomVariantRow() {
+        const customName = prompt('Masukkan nama varian khusus / model lain:', 'Kaos Raglan');
+        if (customName && customName.trim()) {
+            variants.push({
+                name: customName.trim(),
+                qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
+                qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
+            });
             renderVariants();
         }
     }
 
-    function updateVariantName(idx, name) {
+    function removeCustomVariantRow(idx) {
         if (variants[idx]) {
-            variants[idx].name = name;
+            variants.splice(idx, 1);
+            renderVariants();
+        }
+    }
+
+    function updateCustomVariantName(idx, val) {
+        if (variants[idx]) {
+            variants[idx].name = val;
             syncHiddenInputs();
+        }
+    }
+
+    function clearVariantRow(idx) {
+        if (variants[idx]) {
+            ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].forEach(sz => {
+                variants[idx]['qty_' + sz] = '';
+            });
+            renderVariants();
         }
     }
 
@@ -390,22 +384,6 @@
         }
     }
 
-    function removeVariantRow(idx) {
-        if (variants.length > 1) {
-            variants.splice(idx, 1);
-            renderVariants();
-        }
-    }
-
-    function clearVariantRow(idx) {
-        if (variants[idx]) {
-            ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].forEach(sz => {
-                variants[idx]['qty_' + sz] = '';
-            });
-            renderVariants();
-        }
-    }
-
     function recalculateTotals() {
         const totals = { xs: 0, s: 0, m: 0, l: 0, xl: 0, '2xl': 0, '3xl': 0, '4xl': 0, '5xl': 0 };
         let grandTotal = 0;
@@ -418,7 +396,6 @@
             });
         });
 
-        // Update hidden inputs
         Object.keys(totals).forEach(sz => {
             const hid = document.getElementById('sum_size_' + sz);
             if (hid) hid.value = totals[sz];
@@ -430,20 +407,19 @@
         const disp = document.getElementById('displayTotalPcs');
         if (disp) disp.textContent = grandTotal;
 
-        // Cek diff terhadap originalTotal
         const diffBox = document.getElementById('diffAlertBox');
         const diffText = document.getElementById('diffAlertText');
-        const diff = grandTotal - originalTotal;
-
-        if (diff !== 0) {
-            diffBox.classList.remove('hidden');
+        if (diffBox && diffText) {
+            const diff = grandTotal - originalTotalPcs;
             if (diff > 0) {
-                diffText.textContent = `⚡ Terdeteksi Penambahan Order: +${diff} Pcs (Total menjadi ${grandTotal} Pcs)`;
+                diffText.textContent = `⚠️ Perhatian: Anda MENAMBAH total sebanyak +${diff} pcs (Total lama: ${originalTotalPcs} pcs &rarr; Baru: ${grandTotal} pcs).`;
+                diffBox.classList.remove('hidden');
+            } else if (diff < 0) {
+                diffText.textContent = `⚠️ Perhatian: Anda MENGURANGI total sebanyak ${diff} pcs (Total lama: ${originalTotalPcs} pcs &rarr; Baru: ${grandTotal} pcs).`;
+                diffBox.classList.remove('hidden');
             } else {
-                diffText.textContent = `⚡ Terdeteksi Pengurangan Order: ${diff} Pcs (Total menjadi ${grandTotal} Pcs)`;
+                diffBox.classList.add('hidden');
             }
-        } else {
-            diffBox.classList.add('hidden');
         }
 
         syncHiddenInputs();
@@ -456,63 +432,98 @@
         }
     }
 
-    // AUTO GENERATE VARIANTS FROM COLOR & CHECKBOXES
-    let debounceTimer = null;
-    function debounceGenerateVariants() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            autoGenerateVariantsFromCheckboxes(false);
-        }, 600);
-    }
+    function renderVariants() {
+        const container = document.getElementById('variantCardsContainer');
+        if (!container) return;
+        container.innerHTML = '';
 
-    function autoGenerateVariantsFromCheckboxes(forceRebuild = false) {
-        const warnaInput = document.getElementById('warnaKaosInput');
-        const rawColors = (warnaInput ? warnaInput.value : 'HITAM').split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
-        const colors = rawColors.length > 0 ? rawColors : ['HITAM'];
+        if (variants.length === 0) {
+            container.innerHTML = `
+                <div class="p-6 text-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl">
+                    <p class="text-xs font-bold text-slate-500">Belum ada model dipilih.</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Silakan centang salah satu pilihan model di atas (Dewasa / Anak-Anak, Pendek / Panjang).</p>
+                </div>
+            `;
+            recalculateTotals();
+            syncCheckboxesWithVariants();
+            return;
+        }
 
-        const isDewasa = document.getElementById('chk_dewasa') ? document.getElementById('chk_dewasa').checked : true;
-        const isAnak = document.getElementById('chk_anak') ? document.getElementById('chk_anak').checked : false;
-        const isPendek = document.getElementById('chk_pendek') ? document.getElementById('chk_pendek').checked : true;
-        const isPanjang = document.getElementById('chk_panjang') ? document.getElementById('chk_panjang').checked : false;
+        variants.forEach((v, idx) => {
+            const presetKey = Object.keys(PRESETS).find(k => PRESETS[k].name.toLowerCase() === (v.name || '').toLowerCase());
+            const preset = presetKey ? PRESETS[presetKey] : null;
 
-        const targetNames = [];
+            const card = document.createElement('div');
+            card.className = 'p-3.5 sm:p-4 bg-white border border-slate-200/90 rounded-2xl space-y-3 variant-card shadow-xs transition';
+            card.dataset.index = idx;
 
-        colors.forEach(col => {
-            if (isDewasa && isPendek) targetNames.push(`${col} PENDEK`);
-            if (isDewasa && isPanjang) targetNames.push(`${col} PANJANG`);
-            if (isAnak && isPendek) targetNames.push(`${col} ANAK (PENDEK)`);
-            if (isAnak && isPanjang) targetNames.push(`${col} ANAK (PANJANG)`);
+            const subtotal = ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl']
+                .reduce((acc, sz) => acc + (parseInt(v['qty_' + sz]) || 0), 0);
+
+            const isKids = (v.name || '').toLowerCase().includes('anak');
+
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                            ${idx + 1}
+                        </span>
+                        ${preset ? `
+                        <span class="px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wide border ${preset.badgeColor} shadow-2xs flex items-center space-x-1.5">
+                            <span>${preset.icon}</span>
+                            <span>${preset.name}</span>
+                        </span>
+                        ` : `
+                        <div class="flex items-center space-x-2">
+                            <input type="text" class="font-bold text-xs px-3 py-1 border border-slate-300 rounded-xl bg-white uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                                   value="${v.name || ''}" placeholder="Nama Varian Lain..." 
+                                   oninput="updateCustomVariantName(${idx}, this.value)">
+                            <span class="text-[10px] text-slate-400 italic">(Varian Khusus)</span>
+                        </div>
+                        `}
+                    </div>
+                    <div class="flex items-center space-x-2 self-end sm:self-auto">
+                        <span class="text-xs font-bold text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl shadow-2xs">
+                            Subtotal: <strong class="text-blue-700 font-mono font-black variant-subtotal">${subtotal}</strong> Pcs
+                        </span>
+                        ${!preset ? `
+                        <button type="button" onclick="removeCustomVariantRow(${idx})" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer" title="Hapus Baris">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                        ` : `
+                        <button type="button" onclick="clearVariantRow(${idx})" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer" title="Kosongkan Angka">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        </button>
+                        `}
+                    </div>
+                </div>
+
+                ${isKids ? `
+                <div class="text-[10px] font-semibold text-amber-800 bg-amber-50/90 border border-amber-200/90 px-2.5 py-1 rounded-lg flex items-center space-x-1">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                    <span>Panduan Size Anak: XS (Size 2 / 2-3 th) &bull; S (Size 4 / 4-5 th) &bull; M (Size 6 / 6-7 th) &bull; L (Size 8 / 8-9 th) &bull; XL (Size 10 / 10-11 th) &bull; 2XL (Size 12)</span>
+                </div>` : ''}
+
+                <!-- Kolom Input Ukuran XS s/d 5XL -->
+                <div class="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2 text-center">
+                    ${['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'].map(sz => `
+                    <div>
+                        <span class="text-[10px] font-black text-slate-500 uppercase block mb-1">${sz}</span>
+                        <input type="number" min="0" value="${v['qty_' + sz] || ''}" placeholder="0" 
+                               class="qty-input w-full p-2 text-center font-black text-xs sm:text-sm border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition shadow-2xs" 
+                               oninput="updateVariantQty(${idx}, '${sz}', this.value)">
+                    </div>`).join('')}
+                </div>
+            `;
+            container.appendChild(card);
         });
 
-        if (targetNames.length === 0) {
-            targetNames.push(`${colors[0]} PENDEK`);
+        if (window.lucide) {
+            lucide.createIcons();
         }
 
-        if (forceRebuild) {
-            const oldMap = {};
-            variants.forEach(v => { oldMap[v.name.toUpperCase()] = v; });
-
-            variants = targetNames.map(name => {
-                const existing = oldMap[name.toUpperCase()];
-                return existing ? { ...existing, name } : {
-                    name,
-                    qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
-                    qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
-                };
-            });
-        } else {
-            targetNames.forEach(tName => {
-                if (!variants.some(v => v.name.toUpperCase() === tName.toUpperCase())) {
-                    variants.push({
-                        name: tName,
-                        qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
-                        qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
-                    });
-                }
-            });
-        }
-
-        renderVariants();
+        recalculateTotals();
+        syncCheckboxesWithVariants();
     }
 
     renderVariants();
