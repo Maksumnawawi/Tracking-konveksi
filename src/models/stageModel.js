@@ -47,7 +47,7 @@ const StageModel = {
             FROM order_stages s
             JOIN orders o ON s.order_id = o.id
             WHERE s.assigned_role = ?
-              AND o.current_stage_id = s.id
+              AND s.status != 'COMPLETED'
               AND o.status != 'COMPLETED'
             ORDER BY 
                 CASE 
@@ -109,8 +109,8 @@ const StageModel = {
             WHERE id = ?
         `, [startedAt, now, stageId]);
 
-        // Update order status
-        db.run(`UPDATE orders SET status = 'IN_PROGRESS' WHERE id = ?`, [stage.order_id]);
+        // Update order status & meja yang sedang aktif berjalan
+        db.run(`UPDATE orders SET status = 'IN_PROGRESS', current_stage_id = ?, current_role = ? WHERE id = ?`, [stageId, stage.assigned_role, stage.order_id]);
 
         // Log ke time_logs
         db.run(`
@@ -248,38 +248,19 @@ const StageModel = {
             }
         }
 
-        if (!nextStage) {
-            // Cari tahap berikutnya secara berurutan (stage_order = current + 1)
-            nextStage = db.get(`
-                SELECT * FROM order_stages 
-                WHERE order_id = ? AND stage_order = ?
-            `, [stage.order_id, stage.stage_order + 1]);
-        }
+        // Cek sisa tahapan yang belum selesai untuk order ini (Fleksibel & Multi-Station)
+        const remainingStages = db.query(`
+            SELECT * FROM order_stages 
+            WHERE order_id = ? AND status != 'COMPLETED'
+            ORDER BY stage_order ASC
+        `, [stage.order_id]);
 
-        if (nextStage) {
-            // Pindahkan order ke antrean divisi berikutnya
-            db.run(`
-                UPDATE orders 
-                SET current_stage_id = ?,
-                    current_role = ?,
-                    status = 'WAITING'
-                WHERE id = ?
-            `, [nextStage.id, nextStage.assigned_role, stage.order_id]);
-
-            return {
-                success: true,
-                isFinalStage: false,
-                nextStage: {
-                    id: nextStage.id,
-                    name: nextStage.stage_name,
-                    role: nextStage.assigned_role
-                }
-            };
-        } else {
-            // Tahapan terakhir selesai (Order Beres Semua!)
+        if (!remainingStages || remainingStages.length === 0) {
+            // Semua tahapan produksi order telah tuntas selesai!
             db.run(`
                 UPDATE orders 
                 SET current_role = NULL,
+                    current_stage_id = NULL,
                     status = 'COMPLETED',
                     completed_at = ?
                 WHERE id = ?
@@ -289,6 +270,29 @@ const StageModel = {
                 success: true,
                 isFinalStage: true,
                 message: 'Pesanan telah selesai seluruh tahapan produksi!'
+            };
+        } else {
+            // Masih ada tahapan lain yang belum selesai (bisa jalan paralel)
+            const inProgressStage = remainingStages.find(st => st.status === 'IN_PROGRESS');
+            const nextActiveStage = inProgressStage || remainingStages[0];
+            const orderStatus = inProgressStage ? 'IN_PROGRESS' : 'WAITING';
+
+            db.run(`
+                UPDATE orders 
+                SET current_stage_id = ?,
+                    current_role = ?,
+                    status = ?
+                WHERE id = ?
+            `, [nextActiveStage.id, nextActiveStage.assigned_role, orderStatus, stage.order_id]);
+
+            return {
+                success: true,
+                isFinalStage: false,
+                nextStage: {
+                    id: nextActiveStage.id,
+                    name: nextActiveStage.stage_name,
+                    role: nextActiveStage.assigned_role
+                }
             };
         }
     }

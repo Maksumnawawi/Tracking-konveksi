@@ -4,7 +4,7 @@ const TimeLogModel = require('../models/timeLogModel');
 const QcModel = require('../models/qcModel');
 const NotificationModel = require('../models/notificationModel');
 const { generateQRCodeDataUrl } = require('../utils/qrHelper');
-const { ROLE_LABELS, ROLE_BADGES } = require('../utils/workflowConfig');
+const { ROLE_LABELS, ROLE_BADGES, WORKFLOW_CONFIG } = require('../utils/workflowConfig');
 const { formatDurationDetailed, formatDurationClock, getActiveDurationSeconds } = require('../utils/durationHelper');
 
 const OrderController = {
@@ -155,9 +155,12 @@ const OrderController = {
             return res.redirect('/admin/orders');
         }
 
+        const stages = StageModel.getStagesByOrderId(orderId);
+
         res.render('admin/order-edit', {
             title: `Edit Pesanan: ${order.order_number}`,
             order,
+            stages: stages || [],
             error: null,
             ROLE_LABELS
         });
@@ -195,6 +198,34 @@ const OrderController = {
 
             // Simpan update ke database
             OrderModel.update(orderId, req.body);
+
+            // Update pilihan divisi aktif jika dikirim (Opsi A: Alur Fleksibel)
+            const rawActiveDivs = req.body['active_divisions[]'] || req.body.active_divisions;
+            if (rawActiveDivs) {
+                const activeDivs = Array.isArray(rawActiveDivs) ? rawActiveDivs : [rawActiveDivs];
+                const existingStages = StageModel.getStagesByOrderId(orderId) || [];
+                const existingRoles = existingStages.map(s => s.assigned_role);
+                const db = require('../config/database');
+
+                // 1. Hapus tahapan yang uncheck & masih berstatus WAITING
+                existingStages.forEach(st => {
+                    if (!activeDivs.includes(st.assigned_role) && st.status === 'WAITING') {
+                        db.run('DELETE FROM order_stages WHERE id = ?', [st.id]);
+                    }
+                });
+
+                // 2. Tambah tahapan baru jika dicentang dan belum ada di order_stages
+                const cat = currentOrder.category || 'kaos';
+                const workflow = WORKFLOW_CONFIG[cat] || WORKFLOW_CONFIG.kaos;
+                workflow.forEach((step, idx) => {
+                    if (activeDivs.includes(step.role) && !existingRoles.includes(step.role)) {
+                        db.run(`
+                            INSERT INTO order_stages (order_id, stage_name, stage_order, assigned_role, status)
+                            VALUES (?, ?, ?, ?, 'WAITING')
+                        `, [orderId, step.name, idx + 1, step.role]);
+                    }
+                });
+            }
 
             // Cek apakah ada perubahan jumlah (penambahan / pengurangan order)
             const diff = newTotalPcs - oldTotalPcs;

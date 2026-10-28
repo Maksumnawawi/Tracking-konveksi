@@ -219,49 +219,43 @@ const OrderModel = {
 
         const orderId = orderResult.lastInsertRowid;
 
-        // Buat tahapan (order_stages) secara berurutan sesuai alur kategori
-        let firstStageId = null;
-        let firstRole = null;
-        let sablonStageId = null;
-        let sablonRole = null;
-
         const nowIso = new Date().toISOString();
 
-        workflow.forEach((step, idx) => {
-            const stageOrder = idx + 1;
-            // Tahap Desain Mockup diselesaikan di awal karena desain sudah dibuat & diupload saat pembuatan SPK / Nota
-            const isDesain = step.role === 'desain' || idx === 0;
-            const initialStatus = isDesain ? 'COMPLETED' : 'WAITING';
-            const completedAt = isDesain ? nowIso : null;
-            const completedBy = isDesain ? (creatorId || 1) : null;
+        // Pilihan divisi aktif (Opsi A: Alur Fleksibel)
+        const rawActiveDivs = data['active_divisions[]'] || data.active_divisions;
+        const activeDivs = Array.isArray(rawActiveDivs) 
+            ? rawActiveDivs 
+            : (rawActiveDivs ? [rawActiveDivs] : null);
 
+        const activeWorkflow = (activeDivs && activeDivs.length > 0)
+            ? workflow.filter(st => activeDivs.includes(st.role))
+            : workflow;
+
+        let firstStageId = null;
+        let firstRole = null;
+
+        activeWorkflow.forEach((step, idx) => {
+            const stageOrder = idx + 1;
             const insertStageSql = `
                 INSERT INTO order_stages (
                     order_id, stage_name, stage_order, assigned_role, 
-                    status, completed_at, completed_by_user_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    status
+                ) VALUES (?, ?, ?, ?, 'WAITING')
             `;
             const stageRes = db.run(insertStageSql, [
-                orderId, step.name, stageOrder, step.role, 
-                initialStatus, completedAt, completedBy
+                orderId, step.name, stageOrder, step.role
             ]);
 
             if (idx === 0) {
                 firstStageId = stageRes.lastInsertRowid;
                 firstRole = step.role;
-            } else if (idx === 1) {
-                sablonStageId = stageRes.lastInsertRowid;
-                sablonRole = step.role;
             }
         });
 
-        // Set pesanan langsung aktif di meja SABLON (tahap pertama produksi fisik di workshop)
-        const activeStageId = sablonStageId || firstStageId;
-        const activeRole = sablonRole || firstRole;
-
+        // Semua divisi mulai dari WAITING (bebas scan kapan saja oleh tim terkait)
         db.run(
-            `UPDATE orders SET current_stage_id = ?, current_role = ?, status = 'IN_PROGRESS' WHERE id = ?`,
-            [activeStageId, activeRole, orderId]
+            `UPDATE orders SET current_stage_id = ?, current_role = ?, status = 'WAITING' WHERE id = ?`,
+            [firstStageId, firstRole, orderId]
         );
 
         return { orderId, orderNumber, trackingCode };
