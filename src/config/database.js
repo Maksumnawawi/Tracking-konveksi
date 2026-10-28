@@ -129,7 +129,8 @@ function migrateTrchSchema(database) {
             { name: 'size_5xl', type: 'INTEGER DEFAULT 0' },
             { name: 'collar_type', type: 'TEXT DEFAULT ""' },
             { name: 'collar_notes', type: 'TEXT DEFAULT ""' },
-            { name: 'category_notes', type: 'TEXT DEFAULT ""' }
+            { name: 'category_notes', type: 'TEXT DEFAULT ""' },
+            { name: 'variant_notes', type: 'TEXT DEFAULT ""' }
         ];
 
         newColumns.forEach(col => {

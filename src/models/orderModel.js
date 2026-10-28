@@ -154,7 +154,7 @@ const OrderModel = {
                 warna_sablon_depan, warna_sablon_belakang, shipping_courier,
                 mockup_front_url, mockup_back_url, free_qty, customer_address,
                 items_breakdown_json, price_matrix_json, total_price, down_payment, remaining_payment,
-                nota_number, nota_month, nota_notes, collar_type, collar_notes, category_notes
+                nota_number, nota_month, nota_notes, collar_type, collar_notes, category_notes, variant_notes
             ) VALUES (
                 ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
@@ -164,7 +164,7 @@ const OrderModel = {
                 ?, ?, ?,
                 ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?
             )
         `;
 
@@ -213,7 +213,8 @@ const OrderModel = {
             data.nota_notes || '',
             data.collar_type || '',
             data.collar_notes || '',
-            data.category_notes || ''
+            data.category_notes || '',
+            data.variant_notes || ''
         ]);
 
         const orderId = orderResult.lastInsertRowid;
@@ -302,7 +303,8 @@ const OrderModel = {
                 total_pcs = ?,
                 collar_type = COALESCE(?, collar_type),
                 collar_notes = COALESCE(?, collar_notes),
-                category_notes = COALESCE(?, category_notes)
+                category_notes = COALESCE(?, category_notes),
+                variant_notes = COALESCE(?, variant_notes)
             WHERE id = ?
         `;
 
@@ -330,6 +332,7 @@ const OrderModel = {
             data.collar_type || '',
             data.collar_notes || '',
             data.category_notes || '',
+            data.variant_notes || '',
             orderId
         ]);
     },

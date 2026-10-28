@@ -490,6 +490,18 @@
                     <!-- Di-render dinamis oleh JavaScript -->
                 </div>
 
+                <!-- Catatan Tambahan Kaos Lain / Catatan Ukuran -->
+                <div class="pt-2 border-t border-slate-100">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span class="flex items-center space-x-1.5">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span>Catatan Tambahan / Kaos Lain (Opsional):</span>
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-normal">Tulis jika ada catatan kaos khusus/tambahan</span>
+                    </label>
+                    <input type="text" name="variant_notes" value="<%= formData.variant_notes || '' %>" placeholder="Contoh: Kaos warna abu misty 2 pcs size L, model crop top 1 pcs, rib lengan karet..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
                 <!-- Hidden inputs untuk sinkronisasi form & database -->
                 <input type="hidden" name="items_breakdown_json" id="items_breakdown_json" value="<%= formData.items_breakdown_json || '' %>">
                 <input type="hidden" name="size_xs" id="sum_size_xs" value="<%= formData.size_xs || 0 %>">
