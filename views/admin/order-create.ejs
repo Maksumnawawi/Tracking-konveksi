@@ -81,7 +81,7 @@
                             <!-- Opsi Kaos -->
                             <label class="relative flex flex-col p-4 border rounded-2xl cursor-pointer transition hover:bg-slate-50 <%= formData.category === 'kaos' || !formData.category ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200' %>">
                                 <div class="flex items-center space-x-3">
-                                    <input type="radio" name="category" value="kaos" <%= formData.category === 'kaos' || !formData.category ? 'checked' : '' %> class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                                    <input type="radio" name="category" value="kaos" onchange="toggleCategoryCollar(this.value)" <%= formData.category === 'kaos' || !formData.category ? 'checked' : '' %> class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
                                     <span class="font-bold text-slate-900 text-sm">Kaos (T-Shirt / Polo / Raglan)</span>
                                 </div>
                                 <div class="mt-2 text-xs text-slate-500 pl-7 space-y-1">
@@ -93,7 +93,7 @@
                             <!-- Opsi Jersey -->
                             <label class="relative flex flex-col p-4 border rounded-2xl cursor-pointer transition hover:bg-slate-50 <%= formData.category === 'jersey' ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200' %>">
                                 <div class="flex items-center space-x-3">
-                                    <input type="radio" name="category" value="jersey" <%= formData.category === 'jersey' ? 'checked' : '' %> class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                                    <input type="radio" name="category" value="jersey" onchange="toggleCategoryCollar(this.value)" <%= formData.category === 'jersey' ? 'checked' : '' %> class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
                                     <span class="font-bold text-slate-900 text-sm">Jersey (Full Print / Sublimasi)</span>
                                 </div>
                                 <div class="mt-2 text-xs text-slate-500 pl-7 space-y-1">
@@ -103,6 +103,12 @@
                             </label>
 
                         </div>
+
+                        <!-- Kolom Note / Catatan Khusus Kategori Sesuai Gambar Kertas -->
+                        <div class="mt-3">
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Catatan Kategori (Note Kaos / Jersey):</label>
+                            <input type="text" name="category_notes" value="<%= formData.category_notes || '' %>" placeholder="Contoh: Kaos bahan katun combed 24s / Jersey sublim full print gradasi..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -111,7 +117,7 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
                     <i data-lucide="layers" class="w-4 h-4 text-amber-600"></i>
-                    <span>2. Spesifikasi POK (Bahan, Tinta, Finishing & Tanggal)</span>
+                    <span>2. Spesifikasi POK (Bahan, Tinta, Finishing & Model Kerah)</span>
                 </h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -135,14 +141,111 @@
                         <input type="text" name="tinta_type" value="<%= formData.tinta_type || 'PLASTISOL' %>" placeholder="Contoh: PLASTISOL / DISCHARGE / SUBLIM" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     </div>
 
-                    <div>
+                    <div class="sm:col-span-2 md:col-span-2">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Finishing Sablon</label>
                         <input type="text" name="finishing_type" value="<%= formData.finishing_type || 'PRES DOFT' %>" placeholder="Contoh: PRES DOFT / PRES GLOSSY" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Warna Kaos</label>
-                        <input type="text" name="warna_kaos" value="<%= formData.warna_kaos || 'HITAM, PUTIH' %>" placeholder="Contoh: HITAM, PUTIH" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <!-- AREA PILIHAN MODEL KERAH (DENGAN FOTO/ILUSTRASI KHUSUS JERSEY) -->
+                    <div class="sm:col-span-2 md:col-span-3 p-4 bg-slate-50/90 rounded-2xl border border-slate-200 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                            <label class="block text-xs font-black text-slate-900 uppercase tracking-wider flex items-center space-x-1.5">
+                                <i data-lucide="scissors" class="w-4 h-4 text-amber-600"></i>
+                                <span>Pilihan Model Kerah (Collar Type)</span>
+                            </label>
+                            <span class="text-[10px] text-amber-700 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">Tercetak di Lembar POK</span>
+                        </div>
+
+                        <input type="hidden" name="collar_type" id="collarTypeInput" value="<%= formData.collar_type || (formData.category === 'jersey' ? 'V-Neck Silang (Overlap)' : 'O-Neck (Bulat)') %>">
+
+                        <!-- 1. Galeri Visual Kerah Khusus Jersey (Tampil saat kategori = jersey) -->
+                        <div id="jerseyCollarGallery" class="<%= formData.category === 'jersey' ? '' : 'hidden' %> space-y-2">
+                            <span class="text-[11px] font-bold text-slate-600 block">Pilih Model Kerah Jersey:</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+                                
+                                <!-- 1. O-Neck Bulat Jersey -->
+                                <button type="button" onclick="selectCollar('O-Neck (Bulat)')" class="collar-card p-2.5 bg-white border rounded-xl text-center hover:border-amber-500 transition cursor-pointer flex flex-col items-center justify-between group shadow-2xs" data-collar="O-Neck (Bulat)">
+                                    <svg class="w-12 h-12 text-slate-700 group-hover:text-amber-600" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4">
+                                        <path d="M15 45 L35 25 L40 25 C40 38 60 38 60 25 L65 25 L85 45" stroke-linecap="round" />
+                                        <path d="M40 25 C40 42 60 42 60 25" fill="#fef3c7" stroke="#d97706" stroke-width="5" />
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-slate-800 mt-1.5 leading-tight">O-Neck<br><span class="text-[9px] text-slate-500 font-normal">Bulat Jersey</span></span>
+                                </button>
+
+                                <!-- 2. V-Neck Standar -->
+                                <button type="button" onclick="selectCollar('V-Neck Standar')" class="collar-card p-2.5 bg-white border rounded-xl text-center hover:border-amber-500 transition cursor-pointer flex flex-col items-center justify-between group shadow-2xs" data-collar="V-Neck Standar">
+                                    <svg class="w-12 h-12 text-slate-700 group-hover:text-amber-600" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4">
+                                        <path d="M15 45 L35 25 L40 25 L50 48 L60 25 L65 25 L85 45" stroke-linecap="round" />
+                                        <path d="M40 25 L50 48 L60 25" fill="#fef3c7" stroke="#d97706" stroke-width="5" stroke-linejoin="round" />
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-slate-800 mt-1.5 leading-tight">V-Neck<br><span class="text-[9px] text-slate-500 font-normal">Klasik Lancip</span></span>
+                                </button>
+
+                                <!-- 3. V-Neck Silang / Overlap -->
+                                <button type="button" onclick="selectCollar('V-Neck Silang (Overlap)')" class="collar-card p-2.5 bg-white border rounded-xl text-center hover:border-amber-500 transition cursor-pointer flex flex-col items-center justify-between group shadow-2xs" data-collar="V-Neck Silang (Overlap)">
+                                    <svg class="w-12 h-12 text-slate-700 group-hover:text-amber-600" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4">
+                                        <path d="M15 45 L35 25 L40 25 L47 42 L65 25 L85 45" stroke-linecap="round" />
+                                        <path d="M40 25 L54 50" stroke="#d97706" stroke-width="6" stroke-linecap="round" />
+                                        <path d="M60 25 L45 44" stroke="#92400e" stroke-width="6" stroke-linecap="round" />
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-slate-800 mt-1.5 leading-tight">V-Neck Silang<br><span class="text-[9px] text-amber-700 font-semibold">Tumpuk Overlap</span></span>
+                                </button>
+
+                                <!-- 4. Kerah Shanghai / Koko -->
+                                <button type="button" onclick="selectCollar('Kerah Shanghai / Koko')" class="collar-card p-2.5 bg-white border rounded-xl text-center hover:border-amber-500 transition cursor-pointer flex flex-col items-center justify-between group shadow-2xs" data-collar="Kerah Shanghai / Koko">
+                                    <svg class="w-12 h-12 text-slate-700 group-hover:text-amber-600" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4">
+                                        <path d="M15 45 L35 25 L40 25 L60 25 L65 25 L85 45" stroke-linecap="round" />
+                                        <path d="M38 18 L38 27 C42 28 47 28 49 28 M51 28 C53 28 58 28 62 27 L62 18 C56 17 44 17 38 18 Z" fill="#fef3c7" stroke="#d97706" stroke-width="4" stroke-linejoin="round" />
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-slate-800 mt-1.5 leading-tight">Kerah Shanghai<br><span class="text-[9px] text-slate-500 font-normal">Koko Tegak</span></span>
+                                </button>
+
+                                <!-- 5. Kerah Polo / Wangky -->
+                                <button type="button" onclick="selectCollar('Kerah Polo / Wangky')" class="collar-card p-2.5 bg-white border rounded-xl text-center hover:border-amber-500 transition cursor-pointer flex flex-col items-center justify-between group shadow-2xs" data-collar="Kerah Polo / Wangky">
+                                    <svg class="w-12 h-12 text-slate-700 group-hover:text-amber-600" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4">
+                                        <path d="M15 45 L35 25 L40 25 L65 25 L85 45" stroke-linecap="round" />
+                                        <path d="M40 25 L33 39 L49 34 Z" fill="#fef3c7" stroke="#d97706" stroke-width="3" />
+                                        <path d="M60 25 L67 39 L51 34 Z" fill="#fef3c7" stroke="#d97706" stroke-width="3" />
+                                        <line x1="50" y1="34" x2="50" y2="52" stroke="#d97706" stroke-width="3" />
+                                        <circle cx="50" cy="40" r="1.5" fill="#92400e" />
+                                        <circle cx="50" cy="47" r="1.5" fill="#92400e" />
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-slate-800 mt-1.5 leading-tight">Kerah Polo<br><span class="text-[9px] text-slate-500 font-normal">Wangky Kancing</span></span>
+                                </button>
+
+                                <!-- 6. Kerah Custom -->
+                                <button type="button" onclick="selectCollar('Kerah Custom / Lainnya')" class="collar-card p-2.5 bg-white border rounded-xl text-center hover:border-amber-500 transition cursor-pointer flex flex-col items-center justify-between group shadow-2xs" data-collar="Kerah Custom / Lainnya">
+                                    <svg class="w-12 h-12 text-slate-700 group-hover:text-amber-600" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4">
+                                        <path d="M15 45 L35 25 L65 25 L85 45" stroke-linecap="round" />
+                                        <circle cx="50" cy="35" r="13" stroke="#d97706" stroke-width="3" stroke-dasharray="3 2" />
+                                        <text x="50" y="40" font-size="14" font-weight="bold" fill="#d97706" text-anchor="middle" stroke="none">?</text>
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-slate-800 mt-1.5 leading-tight">Custom<br><span class="text-[9px] text-slate-500 font-normal">Model Lain</span></span>
+                                </button>
+
+                            </div>
+                        </div>
+
+                        <!-- 2. Pilihan Sederhana untuk Kaos Oblong (Tampil saat kategori = kaos) -->
+                        <div id="kaosCollarOptions" class="<%= formData.category === 'jersey' ? 'hidden' : '' %> space-y-2">
+                            <span class="text-[11px] font-bold text-slate-600 block">Pilih Model Kerah Kaos:</span>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" onclick="selectCollar('O-Neck (Bulat)')" class="collar-card px-3 py-1.5 bg-white border rounded-xl text-xs font-bold text-slate-800 hover:border-amber-500 transition cursor-pointer" data-collar="O-Neck (Bulat)">O-Neck (Bulat Kaos)</button>
+                                <button type="button" onclick="selectCollar('V-Neck Standar')" class="collar-card px-3 py-1.5 bg-white border rounded-xl text-xs font-bold text-slate-800 hover:border-amber-500 transition cursor-pointer" data-collar="V-Neck Standar">V-Neck</button>
+                                <button type="button" onclick="selectCollar('Kerah Polo / Wangky')" class="collar-card px-3 py-1.5 bg-white border rounded-xl text-xs font-bold text-slate-800 hover:border-amber-500 transition cursor-pointer" data-collar="Kerah Polo / Wangky">Kerah Polo (Wangky)</button>
+                                <button type="button" onclick="selectCollar('Kerah Rib Variasi')" class="collar-card px-3 py-1.5 bg-white border rounded-xl text-xs font-bold text-slate-800 hover:border-amber-500 transition cursor-pointer" data-collar="Kerah Rib Variasi">Kerah Rib Variasi</button>
+                                <button type="button" onclick="selectCollar('Kerah Custom / Lainnya')" class="collar-card px-3 py-1.5 bg-white border rounded-xl text-xs font-bold text-slate-800 hover:border-amber-500 transition cursor-pointer" data-collar="Kerah Custom / Lainnya">Custom / Lainnya</button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Catatan Bebas untuk Kerah (Sesuai Permintaan User) -->
+                        <div class="pt-2 border-t border-slate-200">
+                            <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1 flex items-center justify-between">
+                                <span>Catatan / Spesifikasi Kerah (Bisa Tulis Sendiri):</span>
+                                <span class="text-[10px] text-slate-400 font-normal">Model Terpilih: <strong id="selectedCollarBadge" class="text-amber-800 font-bold">O-Neck (Bulat)</strong></span>
+                            </label>
+                            <input type="text" name="collar_notes" value="<%= formData.collar_notes || '' %>" placeholder="Contoh: Rib V-Neck warna hitam list putih 2cm, jahitan tindas rantai, atau keterangan khusus kerah..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        </div>
                     </div>
 
                     <!-- Pilihan Palet & Roda Warna Tinta Sablon (Depan & Belakang) -->
@@ -395,6 +498,44 @@
 <%- include('../partials/mobile-nav') %>
 
 <script>
+    // COLLAR SELECTION LOGIC
+    function toggleCategoryCollar(category) {
+        const jerseyGallery = document.getElementById('jerseyCollarGallery');
+        const kaosOptions = document.getElementById('kaosCollarOptions');
+        if (category === 'jersey') {
+            if (jerseyGallery) jerseyGallery.classList.remove('hidden');
+            if (kaosOptions) kaosOptions.classList.add('hidden');
+            selectCollar('V-Neck Silang (Overlap)');
+        } else {
+            if (jerseyGallery) jerseyGallery.classList.add('hidden');
+            if (kaosOptions) kaosOptions.classList.remove('hidden');
+            selectCollar('O-Neck (Bulat)');
+        }
+    }
+
+    function selectCollar(collarName) {
+        const input = document.getElementById('collarTypeInput');
+        const badge = document.getElementById('selectedCollarBadge');
+        if (input) input.value = collarName;
+        if (badge) badge.textContent = collarName;
+
+        document.querySelectorAll('.collar-card').forEach(btn => {
+            if (btn.dataset.collar === collarName) {
+                btn.classList.add('border-amber-500', 'bg-amber-50/80', 'ring-2', 'ring-amber-400');
+                btn.classList.remove('bg-white');
+            } else {
+                btn.classList.remove('border-amber-500', 'bg-amber-50/80', 'ring-2', 'ring-amber-400');
+                btn.classList.add('bg-white');
+            }
+        });
+    }
+
+    // Initialize initial collar state
+    setTimeout(() => {
+        const currentInitCollar = document.getElementById('collarTypeInput') ? document.getElementById('collarTypeInput').value : 'O-Neck (Bulat)';
+        selectCollar(currentInitCollar || 'O-Neck (Bulat)');
+    }, 50);
+
     // Multi-Variant Size Breakdown Manager
     let variants = [];
 
@@ -591,7 +732,86 @@
         }
     }
 
-    renderVariants();
+    // AUTO GENERATE VARIANTS FROM COLOR & CHECKBOXES
+    let debounceTimer = null;
+    function debounceGenerateVariants() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            autoGenerateVariantsFromCheckboxes(false);
+        }, 600);
+    }
+
+    function autoGenerateVariantsFromCheckboxes(forceRebuild = false) {
+        const warnaInput = document.getElementById('warnaKaosInput');
+        const rawColors = (warnaInput ? warnaInput.value : 'HITAM').split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+        const colors = rawColors.length > 0 ? rawColors : ['HITAM'];
+
+        const isDewasa = document.getElementById('chk_dewasa') ? document.getElementById('chk_dewasa').checked : true;
+        const isAnak = document.getElementById('chk_anak') ? document.getElementById('chk_anak').checked : false;
+        const isPendek = document.getElementById('chk_pendek') ? document.getElementById('chk_pendek').checked : true;
+        const isPanjang = document.getElementById('chk_panjang') ? document.getElementById('chk_panjang').checked : false;
+
+        const targetNames = [];
+
+        colors.forEach(col => {
+            if (isDewasa && isPendek) targetNames.push(`${col} PENDEK`);
+            if (isDewasa && isPanjang) targetNames.push(`${col} PANJANG`);
+            if (isAnak && isPendek) targetNames.push(`${col} ANAK (PENDEK)`);
+            if (isAnak && isPanjang) targetNames.push(`${col} ANAK (PANJANG)`);
+        });
+
+        if (targetNames.length === 0) {
+            targetNames.push(`${colors[0]} PENDEK`);
+        }
+
+        if (forceRebuild) {
+            // Rebuild tapi pertahankan angka qty jika nama varian cocok
+            const oldMap = {};
+            variants.forEach(v => { oldMap[v.name.toUpperCase()] = v; });
+
+            variants = targetNames.map(name => {
+                const existing = oldMap[name.toUpperCase()];
+                return existing ? { ...existing, name } : {
+                    name,
+                    qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
+                    qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
+                };
+            });
+        } else {
+            // Cek apakah baru pertama kali (default)
+            const isInitialDefault = variants.length <= 1 && (!variants[0] || variants[0].name === 'Lengan Pendek (Dewasa)' || variants[0].name === 'HITAM PENDEK');
+            if (isInitialDefault) {
+                const firstVal = variants[0] || {};
+                variants = targetNames.map((name, i) => {
+                    return (i === 0) ? { ...firstVal, name } : {
+                        name,
+                        qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
+                        qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
+                    };
+                });
+            } else {
+                // Pastikan targetNames ada di varian
+                targetNames.forEach(tName => {
+                    if (!variants.some(v => v.name.toUpperCase() === tName.toUpperCase())) {
+                        variants.push({
+                            name: tName,
+                            qty_xs: '', qty_s: '', qty_m: '', qty_l: '', qty_xl: '',
+                            qty_2xl: '', qty_3xl: '', qty_4xl: '', qty_5xl: ''
+                        });
+                    }
+                });
+            }
+        }
+
+        renderVariants();
+    }
+
+    // Jalankan auto generation awal jika varian masih kosong atau baru 1 baris default
+    if (variants.length <= 1 && (!variants[0] || variants[0].name === 'Lengan Pendek (Dewasa)')) {
+        autoGenerateVariantsFromCheckboxes(false);
+    } else {
+        renderVariants();
+    }
 
     // Auto-update Nomor PO Harian saat Tanggal Masuk Diubah
     const tglMasukInput = document.querySelector('input[name="tgl_masuk"]');

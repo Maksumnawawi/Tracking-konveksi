@@ -425,6 +425,9 @@ const OrderController = {
             // Susun item rows
             const items = [];
             let grandTotal = 0;
+            let sum_xs = 0, sum_s = 0, sum_m = 0, sum_l = 0, sum_xl = 0;
+            let sum_2xl = 0, sum_3xl = 0, sum_4xl = 0, sum_5xl = 0;
+            let totalPcs = 0;
 
             const names = Array.isArray(item_names) ? item_names : [item_names].filter(Boolean);
             const mArr = Array.isArray(item_m) ? item_m : [item_m];
@@ -447,6 +450,17 @@ const OrderController = {
                 const q_3xl = parseInt(xxxlArr[idx]) || 0;
                 const q_4xl = parseInt(fxlArr[idx]) || 0;
                 const q_5xl = parseInt(ffxlArr[idx]) || 0;
+
+                sum_xs += q_xs;
+                sum_s += q_s;
+                sum_m += q_m;
+                sum_l += q_l;
+                sum_xl += q_xl;
+                sum_2xl += q_2xl;
+                sum_3xl += q_3xl;
+                sum_4xl += q_4xl;
+                sum_5xl += q_5xl;
+                totalPcs += (q_xs + q_s + q_m + q_l + q_xl + q_2xl + q_3xl + q_4xl + q_5xl);
 
                 const rowSubtotal = 
                     (q_xs * priceMatrix.xs) +
@@ -489,7 +503,17 @@ const OrderController = {
                 total_price: grandTotal,
                 down_payment: dp,
                 remaining_payment: remaining,
-                free_qty: parseInt(free_qty) || 0
+                free_qty: parseInt(free_qty) || 0,
+                total_pcs: totalPcs,
+                size_xs: sum_xs,
+                size_s: sum_s,
+                size_m: sum_m,
+                size_l: sum_l,
+                size_xl: sum_xl,
+                size_2xl: sum_2xl,
+                size_3xl: sum_3xl,
+                size_4xl: sum_4xl,
+                size_5xl: sum_5xl
             });
 
             return res.redirect(`/admin/orders/${orderId}/nota?saved=1`);

@@ -126,7 +126,10 @@ function migrateTrchSchema(database) {
             { name: 'nota_notes', type: 'TEXT DEFAULT ""' },
             { name: 'customer_address', type: 'TEXT DEFAULT ""' },
             { name: 'size_4xl', type: 'INTEGER DEFAULT 0' },
-            { name: 'size_5xl', type: 'INTEGER DEFAULT 0' }
+            { name: 'size_5xl', type: 'INTEGER DEFAULT 0' },
+            { name: 'collar_type', type: 'TEXT DEFAULT ""' },
+            { name: 'collar_notes', type: 'TEXT DEFAULT ""' },
+            { name: 'category_notes', type: 'TEXT DEFAULT ""' }
         ];
 
         newColumns.forEach(col => {

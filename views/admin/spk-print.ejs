@@ -182,6 +182,13 @@
                             <td>:</td>
                             <td class="font-black uppercase"><%= order.finishing_type || 'PRES DOFT' %></td>
                         </tr>
+                        <% if (order.collar_type || order.collar_notes) { %>
+                        <tr>
+                            <td class="text-slate-800">KERAH</td>
+                            <td>:</td>
+                            <td class="font-black uppercase text-red-600"><%= order.collar_type || '-' %> <%= order.collar_notes ? `(${order.collar_notes})` : '' %></td>
+                        </tr>
+                        <% } %>
                     </table>
                     <p class="font-black text-sm uppercase mt-1 tracking-wide">
                         WARNA KAOS : <span class="underline"><%= order.warna_kaos || 'HITAM, PUTIH' %></span>
@@ -215,7 +222,7 @@
 
             <!-- SUB-HEADER KECIL: SPK & PELANGGAN -->
             <div class="flex justify-between items-center py-1 text-[10px] text-slate-500 border-b border-black">
-                <span>Pelanggan: <strong class="text-black"><%= order.customer_name %></strong> (<%= order.customer_phone || '-' %>)</span>
+                <span>Pelanggan: <strong class="text-black"><%= order.customer_name %></strong> (<%= order.customer_phone || '-' %>)<%= order.customer_address ? ` • ${order.customer_address}` : '' %></span>
                 <span>SPK: <strong class="text-black"><%= order.order_number %></strong></span>
             </div>
 
@@ -451,9 +458,26 @@
                         <% } %>
                     </tbody>
                     <tfoot>
+                        <%
+                            let pokSumPcs = 0;
+                            if (breakdownItems && breakdownItems.length > 0) {
+                                breakdownItems.forEach(itm => {
+                                    pokSumPcs += (parseInt(itm.qty_xs) || 0) +
+                                        (parseInt(itm.qty_s) || 0) +
+                                        (parseInt(itm.qty_m) || 0) +
+                                        (parseInt(itm.qty_l) || 0) +
+                                        (parseInt(itm.qty_xl) || 0) +
+                                        (parseInt(itm.qty_2xl) || 0) +
+                                        (parseInt(itm.qty_3xl) || 0) +
+                                        (parseInt(itm.qty_4xl) || 0) +
+                                        (parseInt(itm.qty_5xl) || 0);
+                                });
+                            }
+                            const pokFinalTotal = pokSumPcs > 0 ? pokSumPcs : (order.total_pcs || 0);
+                        %>
                         <tr class="bg-slate-100 font-black border-t-2 border-black">
                             <td class="border-r-2 border-black py-1.5 px-2 text-left">TOTAL PRODUKSI</td>
-                            <td colspan="9" class="border-r-2 border-black text-center text-sm font-black"><%= order.total_pcs %> PCS</td>
+                            <td colspan="9" class="border-r-2 border-black text-center text-sm font-black"><%= pokFinalTotal %> PCS</td>
                             <td colspan="2" class="text-[10px] text-slate-600">Free: <%= order.free_qty || 0 %> pcs</td>
                         </tr>
                     </tfoot>

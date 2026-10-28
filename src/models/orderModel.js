@@ -75,13 +75,16 @@ const OrderModel = {
             todayStr = targetDate || new Date().toISOString().slice(0, 10);
         }
 
-        // Cari nomor PO terbesar khusus untuk tanggal hari ini (reset ke 1 setiap hari baru)
+        // Ambil prefix bulan 'YYYY-MM' (reset nomor urut PO ke 1 setiap bulan baru)
+        const monthStr = todayStr.slice(0, 7);
+
+        // Cari nomor PO terbesar khusus untuk bulan ini
         const row = db.get(`
             SELECT MAX(CAST(po_number AS INTEGER)) as max_po 
             FROM orders 
-            WHERE tgl_masuk = ? 
-               OR substr(created_at, 1, 10) = ?
-        `, [todayStr, todayStr]);
+            WHERE substr(tgl_masuk, 1, 7) = ? 
+               OR substr(created_at, 1, 7) = ?
+        `, [monthStr, monthStr]);
 
         if (!row || !row.max_po || isNaN(row.max_po)) {
             return 1;
@@ -151,7 +154,7 @@ const OrderModel = {
                 warna_sablon_depan, warna_sablon_belakang, shipping_courier,
                 mockup_front_url, mockup_back_url, free_qty, customer_address,
                 items_breakdown_json, price_matrix_json, total_price, down_payment, remaining_payment,
-                nota_number, nota_month, nota_notes
+                nota_number, nota_month, nota_notes, collar_type, collar_notes, category_notes
             ) VALUES (
                 ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
@@ -161,7 +164,7 @@ const OrderModel = {
                 ?, ?, ?,
                 ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
-                ?, ?, ?
+                ?, ?, ?, ?, ?, ?
             )
         `;
 
@@ -207,7 +210,10 @@ const OrderModel = {
             parseInt(data.remaining_payment) || 0,
             data.nota_number || String(poNumber),
             data.nota_month || new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
-            data.nota_notes || ''
+            data.nota_notes || '',
+            data.collar_type || '',
+            data.collar_notes || '',
+            data.category_notes || ''
         ]);
 
         const orderId = orderResult.lastInsertRowid;
@@ -277,6 +283,7 @@ const OrderModel = {
                 po_number = COALESCE(NULLIF(?, 0), po_number),
                 customer_name = ?,
                 customer_phone = ?,
+                customer_address = COALESCE(?, customer_address),
                 article_name = ?,
                 fabric_type = ?,
                 print_type = ?,
@@ -292,7 +299,10 @@ const OrderModel = {
                 size_4xl = ?,
                 size_5xl = ?,
                 items_breakdown_json = COALESCE(NULLIF(?, ''), items_breakdown_json),
-                total_pcs = ?
+                total_pcs = ?,
+                collar_type = COALESCE(?, collar_type),
+                collar_notes = COALESCE(?, collar_notes),
+                category_notes = COALESCE(?, category_notes)
             WHERE id = ?
         `;
 
@@ -300,6 +310,7 @@ const OrderModel = {
             parseInt(data.po_number) || 0,
             data.customer_name,
             data.customer_phone || '',
+            data.customer_address || '',
             data.article_name,
             data.fabric_type || '',
             data.print_type || '',
@@ -316,6 +327,9 @@ const OrderModel = {
             parseInt(data.size_5xl) || 0,
             data.items_breakdown_json || '',
             totalPcs > 0 ? totalPcs : (parseInt(data.total_pcs) || 1),
+            data.collar_type || '',
+            data.collar_notes || '',
+            data.category_notes || '',
             orderId
         ]);
     },
@@ -332,7 +346,17 @@ const OrderModel = {
                 down_payment = ?,
                 remaining_payment = ?,
                 free_qty = ?,
-                nota_notes = ?
+                nota_notes = ?,
+                total_pcs = COALESCE(NULLIF(?, 0), total_pcs),
+                size_xs = COALESCE(?, size_xs),
+                size_s = COALESCE(?, size_s),
+                size_m = COALESCE(?, size_m),
+                size_l = COALESCE(?, size_l),
+                size_xl = COALESCE(?, size_xl),
+                size_2xl = COALESCE(?, size_2xl),
+                size_3xl = COALESCE(?, size_3xl),
+                size_4xl = COALESCE(?, size_4xl),
+                size_5xl = COALESCE(?, size_5xl)
             WHERE id = ?
         `;
         return db.run(sql, [
@@ -346,6 +370,16 @@ const OrderModel = {
             parseInt(data.remaining_payment) || 0,
             parseInt(data.free_qty) || 0,
             data.nota_notes || '',
+            parseInt(data.total_pcs) || 0,
+            parseInt(data.size_xs) || 0,
+            parseInt(data.size_s) || 0,
+            parseInt(data.size_m) || 0,
+            parseInt(data.size_l) || 0,
+            parseInt(data.size_xl) || 0,
+            parseInt(data.size_2xl) || 0,
+            parseInt(data.size_3xl) || 0,
+            parseInt(data.size_4xl) || 0,
+            parseInt(data.size_5xl) || 0,
             orderId
         ]);
     },

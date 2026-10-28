@@ -145,6 +145,28 @@
                         <span class="text-slate-500">Pelanggan:</span>
                         <span class="font-bold text-slate-800"><%= order.customer_name %> (<%= order.customer_phone || '-' %>)</span>
                     </div>
+                    <% if (order.customer_address) { %>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">Alamat:</span>
+                        <span class="font-medium text-slate-800 text-right"><%= order.customer_address %></span>
+                    </div>
+                    <% } %>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">Kategori:</span>
+                        <span class="font-bold text-indigo-700 uppercase"><%= order.category_type || 'KAOS' %> <%= order.category_notes ? `(${order.category_notes})` : '' %></span>
+                    </div>
+                    <% if (order.warna_kaos) { %>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">Warna Kaos:</span>
+                        <span class="font-bold text-slate-900 uppercase"><%= order.warna_kaos %></span>
+                    </div>
+                    <% } %>
+                    <% if (order.collar_type || order.collar_notes) { %>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">Model Kerah:</span>
+                        <span class="font-bold text-amber-700 uppercase"><%= order.collar_type || '-' %> <%= order.collar_notes ? `(${order.collar_notes})` : '' %></span>
+                    </div>
+                    <% } %>
                     <div class="flex justify-between py-1 border-b border-slate-100">
                         <span class="text-slate-500">Jenis Bahan Kain:</span>
                         <span class="font-semibold text-slate-800"><%= order.fabric_type || '-' %></span>
@@ -159,7 +181,7 @@
                     </div>
                 </div>
 
-                <!-- Rincian Size Table -->
+                <!-- Rincian Size & Varian Table -->
                 <div class="pt-2">
                     <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Rincian Ukuran &amp; Varian Model</p>
                     
