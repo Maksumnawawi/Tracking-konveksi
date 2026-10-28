@@ -36,6 +36,10 @@ const UserModel = {
             fields.push('full_name = ?');
             params.push(data.full_name);
         }
+        if (data.division_name !== undefined) {
+            fields.push('division_name = ?');
+            params.push(data.division_name);
+        }
         if (data.password_hash !== undefined) {
             fields.push('password_hash = ?');
             params.push(data.password_hash);

@@ -1,0 +1,173 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../partials/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-black">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                    </span>
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight">Kelola Tim &amp; Kepala Divisi</h1>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Admin bebas mengedit nama kepala divisi (PIC), nama bagian, nomor WhatsApp, serta mereset kata sandi login untuk masing-masing meja kerja.</p>
+            </div>
+            <div>
+                <a href="/admin/dashboard" class="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-2xs">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    <span>Kembali ke Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Alert Notifikasi Flash -->
+        <% if (successMsg) { %>
+        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center space-x-2.5 text-xs font-bold shadow-xs">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+            <span><%= successMsg %></span>
+        </div>
+        <% } %>
+
+        <% if (errorMsg) { %>
+        <div class="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center space-x-2.5 text-xs font-bold shadow-xs">
+            <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+            <span><%= errorMsg %></span>
+        </div>
+        <% } %>
+
+        <!-- Banner Info Bantuan -->
+        <div class="p-4 bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 border border-purple-200/80 rounded-2xl mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black uppercase tracking-wider text-purple-950">Akses Penuh Owner</h4>
+                    <p class="text-[11px] text-purple-800/80">Nama kepala divisi yang Anda simpan di sini akan langsung tampil di halaman login, laporan SPK, dan profil masing-masing meja kerja.</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-1 bg-white border border-purple-200 text-purple-800 text-[10px] font-black rounded-lg uppercase tracking-wider shrink-0">
+                Total <%= users.length %> Akun Terdaftar
+            </span>
+        </div>
+
+        <!-- Grid Kartu-Kartu Pengguna / Kepala Divisi -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <% 
+            const roleIcons = {
+                admin: { icon: '👑', border: 'border-purple-300', bg: 'bg-purple-50/50', badge: 'bg-purple-100 text-purple-800' },
+                desain: { icon: '🎨', border: 'border-blue-300', bg: 'bg-blue-50/40', badge: 'bg-blue-100 text-blue-800' },
+                print_sablon: { icon: '🖨️', border: 'border-amber-300', bg: 'bg-amber-50/40', badge: 'bg-amber-100 text-amber-800' },
+                potong: { icon: '✂️', border: 'border-indigo-300', bg: 'bg-indigo-50/40', badge: 'bg-indigo-100 text-indigo-800' },
+                jahit: { icon: '🧵', border: 'border-emerald-300', bg: 'bg-emerald-50/40', badge: 'bg-emerald-100 text-emerald-800' },
+                qc_packing: { icon: '📦', border: 'border-rose-300', bg: 'bg-rose-50/40', badge: 'bg-rose-100 text-rose-800' },
+                kirim: { icon: '🚚', border: 'border-sky-300', bg: 'bg-sky-50/40', badge: 'bg-sky-100 text-sky-800' }
+            };
+            %>
+
+            <% users.forEach(u => { 
+                const style = roleIcons[u.role] || { icon: '👤', border: 'border-slate-300', bg: 'bg-white', badge: 'bg-slate-100 text-slate-800' };
+                const isOwner = u.username === 'admin';
+            %>
+            <div class="bg-white rounded-2xl border <%= style.border %> shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+                
+                <!-- Header Kartu Divisi -->
+                <div class="p-4 <%= style.bg %> border-b border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl p-1.5 rounded-xl bg-white shadow-2xs border border-slate-200 flex items-center justify-center">
+                            <%= style.icon %>
+                        </span>
+                        <div>
+                            <span class="text-xs font-black uppercase text-slate-900 block"><%= u.division_name || u.role %></span>
+                            <span class="text-[10px] font-mono text-slate-500 font-bold">@<%= u.username %></span>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full border <%= style.badge %>">
+                        <%= u.role %>
+                    </span>
+                </div>
+
+                <!-- Form Edit Data Pengguna -->
+                <form action="/admin/users/update" method="POST" class="p-4 space-y-3.5 flex-1 flex flex-col justify-between">
+                    <input type="hidden" name="user_id" value="<%= u.id %>">
+
+                    <div class="space-y-3">
+                        <!-- Input Nama Kepala Divisi -->
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                                <span>Nama Kepala Divisi (PIC):</span>
+                                <span class="text-[9px] text-purple-600 font-semibold">Tampil di Login</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="full_name" required value="<%= u.full_name || '' %>" placeholder="Contoh: Budi Santoso" class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                            </div>
+                        </div>
+
+                        <!-- Input Nama Bagian / Divisi -->
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                Nama Divisi / Bagian:
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="division_name" required value="<%= u.division_name || '' %>" placeholder="Contoh: Divisi Cetak Sablon" class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <i data-lucide="briefcase" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                            </div>
+                        </div>
+
+                        <!-- Input Nomor HP / WhatsApp -->
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                Nomor WhatsApp PIC:
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="phone" value="<%= u.phone || '' %>" placeholder="Contoh: 081234567890" class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                            </div>
+                        </div>
+
+                        <!-- Input Password Baru -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                                <span>Reset Kata Sandi Baru:</span>
+                                <span class="text-[9px] text-slate-400 font-normal">Min. 4 karakter</span>
+                            </label>
+                            <div class="relative">
+                                <input type="password" name="new_password" placeholder="Kosongkan jika tidak diganti" class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <i data-lucide="key" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                            </div>
+                            <span class="text-[10px] text-slate-400 mt-1 block">Sandi bawaan awal: <strong><%= isOwner ? 'admin123' : '123456' %></strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Simpan -->
+                    <div class="pt-3 border-t border-slate-100">
+                        <button type="submit" class="w-full py-2 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs cursor-pointer">
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            <span>Simpan Perubahan</span>
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+            <% }) %>
+        </div>
+
+    </main>
+</div>
+
+<%- include('../partials/mobile-nav') %>
+
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>

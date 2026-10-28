@@ -139,40 +139,7 @@ function migrateTrchSchema(database) {
             }
         });
 
-        // Update nama dummy lama menjadi 'Nama Kepala' dan 'Admin' jika masih berisi nama sampel bawaan
-        database.run(`
-            UPDATE users SET full_name = 'Admin', division_name = 'Admin' 
-            WHERE username = 'admin' AND (full_name LIKE '%Hendra%' OR full_name LIKE '%Owner%');
-        `);
-        database.run(`
-            UPDATE users SET full_name = 'Nama Kepala' 
-            WHERE username != 'admin' AND full_name IN ('Bagus Pratama', 'Fajar Ramadhan', 'Slamet Riyadi', 'Ibu Siti Aminah', 'Dewi Lestari', 'Rian Hidayat');
-        `);
-
-        // Otomatis selesaikan tahap Desain yang masih WAITING dan majukan pesanan langsung ke meja Sablon
-        try {
-            database.run(`
-                UPDATE order_stages 
-                SET status = 'COMPLETED', completed_at = datetime('now')
-                WHERE assigned_role = 'desain' AND status = 'WAITING';
-            `);
-            database.run(`
-                UPDATE orders 
-                SET current_stage_id = (
-                    SELECT id FROM order_stages 
-                    WHERE order_stages.order_id = orders.id AND assigned_role = 'print_sablon' 
-                    LIMIT 1
-                ),
-                current_role = 'print_sablon',
-                status = 'IN_PROGRESS'
-                WHERE current_role = 'desain' AND EXISTS (
-                    SELECT 1 FROM order_stages 
-                    WHERE order_stages.order_id = orders.id AND assigned_role = 'print_sablon'
-                );
-            `);
-        } catch (migErr) {
-            console.warn('Migrasi tahapan Desain ke Sablon:', migErr.message);
-        }
+        // Migrasi kolom tabel pesanan selesai
     } catch (e) {
         console.warn('Migration TRCH notice:', e.message);
     }

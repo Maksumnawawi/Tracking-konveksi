@@ -51,10 +51,10 @@
 
                 <!-- Khusus Admin: Tombol Kelola Tim & Sandi Semua Divisi -->
                 <% if (currentUser.role === 'admin') { %>
-                <button type="button" onclick="openAdminTeamModal()" title="Kelola Tim & Kata Sandi Divisi" class="flex items-center space-x-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 rounded-lg transition border border-purple-200">
+                <a href="/admin/users" title="Kelola Tim & Kepala Divisi" class="flex items-center space-x-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 rounded-lg transition border border-purple-200">
                     <i data-lucide="users" class="w-3.5 h-3.5 text-purple-600"></i>
-                    <span class="hidden lg:inline">Kelola Tim</span>
-                </button>
+                    <span class="hidden sm:inline">Kelola Tim</span>
+                </a>
                 <% } %>
 
                 <!-- Tombol Logout -->

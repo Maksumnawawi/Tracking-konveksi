@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const UserModel = require('../models/userModel');
+const { ROLE_LABELS, ROLE_BADGES } = require('../utils/workflowConfig');
 
 const AuthController = {
     showLogin(req, res) {
@@ -123,6 +124,29 @@ const AuthController = {
         }
     },
 
+    // Halaman Penuh Kelola Tim & Kepala Divisi Khusus Admin
+    showUsersPage(req, res) {
+        try {
+            if (!req.session || !req.session.user || req.session.user.role !== 'admin') {
+                return res.redirect('/admin/dashboard');
+            }
+            const users = UserModel.getAll();
+            return res.render('admin/users', {
+                title: 'Kelola Tim & Kepala Divisi',
+                users,
+                currentUser: req.session.user,
+                currentPath: '/admin/users',
+                successMsg: req.query.msg || null,
+                errorMsg: req.query.err || null,
+                ROLE_LABELS,
+                ROLE_BADGES
+            });
+        } catch (err) {
+            console.error('Error showUsersPage:', err);
+            return res.redirect('/admin/dashboard');
+        }
+    },
+
     // Admin API: Ambil semua user untuk modal tim
     getUsersApi(req, res) {
         try {
@@ -136,21 +160,30 @@ const AuthController = {
         }
     },
 
-    // Admin: Update Nama Kepala & Kata Sandi Divisi
+    // Admin: Update Nama Kepala, Nama Divisi, Kontak & Kata Sandi Divisi
     adminUpdateUser(req, res) {
         try {
+            const isJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
             if (!req.session || !req.session.user || req.session.user.role !== 'admin') {
-                return res.status(403).json({ success: false, message: 'Hanya Admin yang berwenang.' });
+                if (isJson) return res.status(403).json({ success: false, message: 'Hanya Admin yang berwenang.' });
+                return res.redirect('/login');
             }
 
-            const { user_id, full_name, new_password } = req.body;
+            const { user_id, full_name, division_name, phone, new_password } = req.body;
             if (!user_id) {
-                return res.status(400).json({ success: false, message: 'ID pengguna tidak valid.' });
+                if (isJson) return res.status(400).json({ success: false, message: 'ID pengguna tidak valid.' });
+                return res.redirect('/admin/users?err=' + encodeURIComponent('ID pengguna tidak valid.'));
             }
 
             const dataToUpdate = {};
             if (full_name !== undefined) {
                 dataToUpdate.full_name = full_name.trim();
+            }
+            if (division_name !== undefined) {
+                dataToUpdate.division_name = division_name.trim();
+            }
+            if (phone !== undefined) {
+                dataToUpdate.phone = phone.trim();
             }
             if (new_password && new_password.trim().length >= 4) {
                 dataToUpdate.password_hash = bcrypt.hashSync(new_password.trim(), 10);
@@ -159,14 +192,23 @@ const AuthController = {
             UserModel.updateUser(parseInt(user_id), dataToUpdate);
 
             // Jika admin mengedit akunnya sendiri, update session
-            if (req.session.user.id === parseInt(user_id) && dataToUpdate.full_name) {
-                req.session.user.full_name = dataToUpdate.full_name;
+            if (req.session.user.id === parseInt(user_id)) {
+                if (dataToUpdate.full_name) req.session.user.full_name = dataToUpdate.full_name;
+                if (dataToUpdate.division_name) req.session.user.division_name = dataToUpdate.division_name;
             }
 
-            return res.json({ success: true, message: 'Data pengguna berhasil disimpan!' });
+            const labelName = dataToUpdate.full_name || dataToUpdate.division_name || 'Akun';
+            if (isJson) {
+                return res.json({ success: true, message: `Data ${labelName} berhasil disimpan!` });
+            }
+            return res.redirect('/admin/users?msg=' + encodeURIComponent(`Perubahan data untuk ${labelName} berhasil disimpan!`));
         } catch (err) {
             console.error('Error adminUpdateUser:', err);
-            return res.status(500).json({ success: false, message: 'Gagal update user: ' + err.message });
+            const isJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
+            if (isJson) {
+                return res.status(500).json({ success: false, message: 'Gagal update user: ' + err.message });
+            }
+            return res.redirect('/admin/users?err=' + encodeURIComponent('Gagal update: ' + err.message));
         }
     }
 };

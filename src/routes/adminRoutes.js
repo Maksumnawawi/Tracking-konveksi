@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const DashboardController = require('../controllers/dashboardController');
 const OrderController = require('../controllers/orderController');
+const AuthController = require('../controllers/authController');
 const { isAuthenticated, requireRole } = require('../middleware/authMiddleware');
 
 // Semua rute admin hanya bisa diakses oleh role 'admin' (Owner)
@@ -22,5 +23,9 @@ router.post('/orders/:id/spk/update', OrderController.updateOrderPOK);
 router.get('/orders/:id/nota', OrderController.showNotaCheck);
 router.post('/orders/:id/nota', OrderController.saveNota);
 router.get('/orders/:id/nota/print', OrderController.showNotaPrint);
+
+// Rute Kelola Tim & Kepala Divisi
+router.get('/users', AuthController.showUsersPage);
+router.post('/users/update', AuthController.adminUpdateUser);
 
 module.exports = router;

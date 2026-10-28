@@ -16,7 +16,7 @@
         const getDisplayName = (uname) => {
             if (uname === 'admin') return 'Admin';
             const u = userMap[uname];
-            if (u && u.full_name && !['Bagus Pratama', 'Fajar Ramadhan', 'Slamet Riyadi', 'Ibu Siti Aminah', 'Dewi Lestari', 'Rian Hidayat'].includes(u.full_name)) {
+            if (u && u.full_name && u.full_name.trim() !== '') {
                 return u.full_name;
             }
             return 'Nama Kepala';
