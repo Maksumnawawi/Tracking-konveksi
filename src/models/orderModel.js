@@ -387,6 +387,48 @@ const OrderModel = {
         let warnaSablonBelakang = data.warna_sablon_belakang || '';
         if (Array.isArray(warnaSablonBelakang)) warnaSablonBelakang = warnaSablonBelakang.join(',');
 
+        let items = [];
+        if (data.items_breakdown_json) {
+            try {
+                items = typeof data.items_breakdown_json === 'string' 
+                    ? JSON.parse(data.items_breakdown_json) 
+                    : data.items_breakdown_json;
+            } catch(e) {
+                items = [];
+            }
+        }
+
+        let sum_xs = 0, sum_s = 0, sum_m = 0, sum_l = 0, sum_xl = 0;
+        let sum_2xl = 0, sum_3xl = 0, sum_4xl = 0, sum_5xl = 0;
+        let totalPcs = 0;
+
+        if (Array.isArray(items) && items.length > 0) {
+            items.forEach(itm => {
+                const q_xs = parseInt(itm.qty_xs) || 0;
+                const q_s = parseInt(itm.qty_s) || 0;
+                const q_m = parseInt(itm.qty_m) || 0;
+                const q_l = parseInt(itm.qty_l) || 0;
+                const q_xl = parseInt(itm.qty_xl) || 0;
+                const q_2xl = parseInt(itm.qty_2xl) || 0;
+                const q_3xl = parseInt(itm.qty_3xl) || 0;
+                const q_4xl = parseInt(itm.qty_4xl) || 0;
+                const q_5xl = parseInt(itm.qty_5xl) || 0;
+
+                sum_xs += q_xs;
+                sum_s += q_s;
+                sum_m += q_m;
+                sum_l += q_l;
+                sum_xl += q_xl;
+                sum_2xl += q_2xl;
+                sum_3xl += q_3xl;
+                sum_4xl += q_4xl;
+                sum_5xl += q_5xl;
+                totalPcs += (q_xs + q_s + q_m + q_l + q_xl + q_2xl + q_3xl + q_4xl + q_5xl);
+            });
+        } else if (data.total_pcs) {
+            totalPcs = parseInt(data.total_pcs) || 0;
+        }
+
         const sql = `
             UPDATE orders SET
                 po_number = ?,
@@ -399,7 +441,20 @@ const OrderModel = {
                 warna_sablon_belakang = ?,
                 shipping_courier = ?,
                 mockup_front_url = COALESCE(NULLIF(?, ''), mockup_front_url),
-                mockup_back_url = COALESCE(NULLIF(?, ''), mockup_back_url)
+                mockup_back_url = COALESCE(NULLIF(?, ''), mockup_back_url),
+                items_breakdown_json = COALESCE(NULLIF(?, ''), items_breakdown_json),
+                total_pcs = CASE WHEN ? > 0 THEN ? ELSE total_pcs END,
+                free_qty = COALESCE(?, free_qty),
+                variant_notes = COALESCE(?, variant_notes),
+                size_xs = CASE WHEN ? > 0 THEN ? ELSE size_xs END,
+                size_s = CASE WHEN ? > 0 THEN ? ELSE size_s END,
+                size_m = CASE WHEN ? > 0 THEN ? ELSE size_m END,
+                size_l = CASE WHEN ? > 0 THEN ? ELSE size_l END,
+                size_xl = CASE WHEN ? > 0 THEN ? ELSE size_xl END,
+                size_2xl = CASE WHEN ? > 0 THEN ? ELSE size_2xl END,
+                size_3xl = CASE WHEN ? > 0 THEN ? ELSE size_3xl END,
+                size_4xl = CASE WHEN ? > 0 THEN ? ELSE size_4xl END,
+                size_5xl = CASE WHEN ? > 0 THEN ? ELSE size_5xl END
             WHERE id = ?
         `;
         return db.run(sql, [
@@ -414,6 +469,19 @@ const OrderModel = {
             data.shipping_courier || 'TUNAI',
             data.mockup_front_url || '',
             data.mockup_back_url || '',
+            data.items_breakdown_json || '',
+            totalPcs, totalPcs,
+            parseInt(data.free_qty) || 0,
+            data.variant_notes !== undefined ? data.variant_notes : null,
+            totalPcs, sum_xs,
+            totalPcs, sum_s,
+            totalPcs, sum_m,
+            totalPcs, sum_l,
+            totalPcs, sum_xl,
+            totalPcs, sum_2xl,
+            totalPcs, sum_3xl,
+            totalPcs, sum_4xl,
+            totalPcs, sum_5xl,
             orderId
         ]);
     },
